@@ -3,7 +3,7 @@
 ' sourceboxclient – observe filesystem events  
 ' @encode: 	UTF-8, tabwidth = , newline = LF
 ' @date:	03.06.13
-' @author: 	GRUPPE 4
+' @author: 	GRUPPE 4 – Emanuel, wer noch?
 '
 '----------------------------------------------------------- ''' 
  
@@ -14,6 +14,10 @@
 #################################################################
 #   		O W N    F U N C T I O N S			#
 #################################################################
+
+def checkFiles(path):
+
+
 
 
 def lockFile(file):
@@ -32,7 +36,9 @@ def updateFile(file):
 #################################################################
 from socket import *
 import os, time
-serverPort = 8080
+serverPort = 8080		
+
+boxPath = "./" 			# path to the TumBox folder
 
 
 # open client socket
