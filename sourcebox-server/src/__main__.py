@@ -1,8 +1,11 @@
 #
-# sourcebox-server
+# sourceboxServer – main
+# handles the communication with the server
 #
+# @encode  UTF-8, tabwidth = , newline = LF
+# @author  Kai
 #
-#
+
 
 import communication_controller
 import data_controller

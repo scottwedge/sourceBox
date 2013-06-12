@@ -1,8 +1,9 @@
 #
-# data_controller
+# sourceboxServer – Data_Controller
+# handles the communication with the backend
 #
-# Handles the communication with the backend
-#
+# @encode  UTF-8, tabwidth = , newline = LF
+# @author  Martin
 #
 
 class Data_Controller(object):

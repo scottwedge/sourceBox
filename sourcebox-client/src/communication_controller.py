@@ -1,15 +1,15 @@
-#
-# sourceboxServer– communication_controller
-# handles the communication with the clients
-#
-# @encode  UTF-8, tabwidth = , newline = LF
-# @author  Paul
-#
+'''-------------------------------------------------------------
+' sourceboxclient – communication_controller
+' handles the communication with the server
+'
+' @encode:  UTF-8, tabwidth = , newline = LF
+' @date:    03.06.13
+' @author:  GRUPPE 4 – Emanuel, wer noch?
+'
+'----------------------------------------------------------- '''
 
 
 # push functions (requests)
-
-
 class Communication_Controller(object):
 
     def __init__(self):
@@ -18,7 +18,7 @@ class Communication_Controller(object):
     def update_files():
         pass
 
-    # pull functions (response)
+    # push functions (request)
     def create_file():
         pass
 
