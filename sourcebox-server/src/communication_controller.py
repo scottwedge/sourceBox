@@ -1,5 +1,5 @@
 #
-# sourceboxServer– communication_controller
+# Communication_Controller
 # handles the communication with the clients
 #
 # @encode  UTF-8, tabwidth = , newline = LF
@@ -15,25 +15,25 @@ class Communication_Controller(object):
     def __init__(self):
         print 'Created Communication_Controller'
 
-    def update_files():
+    def update_files(self):
         pass
 
     # pull functions (response)
-    def create_file():
+    def create_file(self):
         pass
 
-    def lock_file():
+    def lock_file(self):
         pass
 
-    def modify_file():
+    def modify_file(self):
         pass
 
-    def unlock_file():
+    def unlock_file(self):
         pass
 
-    def delete_file():
+    def delete_file(self):
         pass
 
     # Internal functions
-    def _create_socket():
+    def _create_socket(self):
         pass

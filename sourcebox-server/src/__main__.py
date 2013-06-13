@@ -14,12 +14,15 @@ import data_controller
 class SourceBoxServer(object):
 
     def __init__(self):
-        data = data_controller.Data_Controller()
+        data = data_controller.Data_Controller('./data/')
         comm = communication_controller.Communication_Controller()
+        data.create_file('test.txt')
+
         print 'sourceBox server is running'
         self.command_loop()
 
     def command_loop(server):
+
         while True:
             pass
 
