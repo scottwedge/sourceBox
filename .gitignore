@@ -1,3 +1,5 @@
 *.pyc
 .DS_Store
 sourcebox-server/src/data/*
+
+documentation/latex
