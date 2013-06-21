@@ -1,4 +1,4 @@
-#sourceBox
+﻿#sourceBox
 ===
 Synchronisations Struktur für kolaboratives Arbeiten auf textbasierten Dateien
 
@@ -29,6 +29,8 @@ Synchronisations Struktur für kolaboratives Arbeiten auf textbasierten Dateien
 ## Termine
 ---------------------------
 ** Mo. 03.06. 15:00 **  Präsentation der Idee als Poster in PowerPoint
+
+
 
 
 
