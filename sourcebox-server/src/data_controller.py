@@ -1,11 +1,11 @@
+import rcslib
+
 ## @package Data_Controller
 # handles the communication with the backend
 #
 # @encode  UTF-8, tabwidth = , newline = LF
 # @author  Martin
 #
-import rcslib
-
 class Data_Controller(object):
 
     data_dir = ''
