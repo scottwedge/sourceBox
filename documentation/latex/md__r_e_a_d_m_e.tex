@@ -1,0 +1,54 @@
+Synchronisations Struktur für kolaboratives Arbeiten auf textbasierten Dateien
+
+\subparagraph*{Note}
+
+\begin{DoxyVerb}This is a project of a cource in internet communications at the technical university of munich. Since the course is in German, all documentation and comments will also be in German. If you wish to use our code for your own project, please contact us.
+\end{DoxyVerb}
+
+
+\subsection*{\#\# Basis\-: }
+
+$\ast$$\ast$ Thema 3\-: $\ast$$\ast$ P2\-P/\-Webserver basierter Dateiaustausch
+
+\subsection*{\#\# Mindestanforderungen\-: }
+
+
+\begin{DoxyItemize}
+\item Nutzer tauschen Dateien, die in einem Ordner liegen, automatisch untereinander aus
+\item Nutzer kann sich alle möglichen Ordner anzeigen lassen
+\item Nutzer sollen miteinander Ordner teilen können
+\item Inhalte geteilter Ordner sollen immer synchron gehalten werden
+\begin{DoxyItemize}
+\item Hinzufügen einer Datei -\/$>$ Automatisches Aktualisieren der Ordner aller Abonnenten
+\item Löschen einer Datei -\/$>$ Automatisches Aktualisieren der Ordner aller Abonnenten
+\end{DoxyItemize}
+\item Grundstruktur können reine P2\-P/\-Server Architekturen oder hybride Architekturen sein
+\item Reaktion auf Fehlerfälle
+\end{DoxyItemize}
+
+\subsection*{\#\# Termine }
+
+$\ast$$\ast$ Mo. 03.\-06. 15\-:00 $\ast$$\ast$ Präsentation der Idee als Poster in Power\-Point
+
+\subsection*{\#\# Features }
+
+
+\begin{DoxyItemize}
+\item Lock-\/\-Funktion für einzelne Dateiparts
+\item Intelligentes Versionskontrollsystem\-: Automatisches Commit/\-Checkout bei Datei öffnen/schließen
+\item Plattformunabhängigkeit\-: Windows, Linux, Mac\-O\-S,
+\item Grafische Oberfläche / Plug\-In für Dateimanager
+\end{DoxyItemize}
+
+\subsection*{\#\# Implementierung in Python }
+
+\subsubsection*{Frameworks}
+
+\subsection*{\#\# Architektur }
+
+Zunächst Mindestanforderungen
+\begin{DoxyItemize}
+\item Konzept\-: Lock-\/\-Modfy-\/\-Write \href{http://de.wikipedia.org/wiki/Versionsverwaltung}{\tt http\-://de.\-wikipedia.\-org/wiki/\-Versionsverwaltung} Backend\-: S\-V\-N
+\item Struktur\-: Client/\-Server
+\item ggf. Verwendung bestehender Protokolle wie Web\-D\-A\-V 
+\end{DoxyItemize}

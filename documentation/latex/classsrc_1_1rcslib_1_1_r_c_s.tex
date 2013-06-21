@@ -1,0 +1,246 @@
+\hypertarget{classsrc_1_1rcslib_1_1_r_c_s}{\section{src.\-rcslib.\-R\-C\-S Class Reference}
+\label{classsrc_1_1rcslib_1_1_r_c_s}\index{src.\-rcslib.\-R\-C\-S@{src.\-rcslib.\-R\-C\-S}}
+}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \hyperlink{classsrc_1_1rcslib_1_1_r_c_s_af6d3f83ff6e44adfd44ba8dae37e65c4}{\-\_\-\-\_\-init\-\_\-\-\_\-}
+\item 
+def \hyperlink{classsrc_1_1rcslib_1_1_r_c_s_a9bfcc8c2d943fa305ddc4f97cf54e6a9}{\-\_\-\-\_\-del\-\_\-\-\_\-}
+\item 
+def \hyperlink{classsrc_1_1rcslib_1_1_r_c_s_a907e8db00fe010cad8fa0f20173f9b9a}{log}
+\item 
+def \hyperlink{classsrc_1_1rcslib_1_1_r_c_s_a984a594621aacbf75eaab80bbbe61eb6}{head}
+\item 
+def \hyperlink{classsrc_1_1rcslib_1_1_r_c_s_a8e83cec89e260b48c055406b9345438a}{info}
+\item 
+def \hyperlink{classsrc_1_1rcslib_1_1_r_c_s_a70fe29b9b6df38d982c90c9f966db453}{lock}
+\item 
+def \hyperlink{classsrc_1_1rcslib_1_1_r_c_s_a5682c4e36636c6d5fa260c2fdc7b94a2}{unlock}
+\item 
+def \hyperlink{classsrc_1_1rcslib_1_1_r_c_s_a4d90840fd169eb50f41cb66acc6e672a}{checkout}
+\item 
+def \hyperlink{classsrc_1_1rcslib_1_1_r_c_s_ad3a4f70c5fbe84a0e42ca943428f55d2}{checkin}
+\item 
+def \hyperlink{classsrc_1_1rcslib_1_1_r_c_s_ad7ddfde96181fc65b61fa2cc8df7acb8}{listfiles}
+\item 
+def \hyperlink{classsrc_1_1rcslib_1_1_r_c_s_af22029df600c226a8462bc6228621265}{isvalid}
+\item 
+def \hyperlink{classsrc_1_1rcslib_1_1_r_c_s_a2c31aea9df8c203cf687cf8dbbb23075}{rcsname}
+\item 
+def \hyperlink{classsrc_1_1rcslib_1_1_r_c_s_a7fecb235e4ecd26ff89000fde665000e}{realname}
+\item 
+def \hyperlink{classsrc_1_1rcslib_1_1_r_c_s_a5f6f4c966126cb67ac9d82be61af3afc}{islocked}
+\item 
+def \hyperlink{classsrc_1_1rcslib_1_1_r_c_s_aba91cf3ead7caee48101e0fcd0af908b}{checkfile}
+\end{DoxyCompactItemize}
+\subsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\hypertarget{classsrc_1_1rcslib_1_1_r_c_s_ae1c303bd984c0c32e2bc6217ac1c21d8}{string {\bfseries okchars} = string.\-ascii\-\_\-letters+string.\-digits+'-\/\-\_\-=+'}\label{classsrc_1_1rcslib_1_1_r_c_s_ae1c303bd984c0c32e2bc6217ac1c21d8}
+
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+\begin{DoxyVerb}RCS interface class (local filesystem version).
+
+An instance of this class represents a directory with rcs version
+files and (possible) corresponding work files.
+
+Methods provide access to most rcs operations such as
+checkin/checkout, access to the rcs metadata (revisions, logs,
+branches etc.) as well as some filesystem operations such as
+listing all rcs version files.
+
+XXX BUGS / PROBLEMS
+
+- The instance always represents the current directory so it's not
+very useful to have more than one instance around simultaneously\end{DoxyVerb}
+ 
+
+\subsection{Constructor \& Destructor Documentation}
+\hypertarget{classsrc_1_1rcslib_1_1_r_c_s_af6d3f83ff6e44adfd44ba8dae37e65c4}{\index{src\-::rcslib\-::\-R\-C\-S@{src\-::rcslib\-::\-R\-C\-S}!\-\_\-\-\_\-init\-\_\-\-\_\-@{\-\_\-\-\_\-init\-\_\-\-\_\-}}
+\index{\-\_\-\-\_\-init\-\_\-\-\_\-@{\-\_\-\-\_\-init\-\_\-\-\_\-}!src::rcslib::RCS@{src\-::rcslib\-::\-R\-C\-S}}
+\subsubsection[{\-\_\-\-\_\-init\-\_\-\-\_\-}]{\setlength{\rightskip}{0pt plus 5cm}def src.\-rcslib.\-R\-C\-S.\-\_\-\-\_\-init\-\_\-\-\_\- (
+\begin{DoxyParamCaption}
+\item[{}]{self}
+\end{DoxyParamCaption}
+)}}\label{classsrc_1_1rcslib_1_1_r_c_s_af6d3f83ff6e44adfd44ba8dae37e65c4}
+\begin{DoxyVerb}Constructor.\end{DoxyVerb}
+ \hypertarget{classsrc_1_1rcslib_1_1_r_c_s_a9bfcc8c2d943fa305ddc4f97cf54e6a9}{\index{src\-::rcslib\-::\-R\-C\-S@{src\-::rcslib\-::\-R\-C\-S}!\-\_\-\-\_\-del\-\_\-\-\_\-@{\-\_\-\-\_\-del\-\_\-\-\_\-}}
+\index{\-\_\-\-\_\-del\-\_\-\-\_\-@{\-\_\-\-\_\-del\-\_\-\-\_\-}!src::rcslib::RCS@{src\-::rcslib\-::\-R\-C\-S}}
+\subsubsection[{\-\_\-\-\_\-del\-\_\-\-\_\-}]{\setlength{\rightskip}{0pt plus 5cm}def src.\-rcslib.\-R\-C\-S.\-\_\-\-\_\-del\-\_\-\-\_\- (
+\begin{DoxyParamCaption}
+\item[{}]{self}
+\end{DoxyParamCaption}
+)}}\label{classsrc_1_1rcslib_1_1_r_c_s_a9bfcc8c2d943fa305ddc4f97cf54e6a9}
+\begin{DoxyVerb}Destructor.\end{DoxyVerb}
+ 
+
+\subsection{Member Function Documentation}
+\hypertarget{classsrc_1_1rcslib_1_1_r_c_s_aba91cf3ead7caee48101e0fcd0af908b}{\index{src\-::rcslib\-::\-R\-C\-S@{src\-::rcslib\-::\-R\-C\-S}!checkfile@{checkfile}}
+\index{checkfile@{checkfile}!src::rcslib::RCS@{src\-::rcslib\-::\-R\-C\-S}}
+\subsubsection[{checkfile}]{\setlength{\rightskip}{0pt plus 5cm}def src.\-rcslib.\-R\-C\-S.\-checkfile (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{name\-\_\-rev}
+\end{DoxyParamCaption}
+)}}\label{classsrc_1_1rcslib_1_1_r_c_s_aba91cf3ead7caee48101e0fcd0af908b}
+\begin{DoxyVerb}Normalize NAME_REV into a (NAME, REV) tuple.
+
+Raise an exception if there is no corresponding version file.\end{DoxyVerb}
+ \hypertarget{classsrc_1_1rcslib_1_1_r_c_s_ad3a4f70c5fbe84a0e42ca943428f55d2}{\index{src\-::rcslib\-::\-R\-C\-S@{src\-::rcslib\-::\-R\-C\-S}!checkin@{checkin}}
+\index{checkin@{checkin}!src::rcslib::RCS@{src\-::rcslib\-::\-R\-C\-S}}
+\subsubsection[{checkin}]{\setlength{\rightskip}{0pt plus 5cm}def src.\-rcslib.\-R\-C\-S.\-checkin (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{name\-\_\-rev, }
+\item[{}]{message = {\ttfamily None}, }
+\item[{}]{otherflags = {\ttfamily \char`\"{}\char`\"{}}}
+\end{DoxyParamCaption}
+)}}\label{classsrc_1_1rcslib_1_1_r_c_s_ad3a4f70c5fbe84a0e42ca943428f55d2}
+\begin{DoxyVerb}Check in NAME_REV from its work file.
+
+The optional MESSAGE argument becomes the checkin message
+(default "<none>" if None); or the file description if this is
+a new file.
+
+The optional OTHERFLAGS argument is passed to ci without
+interpretation.
+
+Any output from ci goes to directly to stdout.\end{DoxyVerb}
+ \hypertarget{classsrc_1_1rcslib_1_1_r_c_s_a4d90840fd169eb50f41cb66acc6e672a}{\index{src\-::rcslib\-::\-R\-C\-S@{src\-::rcslib\-::\-R\-C\-S}!checkout@{checkout}}
+\index{checkout@{checkout}!src::rcslib::RCS@{src\-::rcslib\-::\-R\-C\-S}}
+\subsubsection[{checkout}]{\setlength{\rightskip}{0pt plus 5cm}def src.\-rcslib.\-R\-C\-S.\-checkout (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{name\-\_\-rev, }
+\item[{}]{withlock = {\ttfamily 0}, }
+\item[{}]{otherflags = {\ttfamily \char`\"{}\char`\"{}}}
+\end{DoxyParamCaption}
+)}}\label{classsrc_1_1rcslib_1_1_r_c_s_a4d90840fd169eb50f41cb66acc6e672a}
+\begin{DoxyVerb}Check out NAME_REV to its work file.
+
+If optional WITHLOCK is set, check out locked, else unlocked.
+
+The optional OTHERFLAGS is passed to co without
+interpretation.
+
+Any output from co goes to directly to stdout.\end{DoxyVerb}
+ \hypertarget{classsrc_1_1rcslib_1_1_r_c_s_a984a594621aacbf75eaab80bbbe61eb6}{\index{src\-::rcslib\-::\-R\-C\-S@{src\-::rcslib\-::\-R\-C\-S}!head@{head}}
+\index{head@{head}!src::rcslib::RCS@{src\-::rcslib\-::\-R\-C\-S}}
+\subsubsection[{head}]{\setlength{\rightskip}{0pt plus 5cm}def src.\-rcslib.\-R\-C\-S.\-head (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{name\-\_\-rev}
+\end{DoxyParamCaption}
+)}}\label{classsrc_1_1rcslib_1_1_r_c_s_a984a594621aacbf75eaab80bbbe61eb6}
+\begin{DoxyVerb}Return the head revision for NAME_REV\end{DoxyVerb}
+ \hypertarget{classsrc_1_1rcslib_1_1_r_c_s_a8e83cec89e260b48c055406b9345438a}{\index{src\-::rcslib\-::\-R\-C\-S@{src\-::rcslib\-::\-R\-C\-S}!info@{info}}
+\index{info@{info}!src::rcslib::RCS@{src\-::rcslib\-::\-R\-C\-S}}
+\subsubsection[{info}]{\setlength{\rightskip}{0pt plus 5cm}def src.\-rcslib.\-R\-C\-S.\-info (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{name\-\_\-rev}
+\end{DoxyParamCaption}
+)}}\label{classsrc_1_1rcslib_1_1_r_c_s_a8e83cec89e260b48c055406b9345438a}
+\begin{DoxyVerb}Return a dictionary of info (from rlog -h) for NAME_REV
+
+The dictionary's keys are the keywords that rlog prints
+(e.g. 'head' and its values are the corresponding data
+(e.g. '1.3').
+
+XXX symbolic names and locks are not returned\end{DoxyVerb}
+ \hypertarget{classsrc_1_1rcslib_1_1_r_c_s_a5f6f4c966126cb67ac9d82be61af3afc}{\index{src\-::rcslib\-::\-R\-C\-S@{src\-::rcslib\-::\-R\-C\-S}!islocked@{islocked}}
+\index{islocked@{islocked}!src::rcslib::RCS@{src\-::rcslib\-::\-R\-C\-S}}
+\subsubsection[{islocked}]{\setlength{\rightskip}{0pt plus 5cm}def src.\-rcslib.\-R\-C\-S.\-islocked (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{name\-\_\-rev}
+\end{DoxyParamCaption}
+)}}\label{classsrc_1_1rcslib_1_1_r_c_s_a5f6f4c966126cb67ac9d82be61af3afc}
+\begin{DoxyVerb}Test whether FILE (which must have a version file) is locked.
+
+XXX This does not tell you which revision number is locked and
+ignores any revision you may pass in (by virtue of using rlog
+-L -R).\end{DoxyVerb}
+ \hypertarget{classsrc_1_1rcslib_1_1_r_c_s_af22029df600c226a8462bc6228621265}{\index{src\-::rcslib\-::\-R\-C\-S@{src\-::rcslib\-::\-R\-C\-S}!isvalid@{isvalid}}
+\index{isvalid@{isvalid}!src::rcslib::RCS@{src\-::rcslib\-::\-R\-C\-S}}
+\subsubsection[{isvalid}]{\setlength{\rightskip}{0pt plus 5cm}def src.\-rcslib.\-R\-C\-S.\-isvalid (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{name}
+\end{DoxyParamCaption}
+)}}\label{classsrc_1_1rcslib_1_1_r_c_s_af22029df600c226a8462bc6228621265}
+\begin{DoxyVerb}Test whether NAME has a version file associated.\end{DoxyVerb}
+ \hypertarget{classsrc_1_1rcslib_1_1_r_c_s_ad7ddfde96181fc65b61fa2cc8df7acb8}{\index{src\-::rcslib\-::\-R\-C\-S@{src\-::rcslib\-::\-R\-C\-S}!listfiles@{listfiles}}
+\index{listfiles@{listfiles}!src::rcslib::RCS@{src\-::rcslib\-::\-R\-C\-S}}
+\subsubsection[{listfiles}]{\setlength{\rightskip}{0pt plus 5cm}def src.\-rcslib.\-R\-C\-S.\-listfiles (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{pat = {\ttfamily None}}
+\end{DoxyParamCaption}
+)}}\label{classsrc_1_1rcslib_1_1_r_c_s_ad7ddfde96181fc65b61fa2cc8df7acb8}
+\begin{DoxyVerb}Return a list of all version files matching optional PATTERN.\end{DoxyVerb}
+ \hypertarget{classsrc_1_1rcslib_1_1_r_c_s_a70fe29b9b6df38d982c90c9f966db453}{\index{src\-::rcslib\-::\-R\-C\-S@{src\-::rcslib\-::\-R\-C\-S}!lock@{lock}}
+\index{lock@{lock}!src::rcslib::RCS@{src\-::rcslib\-::\-R\-C\-S}}
+\subsubsection[{lock}]{\setlength{\rightskip}{0pt plus 5cm}def src.\-rcslib.\-R\-C\-S.\-lock (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{name\-\_\-rev}
+\end{DoxyParamCaption}
+)}}\label{classsrc_1_1rcslib_1_1_r_c_s_a70fe29b9b6df38d982c90c9f966db453}
+\begin{DoxyVerb}Set an rcs lock on NAME_REV.\end{DoxyVerb}
+ \hypertarget{classsrc_1_1rcslib_1_1_r_c_s_a907e8db00fe010cad8fa0f20173f9b9a}{\index{src\-::rcslib\-::\-R\-C\-S@{src\-::rcslib\-::\-R\-C\-S}!log@{log}}
+\index{log@{log}!src::rcslib::RCS@{src\-::rcslib\-::\-R\-C\-S}}
+\subsubsection[{log}]{\setlength{\rightskip}{0pt plus 5cm}def src.\-rcslib.\-R\-C\-S.\-log (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{name\-\_\-rev, }
+\item[{}]{otherflags = {\ttfamily ''}}
+\end{DoxyParamCaption}
+)}}\label{classsrc_1_1rcslib_1_1_r_c_s_a907e8db00fe010cad8fa0f20173f9b9a}
+\begin{DoxyVerb}Return the full log text for NAME_REV as a string.
+
+Optional OTHERFLAGS are passed to rlog.\end{DoxyVerb}
+ \hypertarget{classsrc_1_1rcslib_1_1_r_c_s_a2c31aea9df8c203cf687cf8dbbb23075}{\index{src\-::rcslib\-::\-R\-C\-S@{src\-::rcslib\-::\-R\-C\-S}!rcsname@{rcsname}}
+\index{rcsname@{rcsname}!src::rcslib::RCS@{src\-::rcslib\-::\-R\-C\-S}}
+\subsubsection[{rcsname}]{\setlength{\rightskip}{0pt plus 5cm}def src.\-rcslib.\-R\-C\-S.\-rcsname (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{name}
+\end{DoxyParamCaption}
+)}}\label{classsrc_1_1rcslib_1_1_r_c_s_a2c31aea9df8c203cf687cf8dbbb23075}
+\begin{DoxyVerb}Return the pathname of the version file for NAME.
+
+The argument can be a work file name or a version file name.
+If the version file does not exist, the name of the version
+file that would be created by "ci" is returned.\end{DoxyVerb}
+ \hypertarget{classsrc_1_1rcslib_1_1_r_c_s_a7fecb235e4ecd26ff89000fde665000e}{\index{src\-::rcslib\-::\-R\-C\-S@{src\-::rcslib\-::\-R\-C\-S}!realname@{realname}}
+\index{realname@{realname}!src::rcslib::RCS@{src\-::rcslib\-::\-R\-C\-S}}
+\subsubsection[{realname}]{\setlength{\rightskip}{0pt plus 5cm}def src.\-rcslib.\-R\-C\-S.\-realname (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{namev}
+\end{DoxyParamCaption}
+)}}\label{classsrc_1_1rcslib_1_1_r_c_s_a7fecb235e4ecd26ff89000fde665000e}
+\begin{DoxyVerb}Return the pathname of the work file for NAME.
+
+The argument can be a work file name or a version file name.
+If the work file does not exist, the name of the work file
+that would be created by "co" is returned.\end{DoxyVerb}
+ \hypertarget{classsrc_1_1rcslib_1_1_r_c_s_a5682c4e36636c6d5fa260c2fdc7b94a2}{\index{src\-::rcslib\-::\-R\-C\-S@{src\-::rcslib\-::\-R\-C\-S}!unlock@{unlock}}
+\index{unlock@{unlock}!src::rcslib::RCS@{src\-::rcslib\-::\-R\-C\-S}}
+\subsubsection[{unlock}]{\setlength{\rightskip}{0pt plus 5cm}def src.\-rcslib.\-R\-C\-S.\-unlock (
+\begin{DoxyParamCaption}
+\item[{}]{self, }
+\item[{}]{name\-\_\-rev}
+\end{DoxyParamCaption}
+)}}\label{classsrc_1_1rcslib_1_1_r_c_s_a5682c4e36636c6d5fa260c2fdc7b94a2}
+\begin{DoxyVerb}Clear an rcs lock on NAME_REV.\end{DoxyVerb}
+ 
+
+The documentation for this class was generated from the following file\-:\begin{DoxyCompactItemize}
+\item 
+sourcebox-\/server/src/rcslib.\-py\end{DoxyCompactItemize}
