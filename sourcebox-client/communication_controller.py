@@ -13,7 +13,15 @@
 class Communication_Controller(object):
 
     def __init__(self):
+        #open client TCP-Socket
+        from socket import *
+        clientSocket = socket(AF_INET, SOCK_STREAM)
+        clientSocket.settimeout(3.0)
         print 'Created Communication_Controller'
+        
+    def __del__(self):
+        #close client socket
+        clientSocket.close
 
     def update_files():
         pass

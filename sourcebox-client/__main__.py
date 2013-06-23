@@ -20,7 +20,6 @@
 ## --------------------------------------------------------------
 ## IMPORT SECTION
 ## --------------------------------------------------------------
-from socket import *
 import os
 import time
 import ConfigParser
@@ -44,13 +43,6 @@ serverPort = config.get('server', 'port')
 
 username = config.get('user', 'name')
 password = config.get('user', 'password')
-
-
-## --------------------------------------------------------------
-## OPEN CLIENT SOCKET
-## --------------------------------------------------------------
-clientSocket = socket(AF_INET, SOCK_STREAM)
-clientSocket.settimeout(3.0)
 
 
 
