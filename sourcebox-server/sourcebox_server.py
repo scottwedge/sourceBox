@@ -16,7 +16,7 @@ class SourceBoxServer(object):
         # Just some random tests
 
         #data.create_file('test.txt')
-        data.lock_file('./data/test.txt')
+       # data.lock_file('./data/test.txt')
         data.save_file('./data/test.txt', 'Another test content')
         print data.show_changes('./data/test.txt')
         print data.read_file('./data/test.txt')

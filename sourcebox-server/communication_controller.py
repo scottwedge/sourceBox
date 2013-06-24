@@ -14,7 +14,7 @@ class Communication_Controller(object):
 
     def __init__(self, parent):
         print 'Created Communication_Controller'
-        parent.test()
+        parent.data.lock_file('./data/test.txt')
 
     def update_files(self):
         pass
