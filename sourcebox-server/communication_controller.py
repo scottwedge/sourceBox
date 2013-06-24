@@ -12,8 +12,9 @@
 
 class Communication_Controller(object):
 
-    def __init__(self):
+    def __init__(self, parent):
         print 'Created Communication_Controller'
+        parent.test()
 
     def update_files(self):
         pass

@@ -11,7 +11,7 @@ class SourceBoxServer(object):
     ## Creates a new instance of the SourceBoxServer
     def __init__(self):
         data = data_controller.Data_Controller('./data/')
-        comm = communication_controller.Communication_Controller()
+        comm = communication_controller.Communication_Controller(self)
         
         # Just some random tests
 
@@ -22,9 +22,12 @@ class SourceBoxServer(object):
         print data.read_file('./data/test.txt')
         print 'sourceBox server is running'
         
-        self.command_loop()
+        self._command_loop()
 
     ## The server command loop
     def _command_loop(self):
         while True:
             pass
+
+    def test(self):
+        print 'test success'
