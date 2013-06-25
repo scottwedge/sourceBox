@@ -11,9 +11,9 @@
 
 
 class Communication_Controller(object):
-    user_ip = None
+    computer_name = None
 
-    
+
     def __init__(self, parent):
 		print 'Created Communication_Controller'
 		self.parent = parent
