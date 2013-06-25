@@ -3,6 +3,7 @@
 Synchronisations Struktur für kolaboratives Arbeiten auf textbasierten Dateien
 
 
+
 ###### Note
 	
 	This is a project of a cource in internet communications at the technical university of munich. Since the course is in German, all documentation and comments will also be in German. If you wish to use our code for your own project, please contact us.
