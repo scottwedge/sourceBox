@@ -4,7 +4,7 @@ import data_controller
 # @package sourceboxServer
 # the server
 #
-# @author  Kai
+# @author  Kai and Martin
 #
 class SourceBoxServer(object):
 
@@ -36,25 +36,29 @@ class SourceBoxServer(object):
         while True:
             pass
 
-    def test(self):
-        print 'test success'
-
-# Kais erste Gehversuche :)
-
-    def update_file(self):
-        pass
-
+    ## Is called when a client creates a file.
+    # Creates the file on all clients and in the data backend
     def create_file(self, file_name):
         self.data.create_file(file_name)
-
+    
+    ## Is called when a client locks a file.
+    # Locks the file in the backend
+    # @param file_name
     def lock_file(self, file_name):
         self.data.lock_file(file_name)
 
-    def modify_file(self):
-        pass
-
+    ## Is called when a client unlocks a file.
+    # Unlocks the file in the backend
+    # @param file_name
     def unlock_file(self, file_name):
         self.data.unlock_file(file_name)
 
+    ## Is called when a client changes a file.
+    # Updates the file on all clients and in the data backend
+    def modify_file(self):
+        pass
+
+    ## Is called when a client deletes a file.
+    # Deletes the file on all clients and in the data backend
     def delete_file(self):
         pass
