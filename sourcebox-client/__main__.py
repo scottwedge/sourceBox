@@ -1,7 +1,8 @@
+# -*- coding: utf-8 -*-#
 ## sourceboxclient – main
 #
 # @encode  UTF-8, tabwidth = 4 , newline = LF
-# @author  Johannes
+# @author  Gruppe4
 #
 
 # imports

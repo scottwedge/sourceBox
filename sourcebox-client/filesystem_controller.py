@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-#
 # Imports
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer

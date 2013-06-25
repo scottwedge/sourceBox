@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-#
 ## sourceboxclient – communication_controller
 # handles the communication with the server
 #
