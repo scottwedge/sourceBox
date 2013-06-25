@@ -25,6 +25,12 @@ class SourceBoxServer(object):
         #self.comm.unlock_file()
         self._command_loop()
 
+    # When a new client connects
+    # @returns a communication controller
+    def new_client(self, computer_name):
+        pass
+
+
     ## The server command loop
     def _command_loop(self):
         while True:

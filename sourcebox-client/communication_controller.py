@@ -23,23 +23,43 @@ class Communication_Controller(object):
         #close client socket
         clientSocket.close
 
-    def update_files():
+    #
+    def get_new_file(self, path, content):
+        pass
+
+    def get_delete_file(self, path):
+        pass
+
+    def get_modify_file(self, path, content):
         pass
 
     # push functions (request)
-    def create_file():
+    # Sends a command to the server that creates an empty file
+    def send_create_file(self, path):
         pass
 
-    def lock_file():
+    ## Sends a lock command to the server
+    #  @returns true/false
+    def send_lock_file(self, path):
         pass
 
-    def modify_file():
+    ## Sends the content of the file
+    def send_modify_file(self, path, content):
         pass
 
-    def unlock_file():
+    ## Unlocks a file
+    def send_unlock_file(self, path):
         pass
 
-    def delete_file():
+    ## Deletes a file
+    def send_delete_file(self, path):
+        pass
+
+    def send_move_file(self, old_path, new_path):
+        pass
+
+
+    def send_create_directory(self, path):
         pass
 
     # Internal functions
