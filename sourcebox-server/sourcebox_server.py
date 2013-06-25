@@ -15,13 +15,14 @@ class SourceBoxServer(object):
         
         # Just some random tests
 
-        #data.create_file('test.txt')
-        self.data.lock_file('./data/test.txt')
-        self.data.save_file('./data/test.txt', 'Another test content')
-        print self.data.show_changes('./data/test.txt')
-        print self.data.read_file('./data/test.txt')
-        print 'sourceBox server is running'
+        # data.create_file('test.txt')
+        # self.data.lock_file('./data/test.txt')
+        # self.data.save_file('./data/test.txt', 'Another test content')
+        # print self.data.show_changes('./data/test.txt')
+        # print self.data.read_file('./data/test.txt')
         
+        print 'sourceBox server is running'
+        #self.comm.unlock_file()
         self._command_loop()
 
     ## The server command loop

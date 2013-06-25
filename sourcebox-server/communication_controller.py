@@ -14,32 +14,32 @@ class Communication_Controller(object):
 
     def __init__(self, parent):
 		print 'Created Communication_Controller'
-		parent.data.lock_file('./data/test.txt')
+		#parent.data.lock_file(file_name)
 		self.parent = parent
 		
-    def update_files(self):
-        self.parent.update_file('./data/test.txt')
+    def update_files(self, file_name):
+        self.parent.update_file(file_name)
         
 
     # pull functions (response)
-    def create_file(self):
-        self.parent.create_file('./data/test.txt')
+    def create_file(self, file_name):
+        self.parent.create_file(file_name)
         
 
-    def lock_file(self):
-        self.parent.lock_file('./data/test.txt')
+    def lock_file(self, file_name):
+        self.parent.lock_file(file_name)
         
 
-    def modify_file(self):
-        self.parent.modify_file('./data/test.txt')
+    def modify_file(self, file_name):
+        self.parent.modify_file(file_name)
         
 
-    def unlock_file(self):
-        self.parent.unlock_file('./data/test.txt')
+    def unlock_file(self, file_name):
+        self.parent.unlock_file(file_name)
         
 
-    def delete_file(self):
-        self.parent.delete_file('./data/test.txt')
+    def delete_file(self, file_name):
+        self.parent.delete_file(file_name)
         
 
     # Internal functions
