@@ -23,7 +23,7 @@ class Communication_Controller(object):
 
     # pull functions (response)
     def create_file(self):
-        self.parent.create_fiel('./data/test.txt')
+        self.parent.create_file('./data/test.txt')
         
 
     def lock_file(self):
@@ -31,15 +31,15 @@ class Communication_Controller(object):
         
 
     def modify_file(self):
-        parent.modify_file('./data/test.txt')
+        self.parent.modify_file('./data/test.txt')
         
 
     def unlock_file(self):
-        parent.unlock_file('./data/test.txt')
+        self.parent.unlock_file('./data/test.txt')
         
 
     def delete_file(self):
-        parent.delete_file('./data/test.txt')
+        self.parent.delete_file('./data/test.txt')
         
 
     # Internal functions

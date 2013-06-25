@@ -11,15 +11,15 @@ class SourceBoxServer(object):
     ## Creates a new instance of the SourceBoxServer
     def __init__(self):
         self.data = data_controller.Data_Controller('./data/')
-        comm = communication_controller.Communication_Controller(self)
+        self.comm = communication_controller.Communication_Controller(self)
         
         # Just some random tests
 
         #data.create_file('test.txt')
-        data.lock_file('./data/test.txt')
-        data.save_file('./data/test.txt', 'Another test content')
-        print data.show_changes('./data/test.txt')
-        print data.read_file('./data/test.txt')
+        self.data.lock_file('./data/test.txt')
+        self.data.save_file('./data/test.txt', 'Another test content')
+        print self.data.show_changes('./data/test.txt')
+        print self.data.read_file('./data/test.txt')
         print 'sourceBox server is running'
         
         self._command_loop()
@@ -32,7 +32,7 @@ class SourceBoxServer(object):
     def test(self):
         print 'test success'
 
-# Kais erste Gehversuche
+# Kais erste Gehversuche :)
 
     def update_file(self):
         pass
