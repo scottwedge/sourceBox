@@ -10,13 +10,13 @@ class SourceBoxServer(object):
 
     ## Creates a new instance of the SourceBoxServer
     def __init__(self):
-        data = data_controller.Data_Controller('./data/')
+        self.data = data_controller.Data_Controller('./data/')
         comm = communication_controller.Communication_Controller(self)
         
         # Just some random tests
 
         #data.create_file('test.txt')
-       # data.lock_file('./data/test.txt')
+        data.lock_file('./data/test.txt')
         data.save_file('./data/test.txt', 'Another test content')
         print data.show_changes('./data/test.txt')
         print data.read_file('./data/test.txt')
@@ -31,3 +31,23 @@ class SourceBoxServer(object):
 
     def test(self):
         print 'test success'
+
+# Kais erste Gehversuche
+
+    def update_file(self):
+        pass
+
+    def create_file(self, file_name):
+        self.data.create_file(file_name)
+
+    def lock_file(self, file_name):
+        self.data.lock_file(file_name)
+
+    def modify_file(self):
+        pass
+
+    def unlock_file(self, file_name):
+        self.data.unlock_file(file_name)
+
+    def delete_file(self):
+        pass

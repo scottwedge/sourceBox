@@ -13,27 +13,34 @@
 class Communication_Controller(object):
 
     def __init__(self, parent):
-        print 'Created Communication_Controller'
-        parent.data.lock_file('./data/test.txt')
-
+		print 'Created Communication_Controller'
+		parent.data.lock_file('./data/test.txt')
+		self.parent = parent
+		
     def update_files(self):
-        pass
+        self.parent.update_file('./data/test.txt')
+        
 
     # pull functions (response)
     def create_file(self):
-        pass
+        self.parent.create_fiel('./data/test.txt')
+        
 
     def lock_file(self):
-        pass
+        self.parent.lock_file('./data/test.txt')
+        
 
     def modify_file(self):
-        pass
+        parent.modify_file('./data/test.txt')
+        
 
     def unlock_file(self):
-        pass
+        parent.unlock_file('./data/test.txt')
+        
 
     def delete_file(self):
-        pass
+        parent.delete_file('./data/test.txt')
+        
 
     # Internal functions
     def _create_socket(self):
