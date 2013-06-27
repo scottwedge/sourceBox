@@ -39,6 +39,11 @@ class Filesystem_Controller(FileSystemEventHandler):
 			print "Error: could not unlock file ",path
 
 
+	def readFile(path):
+		return open(path, 'r').read()
+
+	def writeFile(path, content):
+		open(path, 'w').write(content)
 
 	## Events
 	#######################################################
