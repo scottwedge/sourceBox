@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-#
 # Imports
+import os
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
@@ -19,6 +20,28 @@ class Filesystem_Controller(FileSystemEventHandler):
 		print 'Deleted Filesystem_Controller'
 		self.observer.stop()
 
+
+	## Controls
+	#######################################################
+	def lockFile(path):
+		try:
+			os.chmod(path,0o000)
+			print "File locked: ",path
+		except Exception: 
+			print "Error: could not lock file ",path
+
+	
+	def unlockFile(path):
+		try:
+			os.chmod(path,0o666)
+			print "File unlocked: ",path
+		except Exception: 
+			print "Error: could not unlock file ",path
+
+
+
+	## Events
+	#######################################################
 	def on_created(self, event):
 		if event.is_directory == True:
 			print "Directory created: ",event.src_path
