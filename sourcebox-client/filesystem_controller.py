@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-#
 # Imports
 import os
+from threading import Timer
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 
@@ -8,12 +9,18 @@ from watchdog.observers import Observer
 # @author Emu
 class Filesystem_Controller(FileSystemEventHandler):
 
+	## Variables
+	lockTime = 5		# 10 min
+	ignoreEvent = 0
+
+
 	## Constuctor
 	def __init__(self, boxPath):
 		print 'Created Filesystem_Controller in path: ' + boxPath
 		self.observer = Observer()
 		self.observer.schedule(self, boxPath, recursive=True)
 		self.observer.start()
+
 
 	## Deconstructor
 	def __del__(self):
@@ -23,26 +30,39 @@ class Filesystem_Controller(FileSystemEventHandler):
 
 	## Controls
 	#######################################################
-	def lockFile(path):
+	def lockFile(self, path):
 		try:
 			os.chmod(path,0o000)
-			print "File locked: ",path
-		except Exception: 
+			self.ignoreEvent += 1		# prevent recognizing the lock ToDo: timer for ignore
+			self.setLockTimer(path, self.lockTime)
+			print "File locked ",path
+		except Exception, e: 
 			print "Error: could not lock file ",path
+			print "because ", e
 
+	def allOK(self):
+		print "All OK"
 	
-	def unlockFile(path):
+	def unlockFile(self, path):
 		try:
 			os.chmod(path,0o666)
+			self.ignoreEvent += 1		# prevent recognizing the lock
 			print "File unlocked: ",path
-		except Exception: 
+		except Exception, e: 
 			print "Error: could not unlock file ",path
+			print "because ", e
+
+	# wait lockTime until path is auto-unlocked
+	def setLockTimer(self, path, time):
+		t = Timer(time, self.unlockFile, (path,)).start()
 
 
-	def readFile(path):
+
+
+	def readFile(self, path):
 		return open(path, 'r').read()
 
-	def writeFile(path, content):
+	def writeFile(self, path, content):
 		open(path, 'w').write(content)
 
 	## Events
@@ -68,8 +88,12 @@ class Filesystem_Controller(FileSystemEventHandler):
 			print "Directory modified: ",event.src_path
 			# push changes to SVN			
 		else:
-			print "File modified: ",event.src_path
-			# push changes to SVN
+			if self.ignoreEvent == 0:
+				print "File modified: ",event.src_path
+				# TEST:
+				self.lockFile(event.src_path)
+				# push changes to SVN
+			else: self.ignoreEvent -= 1
 
 	def on_moved(self, event):			# also for renames!
 		if event.is_directory == True:
