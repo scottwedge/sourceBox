@@ -90,8 +90,6 @@ class Filesystem_Controller(FileSystemEventHandler):
 		else:
 			if self.ignoreEvent == 0:
 				print "File modified: ",event.src_path
-				# TEST:
-				self.lockFile(event.src_path)
 				# push changes to SVN
 			else: self.ignoreEvent -= 1
 
