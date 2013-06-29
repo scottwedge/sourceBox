@@ -28,79 +28,88 @@ class Communication_Controller(object):
     VERSION = "ver1.0"
 
     def __init__(self, parent):
-
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.bind(('', 50000))
-        self.sock.listen(1)
-        self.s, self.a = self.sock.accept()
-
+        self._create_socket()
         print 'Server Created Communication_Controller'
+
         # The sourceBox server is now accessible through the instance variable
         # "parent"
         self.parent = parent
+        self._command_loop()
 
+    # Waits for commands
+    def _command_loop(self):
         while True:
             data = self.s.recv(1024)
             cmd = data[:data.find(' ')]
+            self._parse_command(cmd, data)
 
-            if cmd == self.COMMAND_GETCREATEFILE:
-                cmd, path, name, size = data.split()
-                self.s.sendall('ok')
-                content = ''
-                while size > len(content):
-                    data = self.sock.recv(1024)
-                    if not data:
-                        break
-                    content += data
-                self.s.sendall('ok')
-                answer = self._get_create_file(path, name, content)
-                if answer == True:
-                    self.s.sendall('filecreated')
-                else:
-                    self.s.sendall('createdfail')
+    # Creates the socket
+    def _create_socket(self):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.bind(('', 50000))
+        sock.listen(1)
+        self.s, self.a = sock.accept()
 
-            if cmd == self.COMMAND_GETLOCKFILE:
-                cmd, path, name = data.split()
-                self.s.sendall('ok')
-                answer = self._get_lock_file(path, name)
-                if answer == True:
-                    self.s.sendall('filelocked_')
-                else:
-                    self.s.sendall('lockedfail')
+    # Parse the command
+    def _parse_command(self, cmd, data):
+        if cmd == self.COMMAND_GETCREATEFILE:
+            cmd, path, name, size = data.split()
+            self.s.sendall('ok')
+            content = ''
+            while size > len(content):
+                data = self.sock.recv(1024)
+                if not data:
+                    break
+                content += data
+            self.s.sendall('ok')
+            answer = self._get_create_file(path, name, content)
+            if answer == True:
+                self.s.sendall('filecreated')
+            else:
+                self.s.sendall('createdfail')
 
-            if cmd == self.COMMAND_GETMODIFYFILE:
-                cmd, path, name, size = data.split()
-                self.s.sendall('ok')
-                content = ''
-                while size > len(content):
-                    data = self.sock.recv(1024)
-                    if not data:
-                        break
-                    content += data
-                self.s.sendall('ok')
-                answer = self._get_modify_file(path, name, content)
-                if answer == True:
-                    self.s.sendall('filemodified')
-                else:
-                    self.s.sendall('modifiedfail')
+        elif cmd == self.COMMAND_GETLOCKFILE:
+            cmd, path, name = data.split()
+            self.s.sendall('ok')
+            answer = self._get_lock_file(path, name)
+            if answer == True:
+                self.s.sendall('filelocked_')
+            else:
+                self.s.sendall('lockedfail')
 
-            if cmd == self.COMMAND_GETUNLOCKFILE:
-                cmd, path, name = data.split()
-                self.s.sendall('ok')
-                answer = self._get_unlock_file(path, name)
-                if answer == True:
-                    self.s.sendall('fileunlocked')
-                else:
-                    self.s.sendall('unlockedfail')
+        elif cmd == self.COMMAND_GETMODIFYFILE:
+            cmd, path, name, size = data.split()
+            self.s.sendall('ok')
+            content = ''
+            while size > len(content):
+                data = self.sock.recv(1024)
+                if not data:
+                    break
+                content += data
+            self.s.sendall('ok')
+            answer = self._get_modify_file(path, name, content)
+            if answer == True:
+                self.s.sendall('filemodified')
+            else:
+                self.s.sendall('modifiedfail')
 
-            if cmd == self.COMMAND_GETDELETEFILE:
-                cmd, path, name = data.split()
-                self.s.sendall('ok')
-                answer = self._get_delete_file(path, name)
-                if answer == True:
-                    self.s.sendall('filedeleted')
-                else:
-                    self.s.sendall('deletedfail')
+        elif cmd == self.COMMAND_GETUNLOCKFILE:
+            cmd, path, name = data.split()
+            self.s.sendall('ok')
+            answer = self._get_unlock_file(path, name)
+            if answer == True:
+                self.s.sendall('fileunlocked')
+            else:
+                self.s.sendall('unlockedfail')
+
+        elif cmd == self.COMMAND_GETDELETEFILE:
+            cmd, path, name = data.split()
+            self.s.sendall('ok')
+            answer = self._get_delete_file(path, name)
+            if answer == True:
+                self.s.sendall('filedeleted')
+            else:
+                self.s.sendall('deletedfail')
 
             # if cmd == COMMAND_GETFILE:
             #            cmd, fileName = data.split()
@@ -113,15 +122,17 @@ class Communication_Controller(object):
             #            s.sendall('%16d' % len(data))
             #            s.sendall(data)
             #            s.recv(2)
-            if cmd == self.COMMAND_GETVERSION:
-                self.s.sendall(self.VERSION)
+        elif cmd == self.COMMAND_GETVERSION:
+            self.s.sendall(self.VERSION)
 
-            if cmd == self.COMMAND_GETFILESIZE:
-                cmd, fileName = data.split()
-                filePathBase = os.path.dirname(__file__)
-                filePath = os.path.join(filePathBase, fileName)
-                size = self._GetFileSizeDirect(filePath)
-                self.s.sendall(str(size))
+        elif cmd == self.COMMAND_GETFILESIZE:
+            cmd, fileName = data.split()
+            filePathBase = os.path.dirname(__file__)
+            filePath = os.path.join(filePathBase, fileName)
+            size = self._GetFileSizeDirect(filePath)
+            self.s.sendall(str(size))
+        else:
+            print 'Unknown Command: ' + cmd
 
     # Server initiates the action and send a command to client
     def send_update_file(self, path, name, size, content):
