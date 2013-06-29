@@ -6,11 +6,12 @@
 # @author  Paul
 #
 
+import socket
+import os.path
+
+
 class Communication_Controller(object):
     computer_name = None
-    import socket
-    import os.path
-
 
     COMMAND_SENDUPDATEFILE = 'SendUpdateFile'
     COMMAND_SENDCREATEFILE = 'SendCreateFile'
@@ -23,85 +24,85 @@ class Communication_Controller(object):
     COMMAND_GETVERSION = 'GetVersion'
     COMMAND_GETFILESIZE = 'GetFileSize'
     COMMAND_GETFILE = 'GetFile'
-    
+
     VERSION = "ver1.0"
 
     def __init__(self, parent):
-        
-        sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-        sock.bind(('', 50000))
-        sock.listen(1)
-        s,a = sock.accept()
+
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.bind(('', 50000))
+        self.sock.listen(1)
+        self.s, self.a = self.sock.accept()
 
         print 'Server Created Communication_Controller'
+        # The sourceBox server is now accessible through the instance variable
+        # "parent"
         self.parent = parent
 
         while True:
-            data = s.recv(1024)
+            data = self.s.recv(1024)
             cmd = data[:data.find(' ')]
 
-            if cmd == COMMAND_GETCREATEFILE:
+            if cmd == self.COMMAND_GETCREATEFILE:
                 cmd, path, name, size = data.split()
-                s.sendall('ok')
+                self.s.sendall('ok')
                 content = ''
                 while size > len(content):
-                    data = sock.recv(1024)
-                    if not data: 
+                    data = self.sock.recv(1024)
+                    if not data:
                         break
                     content += data
-                s.sendall('ok')
-                answer = _get_create_file(self, path, name, content)
-                if answer == true:
-                    s.sendall('filecreated')
+                self.s.sendall('ok')
+                answer = self._get_create_file(path, name, content)
+                if answer == True:
+                    self.s.sendall('filecreated')
                 else:
-                    s.sendall('createdfail')
+                    self.s.sendall('createdfail')
 
-            if cmd == COMMAND_GETLOCKFILE:
+            if cmd == self.COMMAND_GETLOCKFILE:
                 cmd, path, name = data.split()
-                s.sendall('ok')
-                answer = _get_lock_file(self, path, name)
-                if answer == true:
-                    s.sendall('filelocked_')
+                self.s.sendall('ok')
+                answer = self._get_lock_file(path, name)
+                if answer == True:
+                    self.s.sendall('filelocked_')
                 else:
-                    s.sendall('lockedfail')
-            
-            if cmd == COMMAND_GETMODIFYFILE:
+                    self.s.sendall('lockedfail')
+
+            if cmd == self.COMMAND_GETMODIFYFILE:
                 cmd, path, name, size = data.split()
-                s.sendall('ok')
+                self.s.sendall('ok')
                 content = ''
                 while size > len(content):
-                    data = sock.recv(1024)
-                    if not data: 
+                    data = self.sock.recv(1024)
+                    if not data:
                         break
                     content += data
-                s.sendall('ok')
-                answer = _get_modify_file(self, path, name, content)
-                if answer == true:
-                    s.sendall('filemodified')
+                self.s.sendall('ok')
+                answer = self._get_modify_file(path, name, content)
+                if answer == True:
+                    self.s.sendall('filemodified')
                 else:
-                    s.sendall('modifiedfail')
+                    self.s.sendall('modifiedfail')
 
-            if cmd == COMMAND_GETUNLOCKFILE:
+            if cmd == self.COMMAND_GETUNLOCKFILE:
                 cmd, path, name = data.split()
-                s.sendall('ok')
-                answer = _get_unlock_file(self, path, name)
-                if answer == true:
-                    s.sendall('fileunlocked')
+                self.s.sendall('ok')
+                answer = self._get_unlock_file(path, name)
+                if answer == True:
+                    self.s.sendall('fileunlocked')
                 else:
-                    s.sendall('unlockedfail')
+                    self.s.sendall('unlockedfail')
 
-            if cmd == COMMAND_GETDELETEFILE:
+            if cmd == self.COMMAND_GETDELETEFILE:
                 cmd, path, name = data.split()
-                s.sendall('ok')
-                answer = _get_delete_file(self, path, name)
-                if answer == true:
-                    s.sendall('filedeleted')
+                self.s.sendall('ok')
+                answer = self._get_delete_file(path, name)
+                if answer == True:
+                    self.s.sendall('filedeleted')
                 else:
-                    s.sendall('deletedfail')
+                    self.s.sendall('deletedfail')
 
-
-
-            #if cmd == COMMAND_GETFILE:
+            # if cmd == COMMAND_GETFILE:
             #            cmd, fileName = data.split()
             #            filePathBase = os.path.dirname(__file__)
             #            filePath = os.path.join(filePathBase, fileName)
@@ -112,48 +113,53 @@ class Communication_Controller(object):
             #            s.sendall('%16d' % len(data))
             #            s.sendall(data)
             #            s.recv(2)
+            if cmd == self.COMMAND_GETVERSION:
+                self.s.sendall(self.VERSION)
 
-            if cmd == COMMAND_GETVERSION: 
-                s.sendall(VERSION)
-    
-            if cmd == COMMAND_GETFILESIZE: 
+            if cmd == self.COMMAND_GETFILESIZE:
                 cmd, fileName = data.split()
                 filePathBase = os.path.dirname(__file__)
                 filePath = os.path.join(filePathBase, fileName)
-                size = GetFileSizeDirect(filePath)
-                s.sendall(str(size))
-                
-        
+                size = self._GetFileSizeDirect(filePath)
+                self.s.sendall(str(size))
 
     # Server initiates the action and send a command to client
     def send_update_file(self, path, name, size, content):
-        s.sendall(COMMAND_SENDUPDATEFILE + ' ' + path + ' ' + name + ' ' + size)
-        r = s.recv(2)
-        s.sendall(content)
-        answer = s.recv(11)
+        self.s.sendall(self.COMMAND_SENDUPDATEFILE + ' ' +
+                       path + ' ' + name + ' ' + size)
+        self.s.recv(2)
+        self.s.sendall(content)
+        answer = self.s.recv(11)
         if answer == 'fileupdated':
-            return true
+            return True
         else:
-            return false
+            return False
 
     def send_create_file(self, path, name, size, content):
-        s.sendall(COMMAND_SENDCREATEFILE + ' ' + path + ' ' + name + ' ' + size)
-        r = s.recv(2)
-        s.sendall(content)
-        answer = s.recv(11)
+        self.s.sendall(
+            self.COMMAND_SENDCREATEFILE +
+            ' ' +
+            path +
+            ' ' +
+            name +
+            ' ' +
+            size)
+        self.s.recv(2)
+        self.s.sendall(content)
+        answer = self.s.recv(11)
         if answer == 'filecreated':
-            return true
+            return True
         else:
-            return false
+            return False
 
     def send_delete_file(self, path, name):
-        s.sendall(COMMAND_SENDDELETEFILE + ' ' + path + ' ' + name)
-        r = s.recv(2)
-        answer = s.recv(11)
+        self.s.sendall(self.COMMAND_SENDDELETEFILE + ' ' + path + ' ' + name)
+        self.s.recv(2)
+        answer = self.s.recv(11)
         if answer == 'filedeleted':
-            return true
+            return True
         else:
-            return false
+            return False
 
     # Client initiated the action and sent a command to Server
 
@@ -164,7 +170,6 @@ class Communication_Controller(object):
     def _get_lock_file(self, path, name):
         answer = self.parent.lock_file(path, name)
         return answer
-        
 
     def _get_modify_file(self, path, name, content):
         answer = self.parent.modify_file(path, name, content)
@@ -173,18 +178,12 @@ class Communication_Controller(object):
     def _get_unlock_file(self, path, name):
         answer = self.parent.unlock_file(path, name)
         return answer
-        
 
     def _get_delete_file(self, path, name):
         answer = self.parent.delete_file(path, name)
         return answer
 
     # Internal functions
-   
-    def _PressEnterKey():
-        print "Please, Press Enter Key ..."
-        data = sys.stdin.readline()
-        return 0
 
     def _GetFileSizeDirect(filePath):
         if os.path.exists(filePath):
@@ -192,20 +191,20 @@ class Communication_Controller(object):
         else:
             return -1
 
-    #while True:
+    # while True:
     #    data = s.recv(1024)
     #    cmd = data[:data.find(' ')]
 
-    #    if cmd == COMMAND_GETVERSION: 
+    #    if cmd == COMMAND_GETVERSION:
     #        s.sendall(VERSION)
-    
-    #    if cmd == COMMAND_GETFILESIZE: 
+
+    #    if cmd == COMMAND_GETFILESIZE:
     #        cmd, fileName = data.split()
     #        filePathBase = os.path.dirname(__file__)
     #        filePath = os.path.join(filePathBase, fileName)
     #        size = GetFileSizeDirect(filePath)
     #        s.sendall(str(size))
-    
+
     #    if cmd == COMMAND_GETFILE:
     #        cmd, fileName = data.split()
     #        filePathBase = os.path.dirname(__file__)
