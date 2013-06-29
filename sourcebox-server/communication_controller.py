@@ -150,13 +150,7 @@ class Communication_Controller(object):
 
     def send_create_file(self, path, name, size, content):
         self.s.sendall(
-            self.COMMAND_SENDCREATEFILE +
-            ' ' +
-            path +
-            ' ' +
-            name +
-            ' ' +
-            size)
+            self.COMMAND_SENDCREATEFILE + ' ' + path + ' ' + name + ' ' + size)
         self.s.recv(2)
         self.s.sendall(content)
         answer = self.s.recv(11)
@@ -177,29 +171,19 @@ class Communication_Controller(object):
     # Client initiated the action and sent a command to Server
 
     def _get_create_file(self, path, name, content):
-        answer = self.parent.create_file(path, name, content)
-        return answer
+        return self.parent.create_file(path, name, content)
 
     def _get_lock_file(self, path, name):
-        answer = self.parent.lock_file(path, name)
-        return answer
+        return self.parent.lock_file(path, name)
 
     def _get_modify_file(self, path, name, content):
-        answer = self.parent.modify_file(path, name, content)
-        return answer
+        return self.parent.modify_file(path, name, content)
 
     def _get_unlock_file(self, path, name):
-        answer = self.parent.unlock_file(path, name)
-        return answer
+        return self.parent.unlock_file(path, name)
 
     def _get_delete_file(self, path, name):
-        answer = self.parent.delete_file(path, name)
-        return answer
+        return self.parent.delete_file(path, name)
 
-    # Internal functions
-
-    def _GetFileSizeDirect(filePath):
-        if os.path.exists(filePath):
-            return os.path.getsize(filePath)
-        else:
-            return -1
+    def _get_file_size(self, path, file_name):
+        return self.parent.get_file_size(path, file_name)

@@ -69,3 +69,9 @@ class SourceBoxServer(object):
     def delete_file(self, path, file_name):
         # return true if successfully deleted
         pass
+
+    def get_file_size(self, path, file_name):
+        if os.path.exists(os.path.join(path, file_name)):
+            return os.path.getsize(os.path.join(path, file_name))
+        else:
+            return False
