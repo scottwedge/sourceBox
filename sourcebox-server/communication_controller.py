@@ -34,6 +34,8 @@ class Communication_Controller(object):
         # The sourceBox server is now accessible through the instance variable
         # "parent"
         self.parent = parent
+
+        # Wait for incoming events
         self._command_loop()
 
     # Waits for commands
