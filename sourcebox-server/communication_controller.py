@@ -203,33 +203,3 @@ class Communication_Controller(object):
             return os.path.getsize(filePath)
         else:
             return -1
-
-    # while True:
-    #    data = s.recv(1024)
-    #    cmd = data[:data.find(' ')]
-
-    #    if cmd == COMMAND_GETVERSION:
-    #        s.sendall(VERSION)
-
-    #    if cmd == COMMAND_GETFILESIZE:
-    #        cmd, fileName = data.split()
-    #        filePathBase = os.path.dirname(__file__)
-    #        filePath = os.path.join(filePathBase, fileName)
-    #        size = GetFileSizeDirect(filePath)
-    #        s.sendall(str(size))
-
-    #    if cmd == COMMAND_GETFILE:
-    #        cmd, fileName = data.split()
-    #        filePathBase = os.path.dirname(__file__)
-    #        filePath = os.path.join(filePathBase, fileName)
-    #        print "filepath", filePath
-    #        s.sendall('ok')
-    #        with open(filePath, 'rb') as f:
-    #            data = f.read()
-    #        s.sendall('%16d' % len(data))
-    #        s.sendall(data)
-    #        s.recv(2)
-
-    #    if cmd == 'end':
-    #        s.close()
-    #        break
