@@ -13,25 +13,37 @@ class SourceBoxServer(object):
 
     # Creates a new instance of the SourceBoxServer
     def __init__(self):
-        self.data = data_controller.Data_Controller('./data/')
-        self.comm = communication_controller.Communication_Controller(self)
+        try:
+            self.data = data_controller.Data_Controller('./data/')
+            self.comm = communication_controller.Communication_Controller(self)
 
-        # Just some random tests
+            # Just some random tests
 
-        # data.create_file('test.txt')
-        # self.data.lock_file('./data/test.txt')
-        # self.data.save_file('./data/test.txt', 'Another test content')
-        # print self.data.show_changes('./data/test.txt')
-        # print self.data.read_file('./data/test.txt')
+            # data.create_file('test.txt')
+            # self.data.lock_file('./data/test.txt')
+                # self.data.save_file('./data/test.txt', 'Another test content')
+            # print self.data.show_changes('./data/test.txt')
+            # print self.data.read_file('./data/test.txt')
 
-        print 'sourceBox server is running'
-        # self.comm.unlock_file()
-        self._command_loop()
+            print 'sourceBox server is running'
+            # self.comm.unlock_file()
+
+            self._command_loop()
+
+        # unexpected exit
+        except KeyboardInterrupt:
+            print 'Terminating SourceBoxServer'
+            del self.data
+            del self.comm
+            del self
 
     # When a new client connects
     # @returns a communication controller
     def new_client(self, computer_name):
         pass
+
+    def remove_client(self, client):
+        print 'Remove client ' + client.computer_name
 
     # The server command loop
     def _command_loop(self):

@@ -8,10 +8,11 @@
 
 import socket
 import os.path
+import thread
 
 
 class Communication_Controller(object):
-    computer_name = None
+    computer_name = 'Default Name'
 
     COMMAND_SENDUPDATEFILE = 'SendUpdateFile'
     COMMAND_SENDCREATEFILE = 'SendCreateFile'
@@ -24,11 +25,11 @@ class Communication_Controller(object):
     COMMAND_GETVERSION = 'GetVersion'
     COMMAND_GETFILESIZE = 'GetFileSize'
     COMMAND_GETFILE = 'GetFile'
+    COMMAND_GETCLOSE = 'close'
 
     VERSION = "ver1.0"
 
     def __init__(self, parent):
-        self._create_socket()
         print 'Server Created Communication_Controller'
 
         # The sourceBox server is now accessible through the instance variable
@@ -36,10 +37,21 @@ class Communication_Controller(object):
         self.parent = parent
 
         # Wait for incoming events
-        self._command_loop()
+        thread.start_new_thread(self._command_loop, (
+            'Communication_Controller Thread for ' + self.computer_name,))
+
+    def __del__(self):
+        print 'Deconstruction Communication_Controller'
+        self.s.sendall('BYE')
+        self.s.close()
+        self.parent.remove_client(self)
+        thread.exit()
 
     # Waits for commands
-    def _command_loop(self):
+    def _command_loop(self, thread_name):
+        print '[' + thread_name + '] ' + 'Created thread: ' + thread_name
+
+        self._create_socket()
         while True:
             data = self.s.recv(1024)
             cmd = data[:data.find(' ')]
@@ -47,10 +59,10 @@ class Communication_Controller(object):
 
     # Creates the socket
     def _create_socket(self):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.bind(('', 50000))
-        sock.listen(1)
-        self.s, self.a = sock.accept()
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.bind(('', 50000))
+        self.sock.listen(1)
+        self.s, self.a = self.sock.accept()
 
     # Parse the command
     def _parse_command(self, cmd, data):
@@ -71,6 +83,8 @@ class Communication_Controller(object):
             self._get_version()
         elif cmd == self.COMMAND_GETFILESIZE:
             self._get_file_size(data)
+        elif cmd == self.COMMAND_GETCLOSE:
+            self._get_close()
         else:
             print '[WARNING] recieved unknown command: ' + cmd
 
@@ -154,6 +168,13 @@ class Communication_Controller(object):
 
     def _get_version(self):
         self.s.sendall(self.VERSION)
+
+    def _get_close(self):
+        print 'Closing connection'
+        self.s.sendall('BYE')
+        self.s.close()
+        self.parent.remove_client(self)
+        thread.exit()
 
     # Server initiates the action and send a command to client
     def send_update_file(self, path, name, size, content):
