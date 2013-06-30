@@ -8,13 +8,17 @@
 # imports
 from time import sleep
 import filesystem_controller
+import communication_controller
 import config_parser
 
 # Parse config
 config = config_parser.Config_Parser('./sb_client.conf')
 
 # Start Watchdog
-fs_event_handler = filesystem_controller.Filesystem_Controller(config.boxPath)
+filesystem_controller = filesystem_controller.Filesystem_Controller(config.boxPath)
+
+# create communication_Controller
+# comm = communication_controller.Communication_Controller()
 
 # main loop:
 try:
@@ -25,5 +29,5 @@ try:
 		sleep(1)
 # unexpected exit
 except KeyboardInterrupt:
-	del fs_event_handler
+	del filesystem_controller
 

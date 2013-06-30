@@ -28,8 +28,10 @@ class Filesystem_Controller(FileSystemEventHandler):
 		self.observer.stop()
 
 
-	## Controls
+	## Controls (call from extern classes)
 	#######################################################
+	
+	# locks a file
 	def lockFile(self, path):
 		try:
 			os.chmod(path,0o000)
@@ -40,6 +42,7 @@ class Filesystem_Controller(FileSystemEventHandler):
 			print "Error: could not lock file ",path
 			print "because ", e
 	
+	# unlocks a file
 	def unlockFile(self, path):
 		try:
 			os.chmod(path,0o666)
@@ -54,31 +57,42 @@ class Filesystem_Controller(FileSystemEventHandler):
 		t = Timer(time, self.unlockFile, (path,)).start()
 
 
-
+	# reads a file
 	def readFile(self, path):
 		return open(path, 'r').read()
 
+	# overwrites a file
 	def writeFile(self, path, content):
 		open(path, 'w').write(content)
 
-
+	# create File
 	def createFile(self, path):
 		open(path, 'a').close()
 
-	def createFolder(self, path):
+	# create Directory
+	def createDir(self, path):
 		os.makedirs(path)
 
+	# delete File
 	def deleteFile(self, path):
-		remove(path)
+		os.remove(path)
 
-	def deleteFolder(self, path):
-		removedirs(path)
+	# delete Directory
+	def deleteDir(self, path):
+		os.removedirs(path)
+	
+	# moves or renames a File OR Directory	
+	def moveFileDir(self, srcPath, dstPath):
+		# test if dest is in lokal folder?
+		os.renames(srcPath, dstPath)
 
+	
+	# return Size of path in byte
 	def getSize(self, path):
-		pass
+		return os.path.getsize(path)
 
 
-	## Events
+	## Filesystem Events
 	#######################################################
 	def on_created(self, event):
 		if event.is_directory == True:
@@ -114,3 +128,6 @@ class Filesystem_Controller(FileSystemEventHandler):
 		else:
 			print "File moved from: ",event.src_path
 			print "to: ",event.dest_path
+			if event.src_path == None:
+				#same as create
+				pass 
