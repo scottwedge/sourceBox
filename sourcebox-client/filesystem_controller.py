@@ -39,9 +39,6 @@ class Filesystem_Controller(FileSystemEventHandler):
 		except Exception, e: 
 			print "Error: could not lock file ",path
 			print "because ", e
-
-	def allOK(self):
-		print "All OK"
 	
 	def unlockFile(self, path):
 		try:
@@ -58,12 +55,28 @@ class Filesystem_Controller(FileSystemEventHandler):
 
 
 
-
 	def readFile(self, path):
 		return open(path, 'r').read()
 
 	def writeFile(self, path, content):
 		open(path, 'w').write(content)
+
+
+	def createFile(self, path):
+		open(path, 'a').close()
+
+	def createFolder(self, path):
+		os.makedirs(path)
+
+	def deleteFile(self, path):
+		remove(path)
+
+	def deleteFolder(self, path):
+		removedirs(path)
+
+	def getSize(self, path):
+		pass
+
 
 	## Events
 	#######################################################
