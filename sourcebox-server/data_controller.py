@@ -69,3 +69,7 @@ class Data_Controller(object):
     #
     def show_changes(self, file_name):
         return self.rcs.log(file_name)
+
+    def move_file(oldpath, name, newpath):
+        # return true if successfully moved
+        pass
