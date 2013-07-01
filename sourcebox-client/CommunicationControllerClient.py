@@ -16,6 +16,7 @@ class CommunicationControllerClient(object):
     COMMAND_SENDDELETEFILE = 'SendDeleteFile'
     COMMAND_SENDMODIFYFILE = 'SendModifyFile'
     COMMAND_SENDMOVEFILE = 'SendMoveFile'
+    COMMAND_SENDCREATEDIR = 'SendCreateDir'
 
     ## Constructor
     def __init__(self, parent):
@@ -29,35 +30,22 @@ class CommunicationControllerClient(object):
         #_CloseServerSocket(actualSocket)
         pass
     
-    ## Is called when the client recieves a new file from the server
-    #def get_new_file(self, path, content):
-    #    pass
 
-    ## Is called when a file on the server is deleted
-    def get_delete_file(self, path):
-        pass
-
-    ## Is called when a file on the server is modified
-    # @param path the path to the modified file
-    # @param content a string containing the updated file content
-    def get_modify_file(self, path, content):
-        pass
-
-    ## Sends a command to the server that creates an empty file
+    ## Sends a command to the server that creates a file with content
     # @author Paul
-    # @param filePath of the new file related to sourceBox
-    # @return 0 -1 -2 -3 
+    # @param filePath of the new file related to sourceBox, size, content
+    # @return 0: True -1: False -2: Save problem on server -3: Sending problem 
     def send_create_file(self, filePath, size, content):
         return self._SendCommand2(self.COMMAND_SENDCREATEFILE, filePath, size, content, 'filecreated')
 
-    ## Sends the content of the file
+    ## Sends a command to the server that modiry a file with new content
     # @author Paul
-    # @param path the path of the file
-    # @param content the modified file content
+    # @param filePath of the new file related to sourceBox, size, content
+    # @return 0: True -1: False -2: Save problem on server -3: Sending problem
     def send_modify_file(self, filePath, size, content):
         return self._SendCommand2(self.COMMAND_SENDMODIFYFILE, filePath, size, content, 'filemodified')
 
-
+    #call funktions with filePath, content
     def _SendCommand2(self, command, filePath, size, content, returnMessage):
         mess = command + ' ' + str(size) + ' ' + filePath
         self.ControllerSocket.sendall(mess)
@@ -79,16 +67,30 @@ class CommunicationControllerClient(object):
     ## Sends a lock command to the server
     # @author Paul
     # @param filePath of the new file related to sourceBox
-    # @return 0 -1 -3 
+    # @return 0: True -1: False -2: Save problem on server -3: Sending problem
     def send_lock_file(self, filePath):
         return self._CommandSend(self.COMMAND_SENDLOCKFILE, filePath, 'filelocked')
-    #
+
+    ## Sends a unlock command to the server
+    # @author Paul
+    # @param filePath of the new file related to sourceBox
+    # @return 0: True -1: False -2: Save problem on server -3: Sending problem
     def send_unlock_file(self, filePath):
         return self._CommandSend(self.COMMAND_SENDUNLOCKFILE, filePath, 'fileunlocked')
-
+    
+    ## Sends a delete command to the server
+    # @author Paul
+    # @param filePath of the new file related to sourceBox
+    # @return 0: True -1: False -2: Save problem on server -3: Sending problem
     def send_delete_file(self, filePath):
         return self._CommandSend(self.COMMAND_SENDDELETEFILE, filePath, 'filedeleted')
 
+    ## Sends a create diractory command to the server
+    # @author Paul
+    # @param filePath of the new dir related to sourceBox
+    # @return 0: True -1: False -2: Save problem on server -3: Sending problem
+    def send_create_dir(self, filePath):
+        return self._CommandSend(self.COMMAND_SENDCREATEDIR, filePath, 'dircreated')
      
     #call funktions with filePath
     def _CommandSend(self, command, filePath, returnMessage):
@@ -107,8 +109,8 @@ class CommunicationControllerClient(object):
 
     ## Sends a move file command to the server
     # @author Paul
-    # @param old_path old path of the file
-    # @param new_path new path of the file
+    # @param old_path, newpath of the new file related to sourceBox
+    # @return 0: True -1: False -2: Save problem on server -3: Sending problem
     def send_move_file(self, old_path, new_path):
         mess = self.COMMAND_SENDMOVEFILE + ' ' + old_path
         self.ControllerSocket.sendall(mess)
@@ -126,19 +128,6 @@ class CommunicationControllerClient(object):
                     return -1 #False
             return -3 # Sending problem
         return -3
-
-
-    ## Creates a dir
-    # @author Paul
-    # @param path the path of the dir
-    def send_create_directory(self, path):
-        pass
-
-
-
-    # Internal functions
-    def _create_socket(self):
-        pass
 
 
 
@@ -170,79 +159,25 @@ class CommunicationControllerClient(object):
     #    sock.close()
 
 
-    def GetVersion(sock):
-        #for testing, returns the version of server
-        sock.sendall(COMMAND_GETVERSION + ' ')
-        ver = sock.recv(1024)   
-        return ver 
+    #def GetVersion(sock):
+    #    #for testing, returns the version of server
+    #    sock.sendall(COMMAND_GETVERSION + ' ')
+    #    ver = sock.recv(1024)   
+    #    return ver 
 
-    def GetFileSize(sock, fileName):
-        #returns filesize from a file on server
-        sock.sendall(COMMAND_GETFILESIZE + ' ' + fileName)
-        resp = sock.recv(1024)
-        size = int(resp)   
-        return size 
+    #def GetFileSize(sock, fileName):
+    #    #returns filesize from a file on server
+    #    sock.sendall(COMMAND_GETFILESIZE + ' ' + fileName)
+    #    resp = sock.recv(1024)
+    #    size = int(resp)   
+    #    return size 
 
-    def GetFileSizeDirect(filePath):
-        #returns filesize from a file on client pc
-        if os.path.exists(filePath):
-            return os.path.getsize(filePath)
-        else:
-            return -1
+    #def GetFileSizeDirect(filePath):
+    #    #returns filesize from a file on client pc
+    #    if os.path.exists(filePath):
+    #        return os.path.getsize(filePath)
+    #    else:
+    #        return -1
 
 
-    def GetFile(sock, filePath):
-        sock.sendall(COMMAND_GETFILE + ' ' + filePath)
-        print "send command"
-        r = sock.recv(2)
-        print "recv ok"
-        size = int(sock.recv(16))
-        print "size", size
-        recvd = ''
-        while size > len(recvd):
-            data = sock.recv(1024)
-            if not data: 
-                break
-            recvd += data
-        sock.sendall('ok')
-        return recvd
-
-    
-    #print "Start client ..."
-    #try:
-        #filePathBase = os.path.dirname(__file__)
-
-        #downloadDir = os.path.join(filePathBase, DOWNLOAD_DIR)
-        #if not os.path.exists(downloadDir):
-        #    os.makedirs(downloadDir)
-
-        #actualSocket = _OpenServerSocket()
-        #try:
-            #fileName1 = 'text.txt'
-            #fileName2 = 'text2.txt'        
-            #recvfile1 = GetFile(actualSocket, fileName1)
-            #filePath1 = os.path.join(downloadDir, fileName1)
-            #with open(filePath1,"w") as f:
-            #    f.write(recvfile1)
-            #    f.close()
-
-            #recvfile2 = GetFile(actualSocket, fileName2)
-            #filePath2 = os.path.join(downloadDir, fileName2)
-            #with open(filePath2,"w") as f:
-            #    f.write(recvfile2)
-            #    f.close()  
-            #version = GetVersion(actualSocket)
-            #print (version)
-     
-            #fileName = "tet.txt"
-            #size = GetFileSize(actualSocket, fileName)
-            #print fileName, size, "Bytes"
-
-    #    except:
-    #        print "Unexpected error:", sys.exc_info()[0]
-    #        #raise     
-    #    finally:
-    #        _CloseServerSocket(actualSocket)
-    
-    #finally:
-    #    _PressEnterKey()
+   

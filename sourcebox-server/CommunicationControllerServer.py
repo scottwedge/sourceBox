@@ -21,18 +21,9 @@ class CommunicationControllerServer(object):
     COMMAND_SENDUNLOCKFILE = 'SendUnLockFile'
     COMMAND_SENDMODIFYFILE = 'SendModifyFile'
     COMMAND_SENDDELETEFILE = 'SendDeleteFile'
-    COMMAND_SENDMOVEFILE = 'SendMoveFile'    
-    # Server initiates the action and send a command to the client
-    COMMAND_GETCREATEFILE = 'GetCreateFile'
-    COMMAND_GETLOCKFILE = 'GetLockFile'    
-    COMMAND_GETUNLOCKFILE = 'GetUnlockFile'
-    COMMAND_GETMODIFYFILE = 'GetModifyFile'
-    COMMAND_GETDELETEFILE = 'GetDeleteFile'
-    COMMAND_GETMOVEFILE = 'GetMoveFile'    
-    COMMAND_GETVERSION = 'GetVersion'
-    COMMAND_GETFILESIZE = 'GetFileSize'
-    COMMAND_GETFILE = 'GetFile'
-    COMMAND_GETCLOSE = 'GetClose'
+    COMMAND_SENDMOVEFILE = 'SendMoveFile'
+    COMMAND_SENDCREATEDIR = 'SendCreateDir'
+        
 
     VERSION = "ver1.0"
     computer_name = 'ServerName ' + VERSION
@@ -92,26 +83,8 @@ class CommunicationControllerServer(object):
             self._send_modify_file(data)
         elif cmd == self.COMMAND_SENDMOVEFILE:
             self._send_move_file(data)
-
-        elif cmd == self.COMMAND_GETLOCKFILE:
-            self._get_lock_file(data)
-        elif cmd == self.COMMAND_GETMODIFYFILE:
-            self._get_modify_file(data)
-        elif cmd == self.COMMAND_GETUNLOCKFILE:
-            self._get_unlock_file(data)
-        elif cmd == self.COMMAND_GETDELETEFILE:
-            self._get_delete_file(data)
-        elif cmd == self.COMMAND_GETMOVEFILE:
-            self._get_move_file(data)
-        elif cmd == self.COMMAND_GETFILE:
-            # self._get_file(data)
-            pass
-        elif cmd == self.COMMAND_GETVERSION:
-            self._get_version()
-        elif cmd == self.COMMAND_GETFILESIZE:
-            self._get_file_size(data)
-        elif cmd == self.COMMAND_GETCLOSE:
-            self._get_close()
+        elif cmd == self.COMMAND_SENDCREATEDIR:
+            self._send_create_dir(data)
         else:
             print '[WARNING] recieved unknown command: ' + cmd
 
@@ -242,119 +215,21 @@ class CommunicationControllerServer(object):
                 return
         return 
 
-
-    def _get_lock_file(self, data):
-        cmd, path, name = data.split()
-        self.s.sendall('ok')
-        answer = self.parent.lock_file(path, name)
-        if answer == True:
-            self.s.sendall('filelocked_')
+    def _send_create_dir(self, data):
+        arrStr = data.split(' ', 1)
+        cmd = arrStr[0]
+        filePath = arrStr[1]
+        if len(filePath) == 0:
+            self.s.sendall('KO')
+            return 
         else:
-            self.s.sendall('lockedfail')
+            self.s.sendall('ok')            
+            # 
+            answer = self.parent.create_dir(filePath)
+            if answer == True:
+                self.s.sendall('dircreated')
+            else:
+                self.s.sendall('notcreated')
+            retunr
 
-
-
-    def _get_unlock_file(self, data):
-        cmd, path, name = data.split()
-        self.s.sendall('ok')
-        answer = self.parent.unlock_file(path, name)
-        if answer == True:
-            self.s.sendall('fileunlocked')
-        else:
-            self.s.sendall('unlockedfail')
-
-    def _get_delete_file(self, data):
-        cmd, path, name = data.split()
-        self.s.sendall('ok')
-        answer = self.parent.delete_file(path, name)
-        if answer == True:
-            self.s.sendall('filedeleted')
-        else:
-            self.s.sendall('deletedfail')
-    
-    def _get_move_file(self, data):
-        cmd, oldpath, name, newpath = data.split()
-        self.s.sendall('ok')
-        answer = self.parent.move_file(oldpath, name, newpath)
-        if answer == True:
-            self.s.sendall('filemoved')
-        else:
-            self.s.sendall('movefail')
-
-    def _get_file_size(self, data):
-        cmd, fileName = data.split()
-        filePathBase = os.path.dirname(__file__)
-        size = self.parent.get_file_size(filePathBase, fileName)
-        self.s.sendall(str(size))
-
-    def _get_file(self, data):
-        cmd, fileName = data.split()
-        filePathBase = os.path.dirname(__file__)
-        filePath = os.path.join(filePathBase, fileName)
-        print "filepath", filePath
-        self.s.sendall('ok')
-        with open(filePath, 'rb') as f:
-            data = f.read()
-            self.s.sendall('%16d' % len(data))
-            self.s.sendall(data)
-            self.s.recv(2)
-
-    def _get_version(self):
-        self.s.sendall(self.VERSION)
-
-    def _get_close(self):
-        print 'Closing connection'
-        self.s.sendall('BYE')
-        self.s.close()
-        self.parent.remove_client(self)
-        thread.exit()
-
-    # Server initiates the action and send a command to client
-    def send_update_file(self, path, name, size, content):
-        self.s.sendall(self.COMMAND_SENDMODIFYFILE + ' ' +
-                       path + ' ' + name + ' ' + size)
-        self.s.recv(2)
-        self.s.sendall(content)
-        answer = self.s.recv(11)
-        if answer == 'fileupdated':
-            return True
-        else:
-            return False
-
-    #def send_create_file(self, path, name, size, content):
-    #    self.s.sendall(
-    #        self.COMMAND_SENDCREATEFILE + ' ' + path + ' ' + name + ' ' + size)
-    #    ok = self.s.recv(2)
-    #    if ok == 'ok':
-    #        self.s.sendall(content)
-    #        contenttransferd = self.s.recv(2)
-    #        if contenttransferd == 'ok':  
-    #            answer = self.s.recv(11)
-    #            if answer == 'filecreated':
-    #                return True
-    #            else:
-    #                return False
-    #        return 'Communication Problem'
-
-    
-
-
-
-    def send_delete_file(self, path, name):
-        self.s.sendall(self.COMMAND_SENDDELETEFILE + ' ' + path + ' ' + name)
-        self.s.recv(2)
-        answer = self.s.recv(11)
-        if answer == 'filedeleted':
-            return True
-        else:
-            return False
-
-    def send_move_file(self, oldpath, name, newpath):
-        self.s.sendall(self.COMMAND_SENDMOVEFILE + ' ' + oldpath + ' ' + name + ' ' + newpath )
-        self.s.recv(2)
-        answer = self.s.recv(11)
-        if answer == 'filemoved':
-            return True
-        else:
-            return False
 

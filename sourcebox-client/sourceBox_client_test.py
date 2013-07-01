@@ -57,6 +57,10 @@ class ClientTest(object):
     def move_file(self, oldfilePath, newfilePath):
         resp = self.comm.send_move_file(oldfilePath, newfilePath)
         return resp
+
+    def create_dir(self, filePath):
+        resp = self.comm.send_create_dir(filePath)
+        return resp
     
 #
 def _PressEnterKey():
@@ -67,7 +71,7 @@ def _PressEnterKey():
 #start
 try:
     clientTest = ClientTest()    
-    clientTest.InitController('192.168.1.33', 50000)
+    clientTest.InitController('192.168.1.34', 50000)
 
 
     #
@@ -86,8 +90,11 @@ try:
     #res = clientTest.modify_file('pathTest\filenameTest.txt', 'ContentTest')
     #print 'modify_file Test'
 
-    res = clientTest.move_file('pathTest\filenameTest.txt', 'newpathTest\TEST.txt')
-    print 'move_file Test'
+    #res = clientTest.move_file('pathTest\filenameTest.txt', 'newpathTest\TEST.txt')
+    #print 'move_file Test'
+
+    res = clientTest.create_dir('pathTest\filenameTest.txt')
+    print 'create_dir Test'
 
     #
     print 'Result', res
