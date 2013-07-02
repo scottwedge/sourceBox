@@ -1,4 +1,4 @@
-import communication_controller
+import CommunicationControllerServer
 import data_controller
 import os.path
 
@@ -15,7 +15,7 @@ class SourceBoxServer(object):
     def __init__(self):
         try:
             self.data = data_controller.Data_Controller('./data/')
-            self.comm = communication_controller.Communication_Controller(self)
+            self.comm = CommunicationControllerServer.CommunicationControllerServer(self)
 
             # Just some random tests
 

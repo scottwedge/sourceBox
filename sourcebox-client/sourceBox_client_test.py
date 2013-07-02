@@ -71,7 +71,7 @@ def _PressEnterKey():
 #start
 try:
     clientTest = ClientTest()    
-    clientTest.InitController('192.168.1.34', 50000)
+    clientTest.InitController('127.0.0.1', 50000)
 
 
     #

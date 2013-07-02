@@ -8,7 +8,7 @@
 # imports
 from time import sleep
 import filesystem_controller
-import communication_controller
+import client_communication_controller
 import config_parser
 
 # Parse config
@@ -18,7 +18,7 @@ config = config_parser.Config_Parser('./sb_client.conf')
 filesystem_controller = filesystem_controller.Filesystem_Controller(config.boxPath)
 
 # create communication_Controller
-# comm = communication_controller.Communication_Controller()
+comm = client_communication_controller.Client_Communication_Controller('127.0.0.1', 50000)
 
 # main loop:
 try:

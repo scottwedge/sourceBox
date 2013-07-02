@@ -230,6 +230,6 @@ class CommunicationControllerServer(object):
                 self.s.sendall('dircreated')
             else:
                 self.s.sendall('notcreated')
-            retunr
+            return
 
 
