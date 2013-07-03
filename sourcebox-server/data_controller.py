@@ -53,8 +53,6 @@ class Data_Controller(object):
     def delete_file(self, file_name):
         path = os.path.join(self.data_dir, file_name)
         self.rcs._remove(path)
-        os.remove(path)
-        os.remove(path + ',v')
 
 
     ## Creates a new file

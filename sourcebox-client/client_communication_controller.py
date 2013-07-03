@@ -9,7 +9,7 @@ import socket,  threading
 
 class Client_Communication_Controller(object):
     
-    # Client initiates the action and send a command to the server
+    # command constants
     COMMAND_SENDCREATEFILE = 'CREATE_FILE'
     COMMAND_SENDLOCKFILE = 'LOCK'
     COMMAND_SENDUNLOCKFILE = 'UNLOCK'
@@ -21,9 +21,14 @@ class Client_Communication_Controller(object):
     COMMAND_ACK = "OK\n"
 
     ## Constructor
+    # @param ip the ip of the server to connect to
+    # @param port the port of the server
+    # @param computer_name name of the client
+    # @author Martin Zellner
     def __init__(self, ip, port, computer_name):
         print ' Client Created Communication_Controller'
 
+        # store the computer name in an instance variable
         self.computer_name = computer_name
 
         # Creates the instance variable sock. This is the socket communicating with the server
@@ -35,32 +40,34 @@ class Client_Communication_Controller(object):
         # Starts a thread listening for server events
         threading_queue = []
         self.command_listener_thread = Command_Recieve_Handler('Communication_Controller Thread for listening', self.controller_socket) 
+        # daemonize thread. This makes sure that it does not prevent the Client Prozess from terminating (e.g. on a Keyboard interrupt)
         self.command_listener_thread.daemon = True 
-
         threading_queue.append(self.command_listener_thread) 
         self.command_listener_thread.start()
        
     
-    ## Deconstructor  
+    ## Deconstructor 
+    # @author Martin Zellner
     def __del__(self):
         # Closes the socket when the instance is destructed
         self._close_socket(self.sock)
 
-    ## Initialises the connection
+    ## Initialises the connection and identifies the client to the server
+    # @author Martin Zellner
     def _init_connection(self):
         self.controller_socket.send(self.COMMAND_INIT + ' ' + self.computer_name)
 
     ## Sends a command to the server that creates a file with content
     # @author Paul
     # @param filePath of the new file related to sourceBox, size, content
-    # @return 0: True -1: False -2: Save problem on server -3: Sending problem 
+    # @return boolean
     def send_create_file(self, filePath, size, content):
         return self._send_command_with_content(self.COMMAND_SENDCREATEFILE, filePath, size, content)
 
     ## Sends a command to the server that modiry a file with new content
     # @author Paul
     # @param filePath of the new file related to sourceBox, size, content
-    # @return 0: True -1: False -2: Save problem on server -3: Sending problem
+    # @return boolean
     def send_modify_file(self, filePath, size, content):
         return self._send_command_with_content(self.COMMAND_SENDMODIFYFILE, filePath, size, content)
 
@@ -69,14 +76,19 @@ class Client_Communication_Controller(object):
     # @author Martin Zellner
     # @param command the command
     # @param file_path path to the file
+    # @returns boolean
     def _send_command(self, command, file_path):
-        mess = command + ' ' + file_path
-        self.controller_socket.send(mess)
+        # create message
+        message = command + ' ' + file_path
+        # send message
+        self.controller_socket.send(message)
 
         # Wait for the recieve thread to send us a ok Event
         status = self.command_listener_thread.ok.wait(5.0)
         self.command_listener_thread.ok.clear()
         if not status: raise IOError('Did not recieve a response from the server.')
+        
+        # if no error was raised
         return True
 
     ## Sends a command to the server (with content)
@@ -85,10 +97,15 @@ class Client_Communication_Controller(object):
     # @param command the command
     # @param file_path path to the file
     # @param content the content of the file
+    # @returns boolean
     def _send_command_with_content(self, command, filePath, size, content):
-        mess = command + ' ' + str(size) + ' ' + filePath
-        self.controller_socket.sendall(mess)
-        
+
+        # create message
+        message = command + ' ' + str(size) + ' ' + filePath
+ 
+        # send message
+        self.controller_socket.sendall(message)
+
         # Wait for the recieve thread to send us a ok Event
         status = self.command_listener_thread.ok.wait(5.0)
         self.command_listener_thread.ok.clear()
@@ -106,36 +123,37 @@ class Client_Communication_Controller(object):
 
     ## Sends a lock command to the server
     # @author Paul
-    # @param filePath of the new file related to sourceBox
-    # @return 0: True -1: False -2: Save problem on server -3: Sending problem
-    def send_lock_file(self, filePath):
-        return self._send_command(self.COMMAND_SENDLOCKFILE, filePath)
+    # @param file_path path of the file related to sourceBox root
+    # @return boolean
+    def send_lock_file(self, file_path):
+        return self._send_command(self.COMMAND_SENDLOCKFILE, file_path)
 
     ## Sends a unlock command to the server
     # @author Paul
-    # @param filePath of the new file related to sourceBox
-    # @return 0: True -1: False -2: Save problem on server -3: Sending problem
-    def send_unlock_file(self, filePath):
-        return self._send_command(self.COMMAND_SENDUNLOCKFILE, filePath)
+    # @param file_path path of the file related to sourceBox root
+    # @returns a boolean
+    def send_unlock_file(self, file_path):
+        return self._send_command(self.COMMAND_SENDUNLOCKFILE, file_path)
     
     ## Sends a delete command to the server
     # @author Paul
-    # @param filePath of the new file related to sourceBox
-    # @return 0: True -1: False -2: Save problem on server -3: Sending problem
-    def send_delete_file(self, filePath):
-        return self._send_command(self.COMMAND_SENDDELETEFILE, filePath)
+    # @param file_path path of the file related to sourceBox root
+    # @returns boolean
+    def send_delete_file(self, file_path):
+        return self._send_command(self.COMMAND_SENDDELETEFILE, file_path)
 
     ## Sends a create diractory command to the server
     # @author Paul
-    # @param filePath of the new dir related to sourceBox
-    # @return 0: True -1: False -2: Save problem on server -3: Sending problem
-    def send_create_dir(self, filePath):
-        return self._send_command(self.COMMAND_SENDCREATEDIR, filePath)
+    # @param file_path path of the file related to sourceBox root
+    # @returns boolean
+    def send_create_dir(self, file_path):
+        return self._send_command(self.COMMAND_SENDCREATEDIR, file_path)
 
     ## Sends a move file command to the server
     # @author Martin
-    # @param old_path, newpath of the new file related to sourceBox
-    # @return True
+    # @param old_path path of the file
+    # @param new_path new path of the file
+    # @returns a boolean
     # @throws IOError if a timeout occurs
     def send_move_file(self, old_path, new_path):
         mess = self.COMMAND_SENDMOVEFILE + ' ' + old_path
@@ -156,6 +174,8 @@ class Client_Communication_Controller(object):
         return True
 
     ## Opens a socket
+    # @param ip the ip of the server to connect to
+    # @param port the port of the server
     # @returns a socket
     def _open_socket(self, ip, port):
         try:
@@ -171,25 +191,36 @@ class Client_Communication_Controller(object):
         sock.sendall('end' + " ")
         sock.close()
 
+
+## Thread that listens for commands on the incoming connection. If it recieves a "OK\n" it sends a 'ok'- Event
+# @author Martin Zellner
 class Command_Recieve_Handler(threading.Thread):
     COMMAND_ACK = "OK\n"
     COMMAND_CREATE = "CREATE"
 
     def __init__(self, thread_name, open_socket):
         threading.Thread.__init__(self)
+
+        # Write function variables to instance variables of the handler class
         self.thread_name = thread_name
         self.open_socket = open_socket
+
+        # Create 'ok' Event
         self.ok = threading.Event()
 
     def run(self):
         print '[' + self.thread_name + '] ' + 'Created'
+
+        # endless loop to recieve commands
         while True:
+            # split the recieved data
             data = self.open_socket.recv(1024).split(' ')
-            if data[0] == self.COMMAND_ACK: # If a OK was recieved
-                # Send the OK Event
+
+            if data[0] == self.COMMAND_ACK: # If a OK command was recieved
+                # Fire the 'ok' Event
                 self.ok.set()
-            elif data[0] == self.COMMAND_CREATE:
-                print 'Recieved Create Command' + data
+            elif data[0] == self.COMMAND_CREATE: # if a create command was recieved (when other clients changed the folder)
+                print 'Recieved Create Command' + data 
                 self.open_socket.send('OK\n')
             else:
-                print 'Command recieved' + data
+                print 'Command recieved' + data 
