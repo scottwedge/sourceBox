@@ -38,7 +38,7 @@ class Data_Controller(object):
     #
     def lock_file(self, file_name):
         path = os.path.join(self.data_dir, file_name)
-        self.rcs.checkout(path, True)
+        self.rcs.lock(path)
 
     ## Unlocks a file
     # @param file_name name of the file
@@ -51,9 +51,12 @@ class Data_Controller(object):
     # @param file_name name of the file
     #
     def delete_file(self, file_name):
-        path = os.path.join(self.data_dir, file_name)
-        self.rcs._remove(path)
-
+        try:
+            path = os.path.join(self.data_dir, file_name)
+            self.rcs._remove(path)
+            os.remove(path + ',v')
+        except OSError:
+            print '[ERROR] It seems that the file to be deleted is already gone. This is BAD!'
 
     ## Creates a new file
     # @param file_name name of the file
@@ -65,6 +68,7 @@ class Data_Controller(object):
         new_file.write(content)
         new_file.close
         self.rcs.checkin(path, 'Created file ' + path)
+        self.rcs.lock(path)
         return True
 
     ## Saves a file
@@ -74,10 +78,13 @@ class Data_Controller(object):
     def modify_file(self, file_name, content):
         path = os.path.join(self.data_dir, file_name)
         print 'Modify file ' + path
+        self.rcs.checkout(path, True)
         current_file = open(path, 'w')
         current_file.write(content)
         current_file.close()
         self.rcs.checkin(path, 'Changed by user')
+        self.rcs.lock(path)
+
 
     ## Show changes of the file
     # @param file_name name of the file

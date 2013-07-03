@@ -72,8 +72,8 @@ class SourceBoxServer(object):
     ## removes a client
     # @author Martin Zellner
     # @param client the communication controller of the client
-    def remove_client(self, client):
-        print 'Remove client ' + client.computer_name
+    def remove_client(self):
+        print 'Remove client '
 
     ## The server command loop
     # @param sock the socket to listen on
@@ -91,7 +91,7 @@ class SourceBoxServer(object):
     def create_file(self, path, file_name, content, computer_name):
 
         print 'Creating the file ' + file_name
-        # create file in backend
+        # create file in backend    
         self.data.create_file(os.path.join(path, file_name), content)
 
         # push changes to all other clients

@@ -203,8 +203,16 @@ class Client_Communication_Controller(object):
     ## Closes the socket
     # @param sock the socket to close
     def _close_socket(self, sock):
-        sock.sendall('end' + " ")
+
+        sock.send('CLOSE')
+        print '[DEBUG] sending close'
+        # Wait for the recieve thread to send us a ok Event
+        status = self.command_listener_thread.ok.wait(5.0)
+        self.command_listener_thread.ok.clear()
+        if not status: raise IOError('Did not recieve a response from the server.')
+
         sock.close()
+        print '[DEBUG] Connection closed.'
 
 
 ## Thread that listens for commands on the incoming connection. If it recieves a "OK\n" it sends a 'ok'- Event

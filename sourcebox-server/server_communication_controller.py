@@ -41,7 +41,6 @@ class Server_Communication_Controller(object):
     ## Deconstructor  
     def __del__(self):
         print 'Deconstruction Communication_Controller'
-        self.connection.sendall('BYE')
         self.connection.close()
         self.parent.remove_client(self)
         thread.exit()
@@ -83,13 +82,14 @@ class Server_Communication_Controller(object):
             self._get_move_file(data)
         elif cmd == self.COMMAND_SENDCREATEDIR:
             self._get_create_dir(data)
+        elif cmd == self.COMMAND_CONNECTIONCLOSE:
+            self._close_connection()
         else:
             print '[WARNING] recieved unknown command: ' + cmd
 
     ## closes the connection to the client
     def _close_connection(self):
-        self.parent.remove_client(self)
-        self.connection.sendall('BYE')
+        self.connection.send('OK\n')
         self.connection.close()
         thread.exit()
 
@@ -178,21 +178,16 @@ class Server_Communication_Controller(object):
 
     ## helper function
     # @param data a data array
-    # @returns a dictionary like { 'command' : command, 'file_path' :  file_path}
+    # @returns a dictionary like { 'command' : command, 'file_path' :  file_path} or None (if error)
     def _recieve_command(self, data):
         command = data[0]
         file_path = data[1]
 
         if len(file_path) == 0:
             self.connection.send('ERROR\n')
+            return None
         else:
-            answer = self.parent.delete_file('.', file_path)
-            if answer:
-                self.connection.send('OK\n')            
-            else:
-                self.connection.send('ERROR\n')
-
-        return { 'command' : command, 'file_path' :  file_path}
+            return { 'command' : command, 'file_path' :  file_path}
 
     ## helper function
     # @param data a data array
