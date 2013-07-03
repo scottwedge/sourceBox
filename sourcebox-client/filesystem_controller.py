@@ -112,7 +112,10 @@ class Filesystem_Controller(FileSystemEventHandler):
 				# push changes to SVN			
 			else:
 				print "File created: ",event.src_path
-				# push changes to SVN
+				file_name = os.path.basename(event.src_path)
+				current_file = open(event.src_path)
+				file_content = current_file.read()
+				self.client.comm.send_create_file(file_name, len(file_content), file_content)
 
         
 	def on_deleted(self, event):
@@ -121,10 +124,11 @@ class Filesystem_Controller(FileSystemEventHandler):
 		else:
 			if event.is_directory == True:
 				print "Directory deleted: ",event.src_path
-				# push changes to SVN			
+				#
 			else:
 				print "File deleted: ",event.src_path
-				# push changes to SVN
+				file_name = os.path.basename(event.src_path)
+				self.client.comm.send_delete_file(file_name)
 		
 	def on_modified(self, event):
 		if event.src_path in self.ignoreModify:
@@ -136,11 +140,13 @@ class Filesystem_Controller(FileSystemEventHandler):
 			else:
 				print "File modified: ",event.src_path
 				# lock file:
-				# self.client.comm.send_lock_file(event.src_path)
-				# self.setLockTimer(event.src_path, self.lockTime)
+				file_name = os.path.basename(event.src_path)
+
+				self.client.comm.send_lock_file(file_name)
+				self.setLockTimer(file_name, self.lockTime)
 				# push changes to SVN:
 				content = self.readFile(event.src_path)
-				# self.client.comm.send_modify_file(filePath, size, content)
+				self.client.comm.send_modify_file(file_name, len(content), content)
 
 	def on_moved(self, event):			# also for renames!
 		if event.src_path in self.ignoreMove:
