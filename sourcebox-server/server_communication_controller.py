@@ -5,7 +5,7 @@
 # @encode  UTF-8, tabwidth = , newline = LF
 # @author  Paul
 import thread
-import sys
+import socket
 
 class Server_Communication_Controller(object):
 
@@ -55,9 +55,14 @@ class Server_Communication_Controller(object):
                 data = connection.recv(1024).split(' ')
                 cmd = data[0]
                 self._parse_command(cmd, data)
-        except:
-            print "_command_loop Unexpected error:", sys.exc_info()[0]    
-            raise
+        except socket.error, e:
+            if e.error == 104:
+                print '[WARNING] client closed connection unexpectedly'
+                self.parent.remove_client(self)
+                connection.close()
+                thread.exit()
+            else:
+                print "_command_loop error:" + e.string  
 
 
     # Parse the command

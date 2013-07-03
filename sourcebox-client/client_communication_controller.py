@@ -50,7 +50,10 @@ class Client_Communication_Controller(object):
     # @author Martin Zellner
     def __del__(self):
         # Closes the socket when the instance is destructed
-        self._close_socket(self.sock)
+        try:
+            self._close_socket(self.controller_socket)
+        except AttributeError:
+            print '[WARNING] Could not close socket. Propably the socket was not open in the first place.'
 
     ## Initialises the connection and identifies the client to the server
     # @author Martin Zellner
@@ -78,18 +81,21 @@ class Client_Communication_Controller(object):
     # @param file_path path to the file
     # @returns boolean
     def _send_command(self, command, file_path):
-        # create message
-        message = command + ' ' + file_path
-        # send message
-        self.controller_socket.send(message)
+        try:
+            # create message
+            message = command + ' ' + file_path
+            # send message
+            self.controller_socket.send(message)
 
-        # Wait for the recieve thread to send us a ok Event
-        status = self.command_listener_thread.ok.wait(5.0)
-        self.command_listener_thread.ok.clear()
-        if not status: raise IOError('Did not recieve a response from the server.')
-        
-        # if no error was raised
-        return True
+            # Wait for the recieve thread to send us a ok Event
+            status = self.command_listener_thread.ok.wait(5.0)
+            self.command_listener_thread.ok.clear()
+            if not status: raise IOError('Did not recieve a response from the server.')
+            
+            # if no error was raised
+            return True
+        except IOError:
+            print '[ERROR] Timeout: Did not recieve a response from the server.'
 
     ## Sends a command to the server (with content)
     # @throws IOError if a timeout occurs
@@ -99,27 +105,29 @@ class Client_Communication_Controller(object):
     # @param content the content of the file
     # @returns boolean
     def _send_command_with_content(self, command, filePath, size, content):
+        try:
+            # create message
+            message = command + ' ' + str(size) + ' ' + filePath
+     
+            # send message
+            self.controller_socket.sendall(message)
 
-        # create message
-        message = command + ' ' + str(size) + ' ' + filePath
- 
-        # send message
-        self.controller_socket.sendall(message)
+            # Wait for the recieve thread to send us a ok Event
+            status = self.command_listener_thread.ok.wait(5.0)
+            self.command_listener_thread.ok.clear()
+            if not status: raise IOError('Did not recieve a response from the server.')
 
-        # Wait for the recieve thread to send us a ok Event
-        status = self.command_listener_thread.ok.wait(5.0)
-        self.command_listener_thread.ok.clear()
-        if not status: raise IOError('Did not recieve a response from the server.')
+            # Send the content
+            self.controller_socket.send(content)
 
-        # Send the content
-        self.controller_socket.send(content)
+            # Wait for the recieve thread to send us a ok Event
+            status = self.command_listener_thread.ok.wait(5.0)
+            self.command_listener_thread.ok.clear()
+            if not status: raise IOError('Did not recieve a response from the server.')
 
-        # Wait for the recieve thread to send us a ok Event
-        status = self.command_listener_thread.ok.wait(5.0)
-        self.command_listener_thread.ok.clear()
-        if not status: raise IOError('Did not recieve a response from the server.')
-
-        return True
+            return True
+        except IOError:
+            print '[ERROR] Timeout: Did not recieve a response from the server.'
 
     ## Sends a lock command to the server
     # @author Paul
@@ -156,22 +164,25 @@ class Client_Communication_Controller(object):
     # @returns a boolean
     # @throws IOError if a timeout occurs
     def send_move_file(self, old_path, new_path):
-        mess = self.COMMAND_SENDMOVEFILE + ' ' + old_path
-        self.controller_socket.sendall(mess)
-        
-        # Wait for the recieve thread to send us a ok Event
-        status = self.command_listener_thread.ok.wait(5.0)
-        self.command_listener_thread.ok.clear()
-        if not status: raise IOError('Did not recieve a response from the server.')
+        try:
+            mess = self.COMMAND_SENDMOVEFILE + ' ' + old_path
+            self.controller_socket.sendall(mess)
+            
+            # Wait for the recieve thread to send us a ok Event
+            status = self.command_listener_thread.ok.wait(5.0)
+            self.command_listener_thread.ok.clear()
+            if not status: raise IOError('Did not recieve a response from the server.')
 
-        self.controller_socket.sendall(new_path)
+            self.controller_socket.sendall(new_path)
 
-        # Wait for the recieve thread to send us a ok Event
-        status = self.command_listener_thread.ok.wait(5.0)
-        self.command_listener_thread.ok.clear()
-        if not status: raise IOError('Did not recieve a response from the server.')
+            # Wait for the recieve thread to send us a ok Event
+            status = self.command_listener_thread.ok.wait(5.0)
+            self.command_listener_thread.ok.clear()
+            if not status: raise IOError('Did not recieve a response from the server.')
 
-        return True
+            return True
+        except IOError:
+            print '[ERROR] Timeout: Did not recieve a response from the server.'
 
     ## Opens a socket
     # @param ip the ip of the server to connect to
@@ -182,8 +193,12 @@ class Client_Communication_Controller(object):
             sock = socket.socket()
             sock.connect((ip, port))
             return sock
-        except IOError, e:
-            raise e
+        except socket.error, e:
+            if e.errno == 61:
+                print '[ERROR] Server is not reachable. Please check your configuration.'
+                exit()
+            else:
+                raise e
 
     ## Closes the socket
     # @param sock the socket to close
@@ -220,7 +235,7 @@ class Command_Recieve_Handler(threading.Thread):
                 # Fire the 'ok' Event
                 self.ok.set()
             elif data[0] == self.COMMAND_CREATE: # if a create command was recieved (when other clients changed the folder)
-                print 'Recieved Create Command' + data 
+                print 'Recieved Create Command' + str(data) 
                 self.open_socket.send('OK\n')
             else:
-                print 'Command recieved' + data 
+                print 'Command recieved' + str(data) 
