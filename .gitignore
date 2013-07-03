@@ -1,15 +1,6 @@
 *.pyc
 .DS_Store
-sourcebox-server/src/data/*
-
 documentation/latex
-
 sourcebox-server/data/*
-
-sourcebox-server/data/test.txt,v
-
-sourcebox-server/data/test.txt,v
-
 *.txt,v
-
 *.txt
