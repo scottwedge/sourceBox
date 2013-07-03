@@ -62,14 +62,17 @@ class Data_Controller(object):
     # @param file_name name of the file
     # @param content the content
     def create_file(self, file_name, content = ''):
-        path = os.path.join(self.data_dir, file_name)
-        print 'Create file ' + path
-        new_file = open(path, 'w+')
-        new_file.write(content)
-        new_file.close
-        self.rcs.checkin(path, 'Created file ' + path)
-        self.rcs.lock(path)
-        return True
+        try:
+            path = os.path.join(self.data_dir, file_name)
+            print 'Create file ' + path
+            new_file = open(path, 'w+')
+            new_file.write(content)
+            new_file.close
+            self.rcs.checkin(path, 'Created file ' + path)
+            self.rcs.lock(path)
+            return True
+        except IOError:
+            print '[ERROR] Could not create file!'
 
     ## Saves a file
     # @param file_name name of the file

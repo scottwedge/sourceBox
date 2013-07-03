@@ -88,7 +88,7 @@ class SourceBoxServer(object):
     # @param file_name the file name
     # @param content the content of the file
     # @parma computer_name the name of the computer creating the file
-    def create_file(self, path, file_name, content, computer_name):
+    def create_file(self, path, file_name, file_size, content, computer_name):
 
         print 'Creating the file ' + file_name
         # create file in backend    
@@ -96,7 +96,7 @@ class SourceBoxServer(object):
 
         # push changes to all other clients
         for comm in self.active_clients:
-            if not comm.computer_name == computer_name: comm.send_create_file(100, file_name)
+            if not comm.computer_name == computer_name: comm.send_create_file(file_size, file_name, content)
 
         # return true if successfully created
         return True

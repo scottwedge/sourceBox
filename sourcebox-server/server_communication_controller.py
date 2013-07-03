@@ -5,6 +5,7 @@
 # @encode  UTF-8, tabwidth = , newline = LF
 # @author  Paul
 import thread
+import threading
 import socket
 
 class Server_Communication_Controller(object):
@@ -34,6 +35,10 @@ class Server_Communication_Controller(object):
         self.connection = connection
         self.computer_name = computer_name
 
+        # Create OK Event (which is fired when a ok is recieved)
+        self.ok = threading.Event()
+
+
         # Wait for incoming events
         thread.start_new_thread(self._command_loop, (
             'Communication_Controller Thread for ' + self.computer_name, self.connection))
@@ -55,7 +60,7 @@ class Server_Communication_Controller(object):
                 cmd = data[0]
                 self._parse_command(cmd, data)
         except socket.error, e:
-            if e.error == 104:
+            if e.errno == 104:
                 print '[WARNING] client closed connection unexpectedly'
                 self.parent.remove_client(self)
                 connection.close()
@@ -84,6 +89,8 @@ class Server_Communication_Controller(object):
             self._get_create_dir(data)
         elif cmd == self.COMMAND_CONNECTIONCLOSE:
             self._close_connection()
+        elif cmd == 'OK\n':
+            self.ok.set()
         else:
             print '[WARNING] recieved unknown command: ' + cmd
 
@@ -96,15 +103,30 @@ class Server_Communication_Controller(object):
     ## server notifies the client about a new file (uploaded by another user)
     # @param size the size of the file
     # @param path the path to the file (relative to the source box)
-    def send_create_file(self, size, path):
+    def send_create_file(self, size, path, content):
         print 'Sending CREATE to client'
         mess = "CREATE" + ' ' + str(size) + ' ' + path
 
         self.connection.send(mess)
 
+        # Wait for the recieve thread to send us a ok Event
+        status = self.ok.wait(5.0)
+        self.ok.clear()
+        if not status: raise IOError('Did not recieve a response from the server.')
+
+        self.connection.send(content)
+
+        # Wait for the recieve thread to send us a ok Event
+        status = self.ok.wait(5.0)
+        self.ok.clear()
+        if not status: raise IOError('Did not recieve a response from the server.')
+
+       
+        print 'Hello. It worked. The client said he is ok :)'
+        # NOTE
         # Any notification would be eaten by the server command loop at the moment.
         # We need a event solution similar to the client if we are interested in the
-        # successful execution of the file
+        # successful execution of the file. Like the code above.
 
     ## client sends a CREATE_FILE command to the server
     # @param data a data array
@@ -112,7 +134,7 @@ class Server_Communication_Controller(object):
         communication_data = self._recieve_command_with_content(data)
  
         # send create_file function to the server
-        answer = self.parent.create_file('', communication_data['file_path'], communication_data['content'], self.computer_name)
+        answer = self.parent.create_file('', communication_data['file_path'], communication_data['file_size'],communication_data['content'], self.computer_name)
         if answer:
             self.connection.send('OK\n')
 

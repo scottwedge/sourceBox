@@ -245,5 +245,24 @@ class Command_Recieve_Handler(threading.Thread):
             elif data[0] == self.COMMAND_CREATE: # if a create command was recieved (when other clients changed the folder)
                 print 'Recieved Create Command' + str(data) 
                 self.open_socket.send('OK\n')
+
+                file_size = int(data[1])
+                file_path = data[2]
+
+                # read data from the socket
+                content = ''
+                while file_size > len(content):
+                    data = self.open_socket.recv(1024)
+                    if not data:
+                        break
+                    content += data
+
+                new_file = open(file_path, 'w+')
+                new_file.write(content)
+                new_file.close()
+
+                self.open_socket.send('OK\n')
+
+
             else:
                 print 'Command recieved' + str(data) 
