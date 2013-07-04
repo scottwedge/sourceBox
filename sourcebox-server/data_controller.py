@@ -16,7 +16,7 @@ class Data_Controller(object):
     #
     def __init__(self, data_dir):
         self.rcs = rcslib.RCS()
-        self.data_dir = os.path.join('.', 'data')
+        self.data_dir = './data'
 
         print '[INFO] Created Data_Controller in dir ' + self.data_dir
 

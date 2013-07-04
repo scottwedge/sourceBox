@@ -151,7 +151,7 @@ class RCS:
             f = tempfile.NamedTemporaryFile()
             f.write(message)
             f.flush()
-            cmd = 'ci %s%s' % \
+            cmd = 'ci %s%s -t%s %s %s' % \
                   (lockflag, rev, f.name, otherflags, name)
             print cmd
         else:
