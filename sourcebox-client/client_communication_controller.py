@@ -45,7 +45,7 @@ class Client_Communication_Controller(object):
         # Starts a thread listening for server events
         threading_queue = []
         self.command_listener_thread = Command_Recieve_Handler(
-            'Communication_Controller Thread for listening', self.controller_socket)
+            'Communication_Controller Thread for listening', self.controller_socket, self)
         # daemonize thread. This makes sure that it does not prevent the Client
         # Prozess from terminating (e.g. on a Keyboard interrupt)
         self.command_listener_thread.daemon = True
@@ -244,12 +244,13 @@ class Command_Recieve_Handler(threading.Thread):
     COMMAND_ACK = "OK\n"
     COMMAND_CREATE = "CREATE"
 
-    def __init__(self, thread_name, open_socket):
+    def __init__(self, thread_name, open_socket, parent):
         threading.Thread.__init__(self)
 
         # Write function variables to instance variables of the handler class
         self.thread_name = thread_name
         self.open_socket = open_socket
+        self.parent = parent
 
         # Create 'ok' Event
         self.ok = threading.Event()
@@ -284,10 +285,10 @@ class Command_Recieve_Handler(threading.Thread):
                         break
                     content += data
 
+                self.open_socket.send('OK\n')
+
                 self.parent.fs.createFile(file_path)
                 self.parent.fs.writeFile(file_path, content)
-
-                self.open_socket.send('OK\n')
 
             else:
                 print 'Command recieved' + str(data)
