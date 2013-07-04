@@ -3,3 +3,9 @@
 documentation/latex
 *.txt,v
 *.txt
+
+sourcebox-client/data/test10.txt2
+
+sourcebox-server/data/test10.txt2
+
+sourcebox-server/data/test10.txt2,v

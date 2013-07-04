@@ -45,7 +45,7 @@ class RCS:
 
     # --- Informational methods about a single file/revision ---
 
-    def log(self, name_rev, otherflags = ''):
+    def log(self, name_rev, otherflags=''):
         """Return the full log text for NAME_REV as a string.
 
         Optional OTHERFLAGS are passed to rlog.
@@ -79,14 +79,15 @@ class RCS:
         dict = {}
         while 1:
             line = f.readline()
-            if not line: break
+            if not line:
+                break
             if line[0] == '\t':
                 # XXX could be a lock or symbolic name
                 # Anything else?
                 continue
             i = string.find(line, ':')
             if i > 0:
-                key, value = line[:i], string.strip(line[i+1:])
+                key, value = line[:i], string.strip(line[i + 1:])
                 dict[key] = value
         status = self._closepipe(f)
         if status:
@@ -119,8 +120,10 @@ class RCS:
 
         """
         name, rev = self.checkfile(name_rev)
-        if withlock: lockflag = "-l"
-        else: lockflag = "-u"
+        if withlock:
+            lockflag = "-l"
+        else:
+            lockflag = "-u"
         cmd = 'co %s%s %s %s' % (lockflag, rev, otherflags, name)
         return self._system(cmd)
 
@@ -139,7 +142,8 @@ class RCS:
         """
         name, rev = self._unmangle(name_rev)
         new = not self.isvalid(name)
-        if not message: message = "<none>"
+        if not message:
+            message = "<none>"
         if message and message[-1] != '\n':
             message = message + '\n'
         lockflag = "-u"
@@ -147,8 +151,9 @@ class RCS:
             f = tempfile.NamedTemporaryFile()
             f.write(message)
             f.flush()
-            cmd = 'ci %s%s -t%s %s %s' % \
+            cmd = 'ci %s%s' % \
                   (lockflag, rev, f.name, otherflags, name)
+            print cmd
         else:
             message = re.sub(r'([\"$`])', r'\\\1', message)
             cmd = 'ci %s%s -m"%s" %s %s' % \
@@ -157,7 +162,7 @@ class RCS:
 
     # --- Exported support methods ---
 
-    def listfiles(self, pat = None):
+    def listfiles(self, pat=None):
         """Return a list of all version files matching optional PATTERN."""
         files = os.listdir(os.curdir)
         files = filter(self._isrcs, files)
@@ -182,11 +187,15 @@ class RCS:
         file that would be created by "ci" is returned.
 
         """
-        if self._isrcs(name): namev = name
-        else: namev = name + ',v'
-        if os.path.isfile(namev): return namev
+        if self._isrcs(name):
+            namev = name
+        else:
+            namev = name + ',v'
+        if os.path.isfile(namev):
+            return namev
         namev = os.path.join('RCS', os.path.basename(namev))
-        if os.path.isfile(namev): return namev
+        if os.path.isfile(namev):
+            return namev
         if os.path.isdir('RCS'):
             return os.path.join('RCS', namev)
         else:
@@ -200,9 +209,12 @@ class RCS:
         that would be created by "co" is returned.
 
         """
-        if self._isrcs(namev): name = namev[:-2]
-        else: name = namev
-        if os.path.isfile(name): return name
+        if self._isrcs(namev):
+            name = namev[:-2]
+        else:
+            name = namev
+        if os.path.isfile(name):
+            return name
         name = os.path.basename(name)
         return name
 
@@ -219,7 +231,8 @@ class RCS:
         status = self._closepipe(f)
         if status:
             raise IOError, status
-        if not line: return None
+        if not line:
+            return None
         if line[-1] == '\n':
             line = line[:-1]
         return self.realname(name_rev) == self.realname(line)
@@ -237,7 +250,7 @@ class RCS:
 
     # --- Internal methods ---
 
-    def _open(self, name_rev, cmd = 'co -p', rflag = '-r'):
+    def _open(self, name_rev, cmd='co -p', rflag='-r'):
         """INTERNAL: open a read pipe to NAME_REV using optional COMMAND.
 
         Optional FLAG is used to indicate the revision (default -r).
@@ -275,16 +288,18 @@ class RCS:
     def _closepipe(self, f):
         """INTERNAL: Close PIPE and print its exit status if nonzero."""
         sts = f.close()
-        if not sts: return None
+        if not sts:
+            return None
         detail, reason = divmod(sts, 256)
-        if reason == 0: return 'exit', detail   # Exit status
-        signal = reason&0x7F
+        if reason == 0:
+            return 'exit', detail   # Exit status
+        signal = reason & 0x7F
         if signal == 0x7F:
             code = 'stopped'
             signal = detail
         else:
             code = 'killed'
-        if reason&0x80:
+        if reason & 0x80:
             code = code + '(coredump)'
         return code, signal
 
@@ -304,9 +319,10 @@ class RCS:
         """
         cmd = cmd + " </dev/null"
         sts = os.system(cmd)
-        if sts: raise IOError, "command exit status %d" % sts
+        if sts:
+            raise IOError, "command exit status %d" % sts
 
-    def _filter(self, files, pat = None):
+    def _filter(self, files, pat=None):
         """INTERNAL: Return a sorted copy of the given list of FILES.
 
         If a second PATTERN argument is given, only files matching it
@@ -314,7 +330,7 @@ class RCS:
 
         """
         if pat:
-            def keep(name, pat = pat):
+            def keep(name, pat=pat):
                 return fnmatch.fnmatch(name, pat)
             files = filter(keep, files)
         else:

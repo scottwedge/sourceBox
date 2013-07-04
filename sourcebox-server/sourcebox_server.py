@@ -19,14 +19,14 @@ class SourceBoxServer(object):
             self.data = data_controller.Data_Controller('./data/')
 
             # Contains all active Communication Controllers
-            self.active_clients = []
+            self.active_clients = dict()
 
             # Create socket
             self._create_socket()
-        
-            print 'sourceBox server is running'
 
-            self._command_loop( self.sock)    
+            print '[INFO] sourceBox server is running'
+
+            self._command_loop(self.sock)
 
         # unexpected exit
         except KeyboardInterrupt:
@@ -34,15 +34,14 @@ class SourceBoxServer(object):
             del self.data
             for comm in self.active_clients:
                 del comm
-            print 'Terminating SourceBoxServer'
+            print '[INFO] Terminating SourceBoxServer'
 
-
-    ## Creates a socket
+    # Creates a socket
     # @author Martin Zellner
     def _create_socket(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.bind(('', 50000))
-        self.sock.listen(5) # Max 5 Clients
+        self.sock.listen(5)  # Max 5 Clients
 
     # When a new client connects
     # @param connection the connection object for the communication controller
@@ -56,26 +55,28 @@ class SourceBoxServer(object):
             print '[WARNING] Init failed'
         else:
             computer_name = init_message[1]
-            print 'A new client (' + computer_name + ')logged in. Creating a Communication Controller'
+            print '[INFO] A new client (' + computer_name + ')logged in. Creating a Communication Controller'
 
             # Create a new communication_controller
-            comm = server_communication_controller.Server_Communication_Controller(self, connection, computer_name)
-            
-            # add the communication controller to the active_clients list (to keep track of all clients logged in)
-            self.active_clients.append(comm)
+            comm = server_communication_controller.Server_Communication_Controller(
+                self, connection, computer_name)
+
+            # add the communication controller to the active_clients list (to
+            # keep track of all clients logged in)
+            self.active_clients[computer_name] = comm
 
             # log active clients
-            print 'Active Clients are:'
-            for client in self.active_clients:
-                print client.computer_name
+            print '[INFO] Active Clients are:'
+            print '\n'.join(self.active_clients.keys())
 
-    ## removes a client
+    # removes a client
     # @author Martin Zellner
     # @param client the communication controller of the client
-    def remove_client(self):
-        print 'Remove client '
+    def remove_client(self, computer_name):
+        print '[INFO] Remove client ' + computer_name
+        del self.active_clients[computer_name]
 
-    ## The server command loop
+    # The server command loop
     # @param sock the socket to listen on
     def _command_loop(self, sock):
         while True:
@@ -90,13 +91,15 @@ class SourceBoxServer(object):
     # @parma computer_name the name of the computer creating the file
     def create_file(self, path, file_name, file_size, content, computer_name):
 
-        print 'Creating the file ' + file_name
-        # create file in backend    
+        print '[INFO] Creating the file ' + file_name
+        # create file in backend
         self.data.create_file(os.path.join(path, file_name), content)
 
         # push changes to all other clients
-        for comm in self.active_clients:
-            if not comm.computer_name == computer_name: comm.send_create_file(file_size, file_name, content)
+        for comm in self.active_clients.keys():
+            if not comm == computer_name:
+                self.active_clients[comm].send_create_file(
+                    file_size, file_name, content)
 
         # return true if successfully created
         return True
@@ -137,7 +140,7 @@ class SourceBoxServer(object):
         self.data.delete_file(file_name)
         return True
 
-    ## gets the size of a file
+    # gets the size of a file
     # @param path the path relative to the source box root
     # @param file_name the file name
     def get_file_size(self, path, file_name):
