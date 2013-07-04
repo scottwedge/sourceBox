@@ -45,7 +45,7 @@ class Client_Communication_Controller(object):
         # Starts a thread listening for server events
         threading_queue = []
         self.command_listener_thread = Command_Recieve_Handler(
-            'Communication_Controller Thread for listening', self.controller_socket, self)
+            'Communication_Controller Thread for listening', self.controller_socket, self.parent)
         # daemonize thread. This makes sure that it does not prevent the Client
         # Prozess from terminating (e.g. on a Keyboard interrupt)
         self.command_listener_thread.daemon = True
