@@ -91,7 +91,7 @@ class gui:
 		pass
 	
 	def cancelOptions(self):
-		self.oWin.quit()
+		self.oWin.destroy()
 
 
 #testing
