@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-#
 # Imports
 import os
+import logging
 from threading import Timer
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
