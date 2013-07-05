@@ -31,7 +31,7 @@ class Filesystem_Controller(FileSystemEventHandler):
         global log
        	log = logging.getLogger("client")
 
-        self.boxPath = os.abspath(boxPath)							# absolute path of the observed directory (where fs-events will be detected)
+        self.boxPath = os.path.abspath(boxPath)						# absolute path of the observed directory (where fs-events will be detected)
         self.client = client										# object pointer to the parent class (client) 
         self.observer = Observer()									# create observer
         self.observer.schedule(self, boxPath, recursive=True)		# attach path to observer (recursive: also observe sub-directories)
