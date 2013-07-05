@@ -7,6 +7,7 @@
 
 import socket
 import threading
+import logging
 
 
 class Client_Communication_Controller(object):
@@ -28,7 +29,10 @@ class Client_Communication_Controller(object):
     # @param computer_name name of the client
     # @author Martin Zellner
     def __init__(self, parent, ip, port, computer_name):
-        print ' Client Created Communication_Controller'
+
+        # catch logging object
+        global log
+        log = logging.getLogger("client")
 
         # store the computer name in an instance variable
         self.computer_name = computer_name
@@ -52,6 +56,8 @@ class Client_Communication_Controller(object):
         threading_queue.append(self.command_listener_thread)
         self.command_listener_thread.start()
 
+        log.info('Client Created Communication_Controller')
+
     # Deconstructor
     # @author Martin Zellner
     def __del__(self):
@@ -61,7 +67,7 @@ class Client_Communication_Controller(object):
             self._close_socket(self.controller_socket)
 
         except AttributeError:
-            print '[WARNING] Could not close socket. Propably the socket was not open in the first place.'
+            log.warning('Could not close socket. Propably the socket was not open in the first place.')
 
     # Initialises the connection and identifies the client to the server
     # @author Martin Zellner
@@ -107,7 +113,7 @@ class Client_Communication_Controller(object):
         except IOError:
             self.gui.errorBox(
                 'Error', '[ERROR] Timeout: Did not recieve a response from the server.')
-            print'[ERROR] Timeout: Did not recieve a response from the server.'
+            log.error('Timeout: Did not recieve a response from the server.')
 
     # Sends a command to the server (with content)
     # @throws IOError if a timeout occurs
@@ -202,7 +208,7 @@ class Client_Communication_Controller(object):
         except IOError:
             self.gui.errorBox(
                 'Error', '[ERROR] Timeout: Did not recieve a response from the server.')
-            print '[ERROR] Timeout: Did not recieve a response from the server.'
+            log.error('[ERROR] Timeout: Did not recieve a response from the server.')
 
     # Opens a socket
     # @param ip the ip of the server to connect to

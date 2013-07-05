@@ -51,7 +51,7 @@ class ClientBox(object):
             del self.comm
             del self.fs
         except:
-            print '[ERROR] Could not delete client objects. Maybe the were not created'
+            log.error("Could not delete client objects. Maybe the were not created")
 
 
     # creates global log object

@@ -26,16 +26,21 @@ class Filesystem_Controller(FileSystemEventHandler):
     # @param boxPath path to the directory that will be observed  
     # @author Emanuel Regnath
     def __init__(self, client, boxPath):
+    	# catch logging object from sourceBox_client
+        global log
+       	log = logging.getLogger("client")
+
         self.boxPath = os.abspath(boxPath)							# absolute path of the observed directory (where fs-events will be detected)
         self.client = client										# object pointer to the parent class (client) 
         self.observer = Observer()									# create observer
         self.observer.schedule(self, boxPath, recursive=True)		# attach path to observer (recursive: also observe sub-directories)
         self.observer.start()										# start observing							
-        print 'Created Filesystem_Controller in path: ' + boxPath	# log
+        log.info(
+        	'Created Filesystem_Controller in path %s', boxPath)	# log
 
     # Destructor
     def __del__(self):
-        print 'Deleted Filesystem_Controller'						# log
+        log.info('Deleted Filesystem_Controller')					# log
         self.observer.stop()										# stop observing
 
 
@@ -54,8 +59,8 @@ class Filesystem_Controller(FileSystemEventHandler):
             os.chmod(path, 0o000)									# set file permissions: no read, no write, no exec
             print "File locked ", path 								# log
         except Exception, e:
-            print "Error: could not lock file ", path	
-            print "because ", e										# print exception
+        	log.error(
+        		"could not lock file %s because %s", path, e)		# print exception
 
     # unlocks a file
     # @param path path of the file relative to boxPath
@@ -72,8 +77,8 @@ class Filesystem_Controller(FileSystemEventHandler):
             os.chmod(path, 0o666)									# set file permissions: read and write
             print "File unlocked: ", path
         except Exception, e:
-        	self.client.log.error(
-        		"could not unlock file %s because %s", path, e)
+        	log.error(
+        		"could not unlock file %s because %s", path, e)		# print exception
 
     # wait a certain time (new thread) until path is auto-unlocked
     # @param path path of the file relative to boxPath
@@ -172,10 +177,10 @@ class Filesystem_Controller(FileSystemEventHandler):
             self.ignoreCreate.remove(src_path)
         else:
             if event.is_directory == True:							# if event was triggered by a directory
-                print "Directory created: ", src_path
+                log.info("Directory created: %s", src_path)			# log
                 # push changes to SVN
             else:
-                print "File created: ", src_path
+                log.info("File created: %s", src_path)				# log
                 content = open(src_path).read()
                 self.client.comm.send_create_file(
                     src_path, len(content), content)
@@ -190,10 +195,10 @@ class Filesystem_Controller(FileSystemEventHandler):
             self.ignoreDelete.remove(src_path)
         else:
             if event.is_directory == True:							# if event was triggered by a directory
-                print "Directory deleted: ", src_path
+                log.info("Directory deleted: %s", src_path)			# log
                 # push changes to SVN
             else:
-                print "File deleted: ", src_path
+                log.info("File deleted: %s", src_path)				# log
                 self.client.comm.send_delete_file(src_path)			# send delete_file to server
 
 
@@ -206,10 +211,10 @@ class Filesystem_Controller(FileSystemEventHandler):
             self.ignoreModify.remove(src_path)
         else:
             if event.is_directory == True:							# if event was triggered by a directory
-                print "Directory modified: ", src_path
+                log.info("Directory modified: %s", src_path)		# log
                 # push changes to SVN
             else:
-                print "File modified: ", src_path					# log
+                log.info("File modified: %s", src_path)				# log
                 # lock file:
                 self.client.comm.send_lock_file(src_path)
                 self.locked_files.append(src_path)
@@ -233,12 +238,12 @@ class Filesystem_Controller(FileSystemEventHandler):
             self.ignoreMove.remove(src_path)
         else:
             if event.is_directory == True:							# if event was triggered by a directory
-                print "Directory moved from: ", src_path
-                print "to: ", dest_path
+                log.info("Directory moved from %s to %s", 
+                	src_path, dest_path)							# log
                 # push changes to SVN
             else:
-                print "File moved from: ", src_path
-                print "to: ", dest_path
+                log.info("File moved from %s to %s", 
+                	src_path, dest_path)							# log
                 if src_path == None:
                     # same as create
                     pass
