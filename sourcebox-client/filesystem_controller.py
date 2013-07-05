@@ -47,7 +47,7 @@ class Filesystem_Controller(FileSystemEventHandler):
     # @author Emanuel Regnath
     def lockFile(self, path):
         try:
-            self.locked_files.append(path)						# new entry in locked_files
+            self.locked_files.append(path)							# new entry in locked_files
 
             self.ignoreModify.append(path)							# ignore modify-event raised by chmod
             path = os.path.join(self.boxPath, path)					# expand to absolute path
@@ -64,7 +64,7 @@ class Filesystem_Controller(FileSystemEventHandler):
         try:
             self.client.comm.send_unlock_file(path)					# send unlock command from client to server
 
-            self.locked_files.remove(path)						# remove file from locked list
+            self.locked_files.remove(path)							# remove file from locked list
             self.client.gui.locked_files.set(						# new entry in GUI notification
             	'\n'.join(self.locked_files))		
 
@@ -72,8 +72,8 @@ class Filesystem_Controller(FileSystemEventHandler):
             os.chmod(path, 0o666)									# set file permissions: read and write
             print "File unlocked: ", path
         except Exception, e:
-            print "[ERROR] could not unlock file ", path
-            print "because ", e
+        	self.client.log.error(
+        		"could not unlock file %s because %s", path, e)
 
     # wait a certain time (new thread) until path is auto-unlocked
     # @param path path of the file relative to boxPath
