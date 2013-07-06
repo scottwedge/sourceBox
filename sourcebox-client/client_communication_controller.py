@@ -249,6 +249,10 @@ class Client_Communication_Controller(object):
 class Command_Recieve_Handler(threading.Thread):
     COMMAND_ACK = "OK\n"
     COMMAND_CREATE = "CREATE"
+    COMMAND_DELETEFILE = "REMOVE"
+    COMMAND_MODIFYFILE = "MODIFY"
+    COMMAND_LOCKFILE = "LOCK"
+    COMMAND_UNLOCKFILE = "UNLOCK"
 
     def __init__(self, thread_name, open_socket, parent):
         threading.Thread.__init__(self)
@@ -295,6 +299,48 @@ class Command_Recieve_Handler(threading.Thread):
 
                 self.parent.fs.createFile(file_path)
                 self.parent.fs.writeFile(file_path, content)
+            
+            elif data[0] == self.COMMAND_DELETEFILE:
+                print 'Recieved Delete Command' + str(data)
+                
+                file_path = data[1]
+                self.open_socket.send('OK\n')
 
+                self.parent.fs.deleteFile(file_path)
+                
+            elif data[0] == self.COMMAND_MODIFYFILE:
+                print 'Recieved Modify Command' + str(data)
+                self.open_socket.send('OK\n')
+
+                file_size = int(data[1])
+                file_path = data[2]
+
+                # read data from the socket
+                content = ''
+                while file_size > len(content):
+                    data = self.open_socket.recv(1024)
+                    if not data:
+                        break
+                    content += data
+
+                self.open_socket.send('OK\n')
+                self.parent.fs.writeFile(file_path, content)   
+            
+            elif data[0] == self.COMMAND_LOCKFILE:
+                print 'Recieved Lock Command' + str(data)
+                
+                file_path = data[1]
+                self.open_socket.send('OK\n')
+
+                self.parent.fs.lockFile(file_path)
+            
+            elif data[0] == self.COMMAND_UNLOCKFILE:
+                print 'Recieved Unlock Command' + str(data)
+                
+                file_path = data[1]
+                self.open_socket.send('OK\n')
+
+                self.parent.fs.unlockFile(file_path)            
+                                    
             else:
                 print 'Command recieved' + str(data)

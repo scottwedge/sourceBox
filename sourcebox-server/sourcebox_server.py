@@ -110,6 +110,12 @@ class SourceBoxServer(object):
     # @param file_name the file name
     def lock_file(self, path, file_name):
         self.data.lock_file(os.path.join(path, file_name))
+        
+        # push changes to all other clients
+        for comm in self.active_clients.keys():
+            if not comm == computer_name:
+                self.active_clients[comm].send_lock_file(file_name)
+
         # return true if successfully locked
         return True
 
@@ -119,6 +125,12 @@ class SourceBoxServer(object):
     # @param file_name the file name
     def unlock_file(self, path, file_name):
         self.data.unlock_file(os.path.join(path, file_name))
+        
+        # push changes to all other clients
+        for comm in self.active_clients.keys():
+            if not comm == computer_name:
+                self.active_clients[comm].send_unlock_file(file_name)
+
         # return true if successfully unlocked
         return True
 
@@ -127,8 +139,14 @@ class SourceBoxServer(object):
     # @param path the path relative to the source box root
     # @param file_name the file name
     def modify_file(self, path, file_name, content):
-        # return true if successfully modified
         self.data.modify_file(file_name, content)
+         
+        # push changes to all other clients
+        for comm in self.active_clients.keys():
+            if not comm == computer_name:
+                self.active_clients[comm].send_modify_file(file_name)
+
+        # return true if successfully modified
         return True
 
     # Is called when a client deletes a file.
@@ -138,6 +156,13 @@ class SourceBoxServer(object):
     def delete_file(self, path, file_name):
         # return true if successfully deleted
         self.data.delete_file(file_name)
+
+        # push changes to all other clients
+        for comm in self.active_clients.keys():
+            if not comm == computer_name:
+                self.active_clients[comm].send_delete_file(file_name)
+
+        # return true if successfully deleted
         return True
 
     # gets the size of a file

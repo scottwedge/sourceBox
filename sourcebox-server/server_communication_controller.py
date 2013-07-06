@@ -121,11 +121,88 @@ class Server_Communication_Controller(object):
         if not status:
             raise IOError('Did not recieve a response from the server.')
 
-        print 'Hello. It worked. The client said he is ok :)'
+        print 'Hello. Creation worked. The client said he is ok :)'
         # NOTE
         # Any notification would be eaten by the server command loop at the moment.
         # We need a event solution similar to the client if we are interested in the
         # successful execution of the file. Like the code above.
+
+
+    # server notifies the client about delete file (initiated by another user)
+    # @param path the path to the file (relative to the source box)
+    def send_delete_file(self, path):
+        print 'Sending REMOVE to client'
+        mess = "REMOVE" + ' ' + path
+
+        self.connection.send(mess)
+
+        # Wait for the recieve thread to send us a ok Event
+        status = self.ok.wait(5.0)
+        self.ok.clear()
+        if not status:
+            raise IOError('Did not recieve a response from the server.')
+
+        print 'Hello. Delete worked. The client said he is ok :)'
+
+    # server notifies the client about modify file (initiated by another user)
+    # @param path the path to the file (relative to the source box)
+    def send_modify_file(self, size, path, content):
+        print 'Sending MODIFY to client'
+        mess = "MODIFY" + ' ' + str(size) + ' ' + path
+
+        self.connection.send(mess)
+
+        # Wait for the recieve thread to send us a ok Event
+        status = self.ok.wait(5.0)
+        self.ok.clear()
+        if not status:
+            raise IOError('Did not recieve a response from the server.')
+
+        self.connection.send(content)
+
+        # Wait for the recieve thread to send us a ok Event
+        status = self.ok.wait(5.0)
+        self.ok.clear()
+        if not status:
+            raise IOError('Did not recieve a response from the server.')
+
+        print 'Hello. Modifying worked. The client said he is ok :)'
+
+    # server notifies the client about lock file (initiated by another user)
+    # @param path the path to the file (relative to the source box)
+    def send_lock_file(self, path):
+        print 'Sending LOCK to client'
+        mess = "LOCK" + ' ' + path
+
+        self.connection.send(mess)
+
+        # Wait for the recieve thread to send us a ok Event
+        status = self.ok.wait(5.0)
+        self.ok.clear()
+        if not status:
+            raise IOError('Did not recieve a response from the server.')
+
+        print 'Hello. Locking worked. The client said he is ok :)'
+
+    # server notifies the client about unlock file (initiated by another user)
+    # @param path the path to the file (relative to the source box)
+    def send_unlock_file(self, path):
+        print 'Sending UNLOCK to client'
+        mess = "UNLOCK" + ' ' + path
+
+        self.connection.send(mess)
+
+        # Wait for the recieve thread to send us a ok Event
+        status = self.ok.wait(5.0)
+        self.ok.clear()
+        if not status:
+            raise IOError('Did not recieve a response from the server.')
+
+        print 'Hello. Unlocking worked. The client said he is ok :)'
+
+
+
+
 
     # client sends a CREATE_FILE command to the server
     # @param data a data array
