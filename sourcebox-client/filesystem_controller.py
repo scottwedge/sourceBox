@@ -32,6 +32,7 @@ class Filesystem_Controller(FileSystemEventHandler):
        	log = logging.getLogger("client")
 
         self.boxPath = os.path.abspath(boxPath)						# absolute path of the observed directory (where fs-events will be detected)
+        # os.chdir(boxPath)
         self.client = client										# object pointer to the parent class (client) 
         self.observer = Observer()									# create observer
         self.observer.schedule(self, boxPath, recursive=True)		# attach path to observer (recursive: also observe sub-directories)
@@ -52,8 +53,9 @@ class Filesystem_Controller(FileSystemEventHandler):
     # @param path path of the file relative to boxPath
     # @author Emanuel Regnath
     def lockFile(self, path):
+        relpath = os.path.relpath(path, self.boxPath) 				# reduce to path relative to boxPath
         try:
-            self.locked_files.append(path)							# new entry in locked_files
+            self.locked_files.append(relpath)							# new entry in locked_files
 
             self.ignoreModify.append(path)							# ignore modify-event raised by chmod
             path = os.path.join(self.boxPath, path)					# expand to absolute path
@@ -67,14 +69,16 @@ class Filesystem_Controller(FileSystemEventHandler):
     # @param path path of the file relative to boxPath
     # @author Emanuel Regnath
     def unlockFile(self, path):
+        relpath = os.path.relpath(path, self.boxPath) 				# reduce to path relative to boxPath
         try:
-            self.client.comm.send_unlock_file(path)					# send unlock command from client to server
+           #  self.client.comm.send_unlock_file(relpath)				# send unlock command from client to server
 
-            self.locked_files.remove(path)							# remove file from locked list
+            self.locked_files.remove(relpath)							# remove file from locked list
             self.client.gui.locked_files.set(						# new entry in GUI notification
             	'\n'.join(self.locked_files))		
 
             self.ignoreModify.append(path)							# ignore modify-event triggered by chmod
+            path = os.path.join(self.boxPath, path)					# expand to absolute path
             os.chmod(path, 0o666)									# set file permissions: read and write
             print "File unlocked: ", path
         except Exception, e:
@@ -173,7 +177,8 @@ class Filesystem_Controller(FileSystemEventHandler):
     # @param event object representing the file system event
     # @author Emanuel Regnath 
     def on_created(self, event):
-    	src_path = os.path.relpath(event.src_path, self.boxPath)	# reduce to path relative to boxPath
+        src_path = event.src_path									# abslolute path
+        src_relpath = os.path.relpath(src_path, self.boxPath) 		# reduce to path relative to boxPath
         if src_path in self.ignoreCreate:
             self.ignoreCreate.remove(src_path)
         else:
@@ -182,16 +187,17 @@ class Filesystem_Controller(FileSystemEventHandler):
                 # push changes to SVN
             else:
                 log.info("File created: %s", src_path)				# log
-                content = open(src_path).read()
+                content = open(src_path).read()						# ERROR: src_path only filename
                 self.client.comm.send_create_file(
-                    src_path, len(content), content)
+                    src_relpath, len(content), content)
 
 
     # triggered if a file or directory was deleted
     # @param event object representing the file system event
     # @author Emanuel Regnath 
     def on_deleted(self, event):
-    	src_path = os.path.relpath(event.src_path, self.boxPath)	# reduce to path relative to boxPath
+        src_path = event.src_path									# abslolute path
+        src_relpath = os.path.relpath(src_path, self.boxPath) 		# reduce to path relative to boxPath
         if src_path in self.ignoreDelete:
             self.ignoreDelete.remove(src_path)
         else:
@@ -200,14 +206,15 @@ class Filesystem_Controller(FileSystemEventHandler):
                 # push changes to SVN
             else:
                 log.info("File deleted: %s", src_path)				# log
-                self.client.comm.send_delete_file(src_path)			# send delete_file to server
+                self.client.comm.send_delete_file(src_relpath)		# send delete_file to server
 
 
     # triggered if a file or directory was modified
     # @param event object representing the file system event
     # @author Emanuel Regnath 
     def on_modified(self, event):
-    	src_path = os.path.relpath(event.src_path, self.boxPath)	# reduce to path relative to boxPath
+        src_path = event.src_path									# abslolute path
+        src_relpath = os.path.relpath(src_path, self.boxPath) 		# reduce to path relative to boxPath
         if src_path in self.ignoreModify:
             self.ignoreModify.remove(src_path)
         else:
@@ -215,18 +222,18 @@ class Filesystem_Controller(FileSystemEventHandler):
                 log.info("Directory modified: %s", src_path)		# log
                 # push changes to SVN
             else:
-                log.info("File modified: %s", src_path)				# log
+                log.info("File modified: %s", src_relpath)				# log
                 # lock file:
-                self.client.comm.send_lock_file(src_path)
-                self.locked_files.append(src_path)
+                self.client.comm.send_lock_file(src_relpath)
+                self.locked_files.append(src_relpath)
                 self.client.gui.locked_files.set(
                     '\n'.join(self.locked_files))
 
-                self.setLockTimer(src_path, self.lockTime)			# start lockTimer for auto-unlock
+                self.setLockTimer(src_relpath, self.lockTime)		# start lockTimer for auto-unlock
                 # push changes to SVN:
                 content = self.readFile(src_path)					# read file content
                 self.client.comm.send_modify_file(					# send modify_file to server
-                    src_path, len(content), content)
+                    src_relpath, len(content), content)
 
 
     # triggered if a file or directory was moved or renamed

@@ -43,9 +43,10 @@ class ClientBox(object):
                 self, config.boxPath)
 
             log.info('Client is running')
-        except:
+        except Exception, e:
             gui.changeStatus()
-
+            log.error(e)
+            
     def stop(self):
         try:
             del self.comm
