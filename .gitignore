@@ -6,3 +6,5 @@ documentation/latex
 sourcebox-server/data/*
 
 sourcebox-client/data/*
+
+sourcebox-client/client.log
