@@ -91,9 +91,6 @@ class Filesystem_Controller(FileSystemEventHandler):
 
             self.locked_files.remove(
                 relpath)                       # remove file from locked list
-            self.client.gui.locked_files.set(						# new entry in GUI notification
-                '\n'.join(self.locked_files))
-            self.client.gui.locked_files_path.remove(relpath)
             path = os.path.join(
                 self.boxPath, path)                 # expand to absolute path
             self.ignoreModify.append(
@@ -269,6 +266,7 @@ class Filesystem_Controller(FileSystemEventHandler):
                     src_path, self.lockTime)                  # start lockTimer for auto-unlock
                 self.ignoreLock.append(
                     src_relpath)                         # ignore incomming locks because I locked the file
+                self.client.gui.locked_files_path.append(relpath)
                 self.client.gui.locked_files.set(
                     '\n'.join(self.locked_files))
 
@@ -315,8 +313,7 @@ class Filesystem_Controller(FileSystemEventHandler):
         if relpath in self.ignoreLock:                              # delete ignoreLock entry
             self.ignoreLock.remove(relpath)
         self.client.comm.send_unlock_file(relpath)
-        self.locked_files.remove(relpath)
-                                 # remove file from locked list
-        self.client.gui.locked_files_path.append(relpath)
-        self.client.gui.locked_files.set(                                   # update GUI lock list
+        self.locked_files.remove(relpath)               # remove file from locked list
+        self.client.gui.locked_files.set(                       # new entry in GUI notification
             '\n'.join(self.locked_files))
+        self.client.gui.locked_files_path.remove(relpath)
