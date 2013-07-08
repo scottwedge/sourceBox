@@ -251,6 +251,7 @@ class Filesystem_Controller(FileSystemEventHandler):
     # @param event object representing the file system event
     # @author Emanuel Regnath
     def on_modified(self, event):
+        self.log.debug(str(self.ignoreModify))
         src_path = event.src_path									# abslolute path
         src_relpath = os.path.relpath(
             src_path, self.boxPath) 		# reduce to path relative to boxPath
