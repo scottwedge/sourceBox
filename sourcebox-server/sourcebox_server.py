@@ -117,9 +117,11 @@ class SourceBoxServer(object):
         # push changes to all other clients
         for comm in self.active_clients.keys():
             if not comm == computer_name:
-                self.active_clients[comm].send_create_file(
-                    file_size, file_name, content)
-
+                try:
+                    self.active_clients[comm].send_create_file(
+                        file_size, file_name, content)
+                except IOError, err:
+                    self.log.error('Error:' + err)
         # return true if successfully created
         return True
 
@@ -152,8 +154,10 @@ class SourceBoxServer(object):
         # push changes to all other clients
         for comm in self.active_clients.keys():
             if not comm == computer_name:
-                self.active_clients[comm].send_unlock_file(file_name)
-
+                try:
+                    self.active_clients[comm].send_unlock_file(file_name)
+                except IOError, err:
+                    self.log.error('Error:' + err)
         # return true if successfully unlocked
         return True
 
@@ -168,9 +172,11 @@ class SourceBoxServer(object):
         for comm in self.active_clients.keys():
             if not comm == computer_name:
                 file_size = self.date.get_file_size(path, file_name)
-                self.active_clients[comm].send_modify_file(
-                    file_size, os.path.join(path, file_name), content)
-
+                try:
+                    self.active_clients[comm].send_modify_file(
+                        file_size, os.path.join(path, file_name), content)
+                except IOError, err:
+                    self.log.error('Error:' + err)
         # return true if successfully modified
         return True
 
@@ -185,8 +191,10 @@ class SourceBoxServer(object):
         # push changes to all other clients
         for comm in self.active_clients.keys():
             if not comm == computer_name:
-                self.active_clients[comm].send_delete_file(file_name)
-
+                try:
+                    self.active_clients[comm].send_delete_file(file_name)
+                except IOError, err:
+                    self.log.error('Error:' + err)
         # return true if successfully deleted
         return True
 
