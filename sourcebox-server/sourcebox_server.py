@@ -121,7 +121,7 @@ class SourceBoxServer(object):
                     self.active_clients[comm].send_create_file(
                         file_size, file_name, content)
                 except IOError, err:
-                    self.log.error('Error:' + err)
+                    self.log.error('Error:' + str(err))
         # return true if successfully created
         return True
 
@@ -157,7 +157,7 @@ class SourceBoxServer(object):
                 try:
                     self.active_clients[comm].send_unlock_file(file_name)
                 except IOError, err:
-                    self.log.error('Error:' + err)
+                    self.log.error('Error:' + str(err))
         # return true if successfully unlocked
         return True
 
@@ -176,7 +176,7 @@ class SourceBoxServer(object):
                     self.active_clients[comm].send_modify_file(
                         file_size, os.path.join(path, file_name), content)
                 except IOError, err:
-                    self.log.error('Error:' + err)
+                    self.log.error('Error:' + str(err))
         # return true if successfully modified
         return True
 
@@ -194,7 +194,7 @@ class SourceBoxServer(object):
                 try:
                     self.active_clients[comm].send_delete_file(file_name)
                 except IOError, err:
-                    self.log.error('Error:' + err)
+                    self.log.error('Error:' + str(err))
         # return true if successfully deleted
         return True
 
