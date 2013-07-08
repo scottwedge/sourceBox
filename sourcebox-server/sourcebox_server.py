@@ -171,7 +171,7 @@ class SourceBoxServer(object):
         # push changes to all other clients
         for comm in self.active_clients.keys():
             if not comm == computer_name:
-                file_size = self.date.get_file_size(path, file_name)
+                file_size = self.data.get_file_size(path, file_name)
                 try:
                     self.active_clients[comm].send_modify_file(
                         file_size, os.path.join(path, file_name), content)
