@@ -125,7 +125,7 @@ class Data_Controller(object):
     # @param path the path relative to the source box root
     # @param file_name the file name
     def get_file_size(self, path, file_name):
-        if os.path.exists(os.path.join(path, file_name)):
-            return os.path.getsize(os.path.join(path, file_name))
+        if os.path.exists(os.path.join(self.data_dir, path, file_name)):
+            return os.path.getsize(os.path.join(self.data_dir, path, file_name))
         else:
             return False
