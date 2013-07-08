@@ -153,27 +153,24 @@ class Filesystem_Controller(FileSystemEventHandler):
     # @param path path of the directory relative to boxPath
     # @author Emanuel Regnath
     def createDir(self, path):
-        self.ignoreCreate.append(
-            path)								# ignore create-event triggered by os.makedirs
-        path = os.path.join(self.boxPath, path)						# expand to absolute path
+        path = os.path.join(self.boxPath, path)                     # expand to absolute path
+        self.ignoreCreate.append(path)								# ignore create-event triggered by os.makedirs
         os.makedirs(path)											# create directory
 
     # delete File
     # @param path path of the file relative to boxPath
     # @author Emanuel Regnath
     def deleteFile(self, path):
-        self.ignoreDelete.append(
-            path)								# ignore delete-event triggered by os.remove
-        path = os.path.join(self.boxPath, path)						# expand to absolute path
+        path = os.path.join(self.boxPath, path)                     # expand to absolute path
+        self.ignoreDelete.append(path)								# ignore delete-event triggered by os.remove   
         os.remove(path)												# delete file
 
     # delete directory
     # @param path path of the directory relative to boxPath
     # @author Emanuel Regnath
     def deleteDir(self, path):
-        self.ignoreDelete.append(
-            path)								# ignore delete-event triggered by os.removedirs
-        path = os.path.join(self.boxPath, path)						# expand to absolute path
+        path = os.path.join(self.boxPath, path)                     # expand to absolute path
+        self.ignoreDelete.append(path)								# ignore delete-event triggered by os.removedirs
         os.removedirs(path)											# delete directory
 
     # moves or renames a File OR Directory
@@ -181,12 +178,9 @@ class Filesystem_Controller(FileSystemEventHandler):
     # @param dstPath new path of the file or directory relative to boxPath
     # @author Emanuel Regnath
     def moveFileDir(self, srcPath, dstPath):
-        self.ignoreMove.append(
-            srcPath)								# ignore move-event triggered by os.renames
-        srcPath = os.path.join(
-            self.boxPath, srcPath)				# expand to absolute path
-        dstPath = os.path.join(
-            self.boxPath, dstPath)				# expand to absolute path
+        srcPath = os.path.join(self.boxPath, srcPath)               # expand to absolute path
+        dstPath = os.path.join(self.boxPath, dstPath)               # expand to absolute path
+        self.ignoreMove.append(srcPath)								# ignore move-event triggered by os.renames
         # TODO: test if dest is in lokal folder?
         os.renames(srcPath, dstPath)								# move file or directory
 
