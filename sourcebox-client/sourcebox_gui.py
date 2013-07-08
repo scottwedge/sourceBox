@@ -40,6 +40,9 @@ class SourceBox_Gui(object):
         self.locked_files = StringVar()
         self.lockedLabel = Tkinter.Label(
             self.root, textvariable=self.locked_files).pack()
+        
+        Tkinter.Button(
+            self.root, text="Datei(en) entsperren", command=self.unlock).pack()
 
         Tkinter.Button(
             self.root, text="Beenden", command=self.exit).pack()
@@ -117,6 +120,9 @@ class SourceBox_Gui(object):
 
     def cancelOptions(self):
         self.oWin.destroy()
+        
+    def unlock(self):
+        pass
 
 
 # testing
