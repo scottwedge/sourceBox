@@ -307,7 +307,6 @@ class Command_Recieve_Handler(threading.Thread):
                         content += data
 
                     self.open_socket.send('OK\n')
-                    self.parent.fs.createFile(file_path)
                     self.parent.fs.writeFile(file_path, content)
 
             elif data[0] == self.COMMAND_DELETEFILE:
