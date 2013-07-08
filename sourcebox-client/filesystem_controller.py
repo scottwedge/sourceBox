@@ -310,7 +310,6 @@ class Filesystem_Controller(FileSystemEventHandler):
             path, self.boxPath)                       # reduce to path relative to boxPath
         if relpath in self.ignoreLock:                              # delete ignoreLock entry
             self.ignoreLock.remove(relpath)
-        self.client.comm.send_unlock_file(relpath)
+        self.client.gui.locked_files_path.remove(relpath)
         self.client.gui.locked_files.set(                       # new entry in GUI notification
             '\n'.join(self.client.gui.locked_files_path))
-        self.client.gui.locked_files_path.remove(relpath)
