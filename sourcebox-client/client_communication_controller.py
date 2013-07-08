@@ -298,7 +298,7 @@ class Command_Recieve_Handler(threading.Thread):
 
                 # read data from the socket
                 content = ''
-                while file_size > len(content):
+                while file_size >= len(content):
                     data = self.open_socket.recv(1024)
                     if not data:
                         break
