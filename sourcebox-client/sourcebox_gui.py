@@ -89,9 +89,15 @@ class SourceBox_Gui(object):
     def optionWindow(self):
         self.sDirectory = self.config.boxPath
         self.sServerIP = self.config.serverIP
+        self.sClientName = self.config.clientName
 
         self.oWin = Tkinter.Toplevel()
         self.oWin.title("Optionen")
+
+        Tkinter.Label(self.oWin, text="Client-Name").grid(row=0)
+        self.eClientName = Tkinter.Entry(self.oWin)
+        self.eClientName.grid(row=0, column=1)
+        self.eClientName.insert(0, self.sClientName)
 
         Tkinter.Label(self.oWin, text="Server IP-Adresse").grid(row=0)
         self.eServerIP = Tkinter.Entry(self.oWin)
@@ -116,7 +122,7 @@ class SourceBox_Gui(object):
             initialdir=self.eDirectory.get()))
 
     def assumeOptions(self):
-        self.config.writeConfig(self.eDirectory.get(), self.eServerIP.get())
+        self.config.writeConfig(self.eDirectory.get(), self.eClientName.get(), self.eServerIP.get())
         self.oWin.destroy()
 
     def cancelOptions(self):

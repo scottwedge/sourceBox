@@ -24,8 +24,9 @@ class Config_Parser(object):
 		self.serverIP = self.config.get('server', 'ip')
 		self.serverPort = self.config.get('server', 'port')
 
-	def writeConfig(self, path, ip):
+	def writeConfig(self, path, name, ip):
 		self.config.set('main', 'path', path)
+		self.config.set('main', 'name', name)
 		self.config.set('server', 'ip', ip)
 		with open(self.configfile, 'wb') as configfile:
 			self.config.write(configfile)
