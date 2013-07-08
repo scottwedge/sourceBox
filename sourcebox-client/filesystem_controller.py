@@ -15,7 +15,7 @@ from watchdog.observers import Observer
 class Filesystem_Controller(FileSystemEventHandler):
 
     # Variables
-    lockTime = 20					# auto unlock after seconds: demo 20 seconds, final 5 min
+    lockTime = 5					# auto unlock after seconds: demo 20 seconds, final 5 min
     ignoreCreate = []				# list of paths whose fs-create-events shall be ignored
     ignoreDelete = []				# list of paths whose fs-delete-events shall be ignored
     ignoreMove = []					# list of paths whose fs-move-events shall be ignored
@@ -71,9 +71,10 @@ class Filesystem_Controller(FileSystemEventHandler):
     def unlockFile(self, path):
         relpath = os.path.relpath(path, self.boxPath) 				# reduce to path relative to boxPath
         try:
-           #  self.client.comm.send_unlock_file(relpath)				# send unlock command from client to server
+            log.info('Unlocking ' + relpath)
+            self.client.comm.send_unlock_file(relpath)				# send unlock command from client to server
 
-            self.locked_files.remove(relpath)							# remove file from locked list
+            #self.locked_files.remove(relpath)							# remove file from locked list
             self.client.gui.locked_files.set(						# new entry in GUI notification
             	'\n'.join(self.locked_files))		
 

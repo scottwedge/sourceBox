@@ -88,12 +88,12 @@ class SourceBoxServer(object):
     # @param path the path relative to the source box root
     # @param file_name the file name
     # @param content the content of the file
-    # @parma computer_name the name of the computer creating the file
-    def create_file(self, path, file_name, file_size, content, computer_name):
+    # @param computer_name the name of the computer creating the file
+    def create_file(self, path, file_name, file_size, computer_name, content=''):
 
         print '[INFO] Creating the file ' + file_name
         # create file in backend
-        self.data.create_file(os.path.join(path, file_name), content)
+        self.data.create_file(os.path.join(path, file_name), computer_name, content)
 
         # push changes to all other clients
         for comm in self.active_clients.keys():
@@ -108,8 +108,8 @@ class SourceBoxServer(object):
     # Locks the file in the backend
     # @param path the path relative to the source box root
     # @param file_name the file name
-    def lock_file(self, path, file_name):
-        self.data.lock_file(os.path.join(path, file_name))
+    def lock_file(self, path, file_name, computer_name):
+        self.data.lock_file(os.path.join(path, file_name), computer_name)
         
         # push changes to all other clients
         for comm in self.active_clients.keys():
@@ -123,8 +123,8 @@ class SourceBoxServer(object):
     # Unlocks the file in the backend
     # @param path the path relative to the source box root
     # @param file_name the file name
-    def unlock_file(self, path, file_name):
-        self.data.unlock_file(os.path.join(path, file_name))
+    def unlock_file(self, path, file_name, computer_name):
+        self.data.unlock_file(os.path.join(path, file_name), computer_name)
         
         # push changes to all other clients
         for comm in self.active_clients.keys():
@@ -138,8 +138,8 @@ class SourceBoxServer(object):
     # Updates the file on all clients and in the data backend
     # @param path the path relative to the source box root
     # @param file_name the file name
-    def modify_file(self, path, file_name, content):
-        self.data.modify_file(file_name, content)
+    def modify_file(self, path, file_name, content, computer_name):
+        self.data.modify_file(file_name, content, computer_name)
          
         # push changes to all other clients
         for comm in self.active_clients.keys():
@@ -153,9 +153,9 @@ class SourceBoxServer(object):
     # Deletes the file on all clients and in the data backend
     # @param path the path relative to the source box root
     # @param file_name the file name
-    def delete_file(self, path, file_name):
+    def delete_file(self, path, file_name, computer_name):
         # return true if successfully deleted
-        self.data.delete_file(file_name)
+        self.data.delete_file(file_name, computer_name)
 
         # push changes to all other clients
         for comm in self.active_clients.keys():

@@ -211,7 +211,7 @@ class Server_Communication_Controller(object):
 
         # send create_file function to the server
         answer = self.parent.create_file('', communication_data['file_path'], communication_data[
-                                         'file_size'], communication_data['content'], self.computer_name)
+                                         'file_size'], self.computer_name, communication_data['content'])
         if answer:
             self.connection.send('OK\n')
 
@@ -220,7 +220,7 @@ class Server_Communication_Controller(object):
     def _get_lock_file(self, data):
         communication_data = self._recieve_command(data)
 
-        answer = self.parent.lock_file('', communication_data['file_path'])
+        answer = self.parent.lock_file('', communication_data['file_path'], self.computer_name)
         if answer:
             self.connection.send('OK\n')
 
@@ -228,7 +228,7 @@ class Server_Communication_Controller(object):
     # @param data a data array
     def _get_unlock_file(self, data):
         communication_data = self._recieve_command(data)
-        answer = self.parent.unlock_file('.', communication_data['file_path'])
+        answer = self.parent.unlock_file('.', communication_data['file_path'], self.computer_name)
         if answer == True:
             self.connection.send('OK\n')
         else:
@@ -238,7 +238,7 @@ class Server_Communication_Controller(object):
 
     def _get_delete_file(self, data):
         communication_data = self._recieve_command(data)
-        answer = self.parent.delete_file('.', communication_data['file_path'])
+        answer = self.parent.delete_file('.', communication_data['file_path'], self.computer_name)
         if answer:
             self.connection.send('OK\n')
         else:
@@ -250,7 +250,7 @@ class Server_Communication_Controller(object):
         communication_data = self._recieve_command_with_content(data)
 
         answer = self.parent.modify_file('.', communication_data[
-                                         'file_path'], communication_data['content'])
+                                         'file_path'], communication_data['content'], self.computer_name)
         if answer:
             self.connection.send('OK\n')
 

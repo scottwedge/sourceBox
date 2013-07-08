@@ -37,21 +37,21 @@ class Data_Controller(object):
     # Locks a file
     # @param file_name name of the file
     #
-    def lock_file(self, file_name):
+    def lock_file(self, file_name, user):
         path = os.path.join(self.data_dir, file_name)
-        self.rcs.lock(path)
+        self.rcs.checkout(path, user, True)
 
     # Unlocks a file
     # @param file_name name of the file
     #
-    def unlock_file(self, file_name):
+    def unlock_file(self, file_name, user):
         path = os.path.join(self.data_dir, file_name)
-        self.rcs.unlock(path)
+        self.rcs.checkin(path, user, 'Unlocked file ' + path)
 
     # Deletes a file
     # @param file_name name of the file
     #
-    def delete_file(self, file_name):
+    def delete_file(self, file_name, user):
         try:
             path = os.path.join(self.data_dir, file_name)
             self.rcs._remove(path)
@@ -60,32 +60,33 @@ class Data_Controller(object):
             print '[ERROR] It seems that the file to be deleted is already gone. This is BAD!'
 
     # Creates a new file
-    # @param file_name name of the file
+    # @param file_path name of the file
     # @param content the content
-    def create_file(self, file_name, content=''):
+    def create_file(self, file_path, user, content=''):
         try:
-            path = os.path.join(self.data_dir, file_name)
+            path = os.path.join(self.data_dir, file_path)
             new_file = open(path, 'w+')
             new_file.write(content)
             new_file.close
-            self.rcs.checkin(path, 'Created file ' + path)
-            self.rcs.lock(path)
+            self.rcs.checkin(path, user, 'Created file ' + path)
+            #self.rcs.lock(path, user)
             return True
-        except IOError:
+        except IOError, err:
             print '[ERROR] Could not create file!'
+            print str(err)
 
     # Saves a file
     # @param file_name name of the file
     # @param content the content to be stored in the file
     #
-    def modify_file(self, file_name, content):
+    def modify_file(self, file_name, content, user):
         path = os.path.join(self.data_dir, file_name)
-        self.rcs.checkout(path, True)
+        #self.rcs.checkout(path, True, user)
         current_file = open(path, 'w')
         current_file.write(content)
         current_file.close()
-        self.rcs.checkin(path, 'Changed by user')
-        self.rcs.lock(path)
+        #self.rcs.checkin(path, user, 'Changed by user')
+        #self.rcs.lock(path, user)
 
     # Show changes of the file
     # @param file_name name of the file
@@ -94,6 +95,6 @@ class Data_Controller(object):
         path = os.path.join(self.data_dir, file_name)
         return self.rcs.log(path)
 
-    def move_file(oldpath, name, newpath):
+    def move_file(oldpath, name, newpath, user):
         # return true if successfully moved
         pass

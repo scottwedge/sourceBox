@@ -96,19 +96,19 @@ class RCS:
 
     # --- Methods that change files ---
 
-    def lock(self, name_rev):
+    def lock(self, name_rev, user):
         """Set an rcs lock on NAME_REV."""
         name, rev = self.checkfile(name_rev)
         cmd = "rcs -l%s %s" % (rev, name)
         return self._system(cmd)
 
-    def unlock(self, name_rev):
+    def unlock(self, name_rev, user):
         """Clear an rcs lock on NAME_REV."""
         name, rev = self.checkfile(name_rev)
         cmd = "rcs -u%s %s" % (rev, name)
         return self._system(cmd)
 
-    def checkout(self, name_rev, withlock=0, otherflags=""):
+    def checkout(self, name_rev, user, withlock=0, otherflags=""):
         """Check out NAME_REV to its work file.
 
         If optional WITHLOCK is set, check out locked, else unlocked.
@@ -124,10 +124,10 @@ class RCS:
             lockflag = "-l"
         else:
             lockflag = "-u"
-        cmd = 'co %s%s %s %s' % (lockflag, rev, otherflags, name)
+        cmd = 'co %s%s -w%s %s %s' % (lockflag, rev, user, otherflags, name)
         return self._system(cmd)
 
-    def checkin(self, name_rev, message=None, otherflags=""):
+    def checkin(self, name_rev, user, message=None,otherflags=""):
         """Check in NAME_REV from its work file.
 
         The optional MESSAGE argument becomes the checkin message
@@ -151,13 +151,13 @@ class RCS:
             f = tempfile.NamedTemporaryFile()
             f.write(message)
             f.flush()
-            cmd = 'ci %s%s -t%s %s %s' % \
-                  (lockflag, rev, f.name, otherflags, name)
+            cmd = 'ci %s%s -t%s -w%s %s %s' % \
+                  (lockflag, rev, f.name, user, otherflags, name)
             print cmd
         else:
             message = re.sub(r'([\"$`])', r'\\\1', message)
-            cmd = 'ci %s%s -m"%s" %s %s' % \
-                  (lockflag, rev, message, otherflags, name)
+            cmd = 'ci %s%s -m"%s" -w%s %s %s' % \
+                  (lockflag, rev, message, user, otherflags, name)
         return self._system(cmd)
 
     # --- Exported support methods ---
