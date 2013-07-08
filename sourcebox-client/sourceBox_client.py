@@ -48,7 +48,7 @@ class ClientBox(object):
 
             self.log.debug("Creating Communication Controller...")
             self.comm = client_communication_controller.Client_Communication_Controller(
-                self, '127.0.0.1', 50000, config.clientName)
+                self, config.ip, config.port, config.clientName)
 
             self.log.info('Client is running')
         except Exception, e:
