@@ -150,7 +150,8 @@ class Client_Communication_Controller(object):
         except IOError:
             self.gui.errorBox(
                 'Error', '[ERROR] Timeout: Did not recieve a response from the server.')
-            print '[ERROR] Timeout: Did not recieve a response from the server.'
+            self.log.error(
+                'Timeout: Did not recieve a response from the server.')
 
     # Sends a lock command to the server
     # @author Paul
@@ -208,9 +209,9 @@ class Client_Communication_Controller(object):
             return True
         except IOError:
             self.gui.errorBox(
-                'Error', '[ERROR] Timeout: Did not recieve a response from the server.')
+                'Error', 'Timeout: Did not recieve a response from the server.')
             self.log.error(
-                '[ERROR] Timeout: Did not recieve a response from the server.')
+                'Timeout: Did not recieve a response from the server.')
 
     # Opens a socket
     # @param ip the ip of the server to connect to
@@ -225,7 +226,8 @@ class Client_Communication_Controller(object):
             if e.errno == 61:
                 self.gui.errorBox(
                     'Error', '[ERROR] Server is not reachable. Please check your configuration.')
-                print '[ERROR] Server is not reachable. Please check your configuration.'
+                self.log.error(
+                    'Server is not reachable. Please check your configuration.')
                 exit()
             else:
                 raise e
@@ -235,7 +237,7 @@ class Client_Communication_Controller(object):
     def _close_socket(self, sock):
 
         sock.send('CLOSE')
-        print '[DEBUG] sending close'
+        self.log.debug('sending close')
         # Wait for the recieve thread to send us a ok Event
         status = self.command_listener_thread.ok.wait(5.0)
         self.command_listener_thread.ok.clear()
@@ -243,7 +245,7 @@ class Client_Communication_Controller(object):
             raise IOError('Did not recieve a response from the server.')
 
         sock.close()
-        print '[DEBUG] Connection closed.'
+        self.log.debug('Connection closed.')
 
 
 # Thread that listens for commands on the incoming connection. If it recieves a "OK\n" it sends a 'ok'- Event
@@ -274,7 +276,7 @@ class Command_Recieve_Handler(threading.Thread):
         self._stop = True
 
     def run(self):
-        print '[' + self.thread_name + '] ' + 'Created'
+        self.log.info('[' + self.thread_name + '] ' + 'Created')
 
         # endless loop to recieve commands
         while not self._stop:
@@ -287,7 +289,7 @@ class Command_Recieve_Handler(threading.Thread):
             elif data[0] == 'ALREADY_LOCKED':
                 self.error.set('ALREADY_LOCKED')
             elif data[0] == self.COMMAND_CREATE:  # if a create command was recieved (when other clients changed the folder)
-                print 'Recieved Create Command' + str(data)
+                self.log.debug('Recieved Create Command' + str(data))
                 self.open_socket.send('OK\n')
 
                 file_size = int(data[1])
@@ -307,7 +309,7 @@ class Command_Recieve_Handler(threading.Thread):
                 self.parent.fs.writeFile(file_path, content)
 
             elif data[0] == self.COMMAND_DELETEFILE:
-                print 'Recieved Delete Command' + str(data)
+                self.log.debug('Recieved Delete Command' + str(data))
 
                 file_path = data[1]
                 self.open_socket.send('OK\n')
@@ -315,7 +317,7 @@ class Command_Recieve_Handler(threading.Thread):
                 self.parent.fs.deleteFile(file_path)
 
             elif data[0] == self.COMMAND_MODIFYFILE:
-                print 'Recieved Modify Command' + str(data)
+                self.log.debug('Recieved Modify Command' + str(data))
                 self.open_socket.send('OK\n')
 
                 file_size = int(data[1])
@@ -333,7 +335,7 @@ class Command_Recieve_Handler(threading.Thread):
                 self.parent.fs.writeFile(file_path, content)
 
             elif data[0] == self.COMMAND_LOCKFILE:
-                print 'Recieved Lock Command' + str(data)
+                self.log.debug('Recieved Lock Command' + str(data))
 
                 file_path = data[1]
                 self.open_socket.send('OK\n')
@@ -341,7 +343,7 @@ class Command_Recieve_Handler(threading.Thread):
                 self.parent.fs.lockFile(file_path)
 
             elif data[0] == self.COMMAND_UNLOCKFILE:
-                print 'Recieved Unlock Command' + str(data)
+                self.log.warning('Recieved Unlock Command' + str(data))
 
                 file_path = data[1]
                 self.open_socket.send('OK\n')
@@ -349,4 +351,4 @@ class Command_Recieve_Handler(threading.Thread):
                 self.parent.fs.unlockFile(file_path)
 
             else:
-                print 'Command recieved' + str(data)
+                self.log.debug('Command recieved' + str(data))
