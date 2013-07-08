@@ -45,14 +45,24 @@ class Data_Controller(object):
     #
     def lock_file(self, file_name, user):
         path = os.path.join(self.data_dir, file_name)
-        self.rcs.checkout(path, user, True)
+        try:
+            self.rcs.checkout(path, user, True)
+            return True
+        except IOError, err:
+            self.log.error('Could not lock file because ' + str(err))
+            return False
 
     # Unlocks a file
     # @param file_name name of the file
     #
     def unlock_file(self, file_name, user):
         path = os.path.join(self.data_dir, file_name)
-        self.rcs.checkin(path, user, 'Unlocked file ' + path)
+        try:
+            self.rcs.checkin(path, user, 'Unlocked file ' + path)
+            return True
+        except IOError, err:
+            self.log.error('Could not unlock file because ' + str(err))
+            return False
 
     # Deletes a file
     # @param file_name name of the file
@@ -81,6 +91,7 @@ class Data_Controller(object):
         except IOError, err:
             self.log.error('Could not create file!')
             self.log.error(str(err))
+            return False
 
     # Saves a file
     # @param file_name name of the file
@@ -88,12 +99,13 @@ class Data_Controller(object):
     #
     def modify_file(self, file_name, content, user):
         path = os.path.join(self.data_dir, file_name)
-        # self.rcs.checkout(path, True, user)
-        current_file = open(path, 'w')
-        current_file.write(content)
-        current_file.close()
-        # self.rcs.checkin(path, user, 'Changed by user')
-        # self.rcs.lock(path, user)
+        try:
+            with open(path, 'w') as current_file:
+                current_file.write(content)
+            return True
+        except IOError, err:
+            self.log.error('Could not modify file because ' + str(err))
+            return False
 
     # Show changes of the file
     # @param file_name name of the file
