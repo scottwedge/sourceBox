@@ -1,7 +1,7 @@
 import server_communication_controller
 import data_controller
 import threading
-import os.path
+import os
 import socket
 import logging
 
@@ -20,6 +20,10 @@ class SourceBoxServer(object):
     # Creates a new instance of the SourceBoxServer
     def __init__(self):
         try:
+            # delete old log file
+            if os.path.exists("client.log"):
+                os.remove("client.log")
+
             # Create the Data Controller
             self.data = data_controller.Data_Controller('./data/')
 

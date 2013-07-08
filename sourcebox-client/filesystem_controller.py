@@ -114,9 +114,16 @@ class Filesystem_Controller(FileSystemEventHandler):
     # @author Emanuel Regnath
     # @returns the content of the file
     def readFile(self, path):
-        path = os.path.join(
-            self.boxPath, path)						       # expand to absolute path
-        return open(path, 'r').read()
+        path = os.path.join(self.boxPath, path)						       # expand to absolute path
+        if os.access(path, os.R_OK):
+            return open(path, 'r').read()
+        else:
+            fileMod = os.stat(path).st_mode & 0777                  # get fileMod
+            os.chmod(path, 0o666)                                        # set file permissions: read and write
+            content = open(path, 'r').read()
+            os.chmod(path, fileMod)
+            return content            
+
 
     # overwrites a file
     # @param path path of the file relative to boxPath
@@ -130,8 +137,7 @@ class Filesystem_Controller(FileSystemEventHandler):
             open(path, 'w').write(content)							# write content to file
         else:
             fileMod = os.stat(path).st_mode & 0777					# get fileMod
-            os.chmod(
-                path, 0o666)									    # set file permissions: read and write
+            os.chmod(path, 0o666)									    # set file permissions: read and write
             open(path, 'w').write(content)							# write content to file
             os.chmod(path, fileMod)
 
