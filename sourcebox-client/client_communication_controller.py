@@ -297,12 +297,13 @@ class Command_Recieve_Handler(threading.Thread):
                 file_path = data[2]
 
                 # read data from the socket
-                content = ''
-                while file_size >= len(content):
-                    data = self.open_socket.recv(1024)
-                    if not data:
-                        break
-                    content += data
+                if not file_size == 0:
+                    content = ''
+                    while file_size > len(content):
+                        data = self.open_socket.recv(1024)
+                        if not data:
+                            break
+                        content += data
 
                 self.open_socket.send('OK\n')
 
@@ -325,12 +326,13 @@ class Command_Recieve_Handler(threading.Thread):
                 file_path = data[2]
 
                 # read data from the socket
-                content = ''
-                while file_size > len(content):
-                    data = self.open_socket.recv(1024)
-                    if not data:
-                        break
-                    content += data
+                if not file_size == 0:
+                    content = ''
+                    while file_size > len(content):
+                        data = self.open_socket.recv(1024)
+                        if not data:
+                            break
+                        content += data
 
                 self.open_socket.send('OK\n')
                 self.parent.fs.writeFile(file_path, content)
