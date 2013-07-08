@@ -22,7 +22,7 @@ class Config_Parser(object):
 
 		self.serverHostname = self.config.get('server', 'host')
 		self.serverIP = self.config.get('server', 'ip')
-		self.serverPort = self.config.get('server', 'port')
+		self.serverPort = int(self.config.get('server', 'port'))
 
 	def writeConfig(self, path, name, ip):
 		self.config.set('main', 'path', path)
