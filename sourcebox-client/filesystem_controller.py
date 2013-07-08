@@ -261,12 +261,11 @@ class Filesystem_Controller(FileSystemEventHandler):
                 self.log.info("File modified: %s", src_relpath)				# self.log
                 # lock file:
                 self.client.comm.send_lock_file(src_relpath)
-                self.locked_files.append(src_relpath)
                 self.setLockTimer(
                     src_path, self.lockTime)                  # start lockTimer for auto-unlock
                 self.ignoreLock.append(
                     src_relpath)                         # ignore incomming locks because I locked the file
-                self.client.gui.locked_files_path.append(relpath)
+                self.client.gui.locked_files_path.append(src_relpath)
                 self.client.gui.locked_files.set(
                     '\n'.join(self.locked_files))
 
@@ -313,7 +312,6 @@ class Filesystem_Controller(FileSystemEventHandler):
         if relpath in self.ignoreLock:                              # delete ignoreLock entry
             self.ignoreLock.remove(relpath)
         self.client.comm.send_unlock_file(relpath)
-        self.locked_files.remove(relpath)               # remove file from locked list
         self.client.gui.locked_files.set(                       # new entry in GUI notification
             '\n'.join(self.locked_files))
         self.client.gui.locked_files_path.remove(relpath)
