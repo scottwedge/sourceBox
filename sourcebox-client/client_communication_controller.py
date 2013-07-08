@@ -264,6 +264,8 @@ class Command_Recieve_Handler(threading.Thread):
 
         # Create 'ok' Event
         self.ok = threading.Event()
+        self.error = threading.Event()
+
         self._stop = False
 
     def stop(self):
@@ -280,6 +282,8 @@ class Command_Recieve_Handler(threading.Thread):
             if data[0] == self.COMMAND_ACK:  # If a OK command was recieved
                 # Fire the 'ok' Event
                 self.ok.set()
+            elif data[0] == 'ALREADY_LOCKED':
+                self.error.set('ALREADY_LOCKED')
             elif data[0] == self.COMMAND_CREATE:  # if a create command was recieved (when other clients changed the folder)
                 print 'Recieved Create Command' + str(data)
                 self.open_socket.send('OK\n')
