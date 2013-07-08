@@ -66,7 +66,6 @@ class Filesystem_Controller(FileSystemEventHandler):
             try:
                 self.locked_files.append(
                     relpath)						# new entry in locked_files
-                self.client.gui.locked_files_path.append(relpath)
 
                 self.ignoreModify.append(
                     path)							# ignore modify-event raised by chmod
@@ -318,5 +317,6 @@ class Filesystem_Controller(FileSystemEventHandler):
         self.client.comm.send_unlock_file(relpath)
         self.locked_files.remove(relpath)
                                  # remove file from locked list
+        self.client.gui.locked_files_path.append(relpath)
         self.client.gui.locked_files.set(                                   # update GUI lock list
             '\n'.join(self.locked_files))
