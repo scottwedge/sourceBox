@@ -116,7 +116,8 @@ class Server_Communication_Controller(object):
         status = self.ok.wait(5.0)
         self.ok.clear()
         if not status:
-            raise IOError('Did not recieve a response from the client.')
+            raise IOError(
+                'Did not recieve a response from the client.' + self.computer_name)
 
         self.connection.send(content)
         self.log.debug("send content to client")
@@ -124,7 +125,8 @@ class Server_Communication_Controller(object):
         status = self.ok.wait(5.0)
         self.ok.clear()
         if not status:
-            raise IOError('Did not recieve a response from the client.')
+            raise IOError(
+                'Did not recieve a response from the client.' + self.computer_name)
 
         self.log.debug('Hello. Creation worked. The client said he is ok :)')
         # NOTE
@@ -135,7 +137,7 @@ class Server_Communication_Controller(object):
     # server notifies the client about delete file (initiated by another user)
     # @param path the path to the file (relative to the source box)
     def send_delete_file(self, path):
-        self.log.debug('Sending REMOVE to client')
+        self.log.debug('Sending REMOVE to client' + self.computer_name)
         mess = "REMOVE" + ' ' + path
 
         self.connection.send(mess)
@@ -144,14 +146,15 @@ class Server_Communication_Controller(object):
         status = self.ok.wait(5.0)
         self.ok.clear()
         if not status:
-            raise IOError('Did not recieve a response from the the client.')
+            raise IOError(
+                'Did not recieve a response from the the client.' + self.computer_name)
 
         self.log.debug('Hello. Delete worked. The client said he is ok :)')
 
     # server notifies the client about modify file (initiated by another user)
     # @param path the path to the file (relative to the source box)
     def send_modify_file(self, size, path, content):
-        self.log.debug('Sending MODIFY to client')
+        self.log.debug('Sending MODIFY to client' + self.computer_name)
         mess = "MODIFY" + ' ' + str(size) + ' ' + path
 
         self.connection.send(mess)
@@ -160,7 +163,8 @@ class Server_Communication_Controller(object):
         status = self.ok.wait(5.0)
         self.ok.clear()
         if not status:
-            raise IOError('Did not recieve a response from the client.')
+            raise IOError(
+                'Did not recieve a response from the client.' + self.computer_name)
 
         self.connection.send(content)
 
@@ -168,14 +172,15 @@ class Server_Communication_Controller(object):
         status = self.ok.wait(5.0)
         self.ok.clear()
         if not status:
-            raise IOError('Did not recieve a response from the client.')
+            raise IOError(
+                'Did not recieve a response from the client.' + self.computer_name)
 
         self.log.debug('Hello. Modifying worked. The client said he is ok :)')
 
     # server notifies the client about lock file (initiated by another user)
     # @param path the path to the file (relative to the source box)
     def send_lock_file(self, path):
-        self.log.debug('Sending LOCK to client')
+        self.log.debug('Sending LOCK to client' + self.computer_name)
         mess = "LOCK" + ' ' + path
 
         self.connection.send(mess)
@@ -184,14 +189,15 @@ class Server_Communication_Controller(object):
         status = self.ok.wait(5.0)
         self.ok.clear()
         if not status:
-            raise IOError('Did not recieve a response from the client.')
+            raise IOError(
+                'Did not recieve a response from the client.' + self.computer_name)
 
         self.log.debug('Hello. Locking worked. The client said he is ok :)')
 
     # server notifies the client about unlock file (initiated by another user)
     # @param path the path to the file (relative to the source box)
     def send_unlock_file(self, path):
-        self.log.debug('Sending UNLOCK to client')
+        self.log.debug('Sending UNLOCK to client' + self.computer_name)
         mess = "UNLOCK" + ' ' + path
 
         self.connection.send(mess)
@@ -200,7 +206,8 @@ class Server_Communication_Controller(object):
         status = self.ok.wait(5.0)
         self.ok.clear()
         if not status:
-            raise IOError('Did not recieve a response from the client.')
+            raise IOError(
+                'Did not recieve a response from the client.' + self.computer_name)
 
         self.log.debug('Hello. Unlocking worked. The client said he is ok :)')
 
