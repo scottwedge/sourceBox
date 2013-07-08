@@ -107,7 +107,7 @@ class Server_Communication_Controller(object):
     # @param size the size of the file
     # @param path the path to the file (relative to the source box)
     def send_create_file(self, size, path, content):
-        self.log.debug('Sending CREATE to client')
+        self.log.debug('Sending CREATE to client' + self.computer_name)
         mess = "CREATE" + ' ' + str(size) + ' ' + path
 
         self.connection.send(mess)
@@ -305,7 +305,7 @@ class Server_Communication_Controller(object):
     # @param data a data array
     # @returns a dictionary like { 'command' : command, 'file_size' : file_size, 'file_path' :  file_path, 'content' : content}
     def _recieve_command_with_content(self, data):
-
+        self.log.debug('Recieved ' + str(data))
         command = data[0]
         file_size = int(data[1])
         file_path = data[2]
