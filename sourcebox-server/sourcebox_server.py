@@ -16,7 +16,6 @@ class SourceBoxServer(object):
     # constants
     LOCK_TIME = 30
 
-
     # Creates a new instance of the SourceBoxServer
     def __init__(self):
         try:
@@ -136,7 +135,8 @@ class SourceBoxServer(object):
                 self.active_clients[comm].send_lock_file(file_name)
 
         # set Timer to LOCK_TIME in sec for auto unlock
-        threading.Timer(self.LOCK_TIME, self.active_clients[comm].send_unlock_file, (file_name,)).start()
+        threading.Timer(self.LOCK_TIME, self.active_clients[
+                        comm].send_unlock_file, (file_name,)).start()
 
         # return true if successfully locked
         return True
@@ -166,7 +166,9 @@ class SourceBoxServer(object):
         # push changes to all other clients
         for comm in self.active_clients.keys():
             if not comm == computer_name:
-                self.active_clients[comm].send_modify_file(file_name)
+                file_size = self.date.get_file_size(path, file_name)
+                self.active_clients[comm].send_modify_file(
+                    file_size, os.path.join(path, file_name), content)
 
         # return true if successfully modified
         return True

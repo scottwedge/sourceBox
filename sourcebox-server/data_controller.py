@@ -120,3 +120,12 @@ class Data_Controller(object):
     def move_file(oldpath, name, newpath, user):
         # return true if successfully moved
         pass
+
+    # gets the size of a file
+    # @param path the path relative to the source box root
+    # @param file_name the file name
+    def get_file_size(self, path, file_name):
+        if os.path.exists(os.path.join(path, file_name)):
+            return os.path.getsize(os.path.join(path, file_name))
+        else:
+            return False
