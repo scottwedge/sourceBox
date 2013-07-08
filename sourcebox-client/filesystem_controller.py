@@ -126,9 +126,8 @@ class Filesystem_Controller(FileSystemEventHandler):
     # @param content content of the file
     # @author Emanuel Regnath
     def writeFile(self, path, content):
-        self.ignoreModify.append(
-            path)								# ignore modify-event triggered by .write
-        path = os.path.join(self.boxPath, path)						# expand to absolute path
+        path = os.path.join(self.boxPath, path)                     # expand to absolute path
+        self.ignoreModify.append(path)								# ignore modify-event triggered by .write
         if os.access(path, os.W_OK):
             open(path, 'w').write(content)							# write content to file
         else:
