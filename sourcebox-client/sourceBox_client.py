@@ -31,6 +31,9 @@ class ClientBox(object):
             del self.comm
             del self.fs
 
+    def __del__(self):
+        pass
+
     def start(self, gui):
         try:
             self.log.debug("Reading Config File...")
