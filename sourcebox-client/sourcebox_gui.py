@@ -99,17 +99,17 @@ class SourceBox_Gui(object):
         self.eClientName.grid(row=0, column=1)
         self.eClientName.insert(0, self.sClientName)
 
-        Tkinter.Label(self.oWin, text="Server IP-Adresse").grid(row=0)
+        Tkinter.Label(self.oWin, text="Server IP-Adresse").grid(row=1)
         self.eServerIP = Tkinter.Entry(self.oWin)
-        self.eServerIP.grid(row=0, column=1)
+        self.eServerIP.grid(row=1, column=1)
         self.eServerIP.insert(0, self.sServerIP)
 
-        Tkinter.Label(self.oWin, text="Ordner").grid(row=1)
+        Tkinter.Label(self.oWin, text="Ordner").grid(row=2)
         self.eDirectory = Tkinter.Entry(self.oWin)
         self.eDirectory.insert(0, self.sDirectory)
-        self.eDirectory.grid(row=1, column=1)
+        self.eDirectory.grid(row=2, column=1)
         Tkinter.Button(self.oWin, text="Ordner auswählen",
-                       command=self.askDirectory).grid(row=1, column=2)
+                       command=self.askDirectory).grid(row=2, column=2)
 
         Tkinter.Button(self.oWin, text='Übernehmen', command=self.assumeOptions).grid(
             row=3, column=0, pady=4)
