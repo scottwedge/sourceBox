@@ -65,6 +65,14 @@ class SourceBoxServer(object):
             # keep track of all clients logged in)
             self.active_clients[computer_name] = comm
 
+            # send all files to the client
+            for current_file in self.data.list_dir():
+                if not os.path.isdir(os.path.join(self.data.data_dir, current_file)) and ',v' not in current_file:
+                    file_size = self.get_file_size(
+                        self.data.data_dir, current_file)
+                    content = self.data.read_file(current_file)
+                    comm.send_create_file(file_size, current_file, content)
+
             # log active clients
             print '[INFO] Active Clients are:'
             print '\n'.join(self.active_clients.keys())
@@ -93,7 +101,8 @@ class SourceBoxServer(object):
 
         print '[INFO] Creating the file ' + file_name
         # create file in backend
-        self.data.create_file(os.path.join(path, file_name), computer_name, content)
+        self.data.create_file(os.path.join(
+            path, file_name), computer_name, content)
 
         # push changes to all other clients
         for comm in self.active_clients.keys():
@@ -110,7 +119,7 @@ class SourceBoxServer(object):
     # @param file_name the file name
     def lock_file(self, path, file_name, computer_name):
         self.data.lock_file(os.path.join(path, file_name), computer_name)
-        
+
         # push changes to all other clients
         for comm in self.active_clients.keys():
             if not comm == computer_name:
@@ -125,7 +134,7 @@ class SourceBoxServer(object):
     # @param file_name the file name
     def unlock_file(self, path, file_name, computer_name):
         self.data.unlock_file(os.path.join(path, file_name), computer_name)
-        
+
         # push changes to all other clients
         for comm in self.active_clients.keys():
             if not comm == computer_name:
@@ -140,7 +149,7 @@ class SourceBoxServer(object):
     # @param file_name the file name
     def modify_file(self, path, file_name, content, computer_name):
         self.data.modify_file(file_name, content, computer_name)
-         
+
         # push changes to all other clients
         for comm in self.active_clients.keys():
             if not comm == computer_name:

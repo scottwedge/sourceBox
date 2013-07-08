@@ -31,8 +31,7 @@ class Client_Communication_Controller(object):
     def __init__(self, parent, ip, port, computer_name):
 
         # catch logging object
-        global log
-        log = logging.getLogger("client")
+        self.log = logging.getLogger("client")
 
         # store the computer name in an instance variable
         self.computer_name = computer_name
@@ -56,7 +55,7 @@ class Client_Communication_Controller(object):
         threading_queue.append(self.command_listener_thread)
         self.command_listener_thread.start()
 
-        log.info('Client Created Communication_Controller')
+        self.log.info('Client Created Communication_Controller')
 
     # Deconstructor
     # @author Martin Zellner
@@ -67,7 +66,8 @@ class Client_Communication_Controller(object):
             self._close_socket(self.controller_socket)
 
         except AttributeError:
-            log.warning('Could not close socket. Propably the socket was not open in the first place.')
+            self.log.warning(
+                'Could not close socket. Propably the socket was not open in the first place.')
 
     # Initialises the connection and identifies the client to the server
     # @author Martin Zellner
@@ -113,7 +113,8 @@ class Client_Communication_Controller(object):
         except IOError:
             self.gui.errorBox(
                 'Error', '[ERROR] Timeout: Did not recieve a response from the server.')
-            log.error('Timeout: Did not recieve a response from the server.')
+            self.log.error(
+                'Timeout: Did not recieve a response from the server.')
 
     # Sends a command to the server (with content)
     # @throws IOError if a timeout occurs
@@ -208,7 +209,8 @@ class Client_Communication_Controller(object):
         except IOError:
             self.gui.errorBox(
                 'Error', '[ERROR] Timeout: Did not recieve a response from the server.')
-            log.error('[ERROR] Timeout: Did not recieve a response from the server.')
+            self.log.error(
+                '[ERROR] Timeout: Did not recieve a response from the server.')
 
     # Opens a socket
     # @param ip the ip of the server to connect to
@@ -303,15 +305,15 @@ class Command_Recieve_Handler(threading.Thread):
 
                 self.parent.fs.createFile(file_path)
                 self.parent.fs.writeFile(file_path, content)
-            
+
             elif data[0] == self.COMMAND_DELETEFILE:
                 print 'Recieved Delete Command' + str(data)
-                
+
                 file_path = data[1]
                 self.open_socket.send('OK\n')
 
                 self.parent.fs.deleteFile(file_path)
-                
+
             elif data[0] == self.COMMAND_MODIFYFILE:
                 print 'Recieved Modify Command' + str(data)
                 self.open_socket.send('OK\n')
@@ -328,23 +330,23 @@ class Command_Recieve_Handler(threading.Thread):
                     content += data
 
                 self.open_socket.send('OK\n')
-                self.parent.fs.writeFile(file_path, content)   
-            
+                self.parent.fs.writeFile(file_path, content)
+
             elif data[0] == self.COMMAND_LOCKFILE:
                 print 'Recieved Lock Command' + str(data)
-                
+
                 file_path = data[1]
                 self.open_socket.send('OK\n')
 
                 self.parent.fs.lockFile(file_path)
-            
+
             elif data[0] == self.COMMAND_UNLOCKFILE:
                 print 'Recieved Unlock Command' + str(data)
-                
+
                 file_path = data[1]
                 self.open_socket.send('OK\n')
 
-                self.parent.fs.unlockFile(file_path)            
-                                    
+                self.parent.fs.unlockFile(file_path)
+
             else:
                 print 'Command recieved' + str(data)

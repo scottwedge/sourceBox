@@ -10,7 +10,7 @@
 import Tkinter
 import tkFileDialog
 import tkMessageBox
-import Tkconstants
+# import Tkconstants
 from Tkinter import StringVar
 
 

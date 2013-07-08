@@ -21,11 +21,14 @@ class Data_Controller(object):
         print '[INFO] Created Data_Controller in dir ' + self.data_dir
 
     # Reads a file
-    # @param file_name name of the file
+    # @param file_path name of the file
     #
-    def read_file(self, file_name):
-        current_file = open(file_name, 'r')
-        return current_file.read()
+    def read_file(self, file_path):
+        path = os.path.join(self.data_dir, file_path)
+        print '[DEBUG] reading file ' + path
+        with open(path, 'r') as open_file:
+            content = open_file.read()
+        return content
 
     # Checks if a file is locked
     # @param file_name name of the file
@@ -69,7 +72,7 @@ class Data_Controller(object):
             new_file.write(content)
             new_file.close
             self.rcs.checkin(path, user, 'Created file ' + path)
-            #self.rcs.lock(path, user)
+            # self.rcs.lock(path, user)
             return True
         except IOError, err:
             print '[ERROR] Could not create file!'
@@ -81,12 +84,12 @@ class Data_Controller(object):
     #
     def modify_file(self, file_name, content, user):
         path = os.path.join(self.data_dir, file_name)
-        #self.rcs.checkout(path, True, user)
+        # self.rcs.checkout(path, True, user)
         current_file = open(path, 'w')
         current_file.write(content)
         current_file.close()
-        #self.rcs.checkin(path, user, 'Changed by user')
-        #self.rcs.lock(path, user)
+        # self.rcs.checkin(path, user, 'Changed by user')
+        # self.rcs.lock(path, user)
 
     # Show changes of the file
     # @param file_name name of the file
@@ -94,6 +97,9 @@ class Data_Controller(object):
     def show_changes(self, file_name):
         path = os.path.join(self.data_dir, file_name)
         return self.rcs.log(path)
+
+    def list_dir(self):
+        return os.listdir(self.data_dir)
 
     def move_file(oldpath, name, newpath, user):
         # return true if successfully moved
