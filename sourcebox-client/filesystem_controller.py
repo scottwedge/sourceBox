@@ -60,14 +60,12 @@ class Filesystem_Controller(FileSystemEventHandler):
         relpath = os.path.relpath(
             path, self.boxPath) 				# reduce to path relative to boxPath
         try:
-            self.locked_files.append(relpath)							# new entry in locked_files
+            self.locked_files.append(relpath)						# new entry in locked_files
 
-            self.ignoreModify.append(
-                path)							# ignore modify-event raised by chmod
-            path = os.path.join(
-                self.boxPath, path)					# expand to absolute path
-            os.chmod(path, 0o000)
-                     # set file permissions: no read, no write, no exec
+            self.ignoreModify.append(path)							# ignore modify-event raised by chmod
+            path = os.path.join(self.boxPath, path)                 # expand to absolute path
+            os.chmod(path, 0o000)                                   # set file permissions: no read, no write, no exec
+            self.setLockTimer(path, self.lockTime)                  # start lockTimer for auto-unlock
             print "File locked ", path 								# self.log
         except Exception, e:
             self.log.error(
@@ -78,23 +76,19 @@ class Filesystem_Controller(FileSystemEventHandler):
     # @author Emanuel Regnath
     def unlockFile(self, path):
         relpath = os.path.relpath(
-            path, self.boxPath) 				# reduce to path relative to boxPath
+            path, self.boxPath) 			    	# reduce to path relative to boxPath
         try:
             self.log.info('Unlocking ' + relpath)
-            self.client.comm.send_unlock_file(
-                relpath)				# send unlock command from client to server
 
-            # self.locked_files.remove(relpath)
-            # remove file from locked list
+            self.locked_files.remove(relpath)                       # remove file from locked list
             self.client.gui.locked_files.set(						# new entry in GUI notification
                 '\n'.join(self.locked_files))
 
+            path = os.path.join(
+                self.boxPath, path)                 # expand to absolute path
             self.ignoreModify.append(
                 path)							# ignore modify-event triggered by chmod
-            path = os.path.join(
-                self.boxPath, path)					# expand to absolute path
-            os.chmod(
-                path, 0o666)									# set file permissions: read and write
+            os.chmod(path, 0o666)									# set file permissions: read and write
             print "File unlocked: ", path
         except Exception, e:
             self.log.error(
@@ -255,8 +249,6 @@ class Filesystem_Controller(FileSystemEventHandler):
                 self.client.gui.locked_files.set(
                     '\n'.join(self.locked_files))
 
-                self.setLockTimer(
-                    src_relpath, self.lockTime)		# start lockTimer for auto-unlock
                 # push changes to SVN:
                 content = self.readFile(src_path)					# read file content
                 self.client.comm.send_modify_file(					# send modify_file to server
