@@ -134,9 +134,9 @@ class SourceBoxServer(object):
             if not comm == computer_name:
                 self.active_clients[comm].send_lock_file(file_name)
 
-        # set Timer to LOCK_TIME in sec for auto unlock
-        threading.Timer(self.LOCK_TIME, self.active_clients[
-                        comm].send_unlock_file, (file_name,)).start()
+                # set Timer to LOCK_TIME in sec for auto unlock
+                threading.Timer(self.LOCK_TIME, self.active_clients[
+                                comm].send_unlock_file, (file_name,)).start()
 
         # return true if successfully locked
         return True
