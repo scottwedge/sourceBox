@@ -267,7 +267,7 @@ class Filesystem_Controller(FileSystemEventHandler):
                     src_relpath)                         # ignore incomming locks because I locked the file
                 self.client.gui.locked_files_path.append(src_relpath)
                 self.client.gui.locked_files.set(
-                    '\n'.join(self.locked_files))
+                    '\n'.join(self.client.gui.locked_files_path))
 
                 # push changes to SVN:
                 content = self.readFile(src_path)					# read file content
@@ -313,5 +313,5 @@ class Filesystem_Controller(FileSystemEventHandler):
             self.ignoreLock.remove(relpath)
         self.client.comm.send_unlock_file(relpath)
         self.client.gui.locked_files.set(                       # new entry in GUI notification
-            '\n'.join(self.locked_files))
+            '\n'.join(self.client.gui.locked_files_path))
         self.client.gui.locked_files_path.remove(relpath)
