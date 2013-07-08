@@ -346,7 +346,7 @@ class Command_Recieve_Handler(threading.Thread):
             elif data[0] == self.COMMAND_UNLOCKFILE:
                 self.log.warning('Recieved Unlock Command' + str(data))
 
-                file_path = data[1]
+                file_path = str(data[1])
                 self.open_socket.send('OK\n')
 
                 self.parent.fs.unlockFile(file_path)

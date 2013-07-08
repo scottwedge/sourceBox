@@ -116,15 +116,15 @@ class Server_Communication_Controller(object):
         status = self.ok.wait(5.0)
         self.ok.clear()
         if not status:
-            raise IOError('Did not recieve a response from the server.')
+            raise IOError('Did not recieve a response from the client.')
 
         self.connection.send(content)
-
+        self.log.debug("send content to client")
         # Wait for the recieve thread to send us a ok Event
         status = self.ok.wait(5.0)
         self.ok.clear()
         if not status:
-            raise IOError('Did not recieve a response from the server.')
+            raise IOError('Did not recieve a response from the client.')
 
         self.log.debug('Hello. Creation worked. The client said he is ok :)')
         # NOTE
@@ -144,7 +144,7 @@ class Server_Communication_Controller(object):
         status = self.ok.wait(5.0)
         self.ok.clear()
         if not status:
-            raise IOError('Did not recieve a response from the server.')
+            raise IOError('Did not recieve a response from the the client.')
 
         self.log.debug('Hello. Delete worked. The client said he is ok :)')
 
@@ -160,7 +160,7 @@ class Server_Communication_Controller(object):
         status = self.ok.wait(5.0)
         self.ok.clear()
         if not status:
-            raise IOError('Did not recieve a response from the server.')
+            raise IOError('Did not recieve a response from the client.')
 
         self.connection.send(content)
 
@@ -168,7 +168,7 @@ class Server_Communication_Controller(object):
         status = self.ok.wait(5.0)
         self.ok.clear()
         if not status:
-            raise IOError('Did not recieve a response from the server.')
+            raise IOError('Did not recieve a response from the client.')
 
         self.log.debug('Hello. Modifying worked. The client said he is ok :)')
 
@@ -184,7 +184,7 @@ class Server_Communication_Controller(object):
         status = self.ok.wait(5.0)
         self.ok.clear()
         if not status:
-            raise IOError('Did not recieve a response from the server.')
+            raise IOError('Did not recieve a response from the client.')
 
         self.log.debug('Hello. Locking worked. The client said he is ok :)')
 
@@ -200,7 +200,7 @@ class Server_Communication_Controller(object):
         status = self.ok.wait(5.0)
         self.ok.clear()
         if not status:
-            raise IOError('Did not recieve a response from the server.')
+            raise IOError('Did not recieve a response from the client.')
 
         self.log.debug('Hello. Unlocking worked. The client said he is ok :)')
 

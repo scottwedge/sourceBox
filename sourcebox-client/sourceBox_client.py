@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-#
 
 # imports
+import os
 import logging
 import filesystem_controller
 import client_communication_controller
@@ -14,6 +15,9 @@ class ClientBox(object):
 
     # Creates a new instance of the ClientTest
     def __init__(self):
+        # delete old log file
+        if os.path.exists("client.log"):
+            os.remove("client.log")
 
         # create logger
         self.setupLogging("client", logging.DEBUG)
@@ -35,13 +39,13 @@ class ClientBox(object):
             self.log.debug("Creating GUI...")
             self.gui = gui
 
-            self.log.debug("Creating Communication Controller...")
-            self.comm = client_communication_controller.Client_Communication_Controller(
-                self, '127.0.0.1', 50000, 'Test_Computer1')
-
-            self.log.debug("Reading Config File...")
+            self.log.debug("Creating Filesystem Controller...")
             self.fs = filesystem_controller.Filesystem_Controller(
                 self, config.boxPath)
+
+            self.log.debug("Creating Communication Controller...")
+            self.comm = client_communication_controller.Client_Communication_Controller(
+                self, '127.0.0.1', 50000, config.clientName)
 
             self.log.info('Client is running')
         except Exception, e:

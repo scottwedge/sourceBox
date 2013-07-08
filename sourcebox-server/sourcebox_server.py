@@ -1,5 +1,6 @@
 import server_communication_controller
 import data_controller
+import threading
 import os.path
 import socket
 import logging
@@ -11,6 +12,10 @@ import logging
 
 
 class SourceBoxServer(object):
+
+    # constants
+    LOCK_TIME = 30
+
 
     # Creates a new instance of the SourceBoxServer
     def __init__(self):
@@ -86,7 +91,7 @@ class SourceBoxServer(object):
     # @author Martin Zellner
     # @param client the communication controller of the client
     def remove_client(self, computer_name):
-        self.info('Remove client ' + computer_name)
+        self.log.info('Remove client ' + computer_name)
         del self.active_clients[computer_name]
 
     # The server command loop
@@ -104,7 +109,7 @@ class SourceBoxServer(object):
     # @param computer_name the name of the computer creating the file
     def create_file(self, path, file_name, file_size, computer_name, content=''):
 
-        self.debug('Creating the file ' + file_name)
+        self.log.debug('Creating the file ' + file_name)
         # create file in backend
         self.data.create_file(os.path.join(
             path, file_name), computer_name, content)
@@ -129,6 +134,9 @@ class SourceBoxServer(object):
         for comm in self.active_clients.keys():
             if not comm == computer_name:
                 self.active_clients[comm].send_lock_file(file_name)
+
+        # set Timer to LOCK_TIME in sec for auto unlock
+        threading.Timer(self.LOCK_TIME, self.active_clients[comm].send_unlock_file, (file_name,)).start()
 
         # return true if successfully locked
         return True

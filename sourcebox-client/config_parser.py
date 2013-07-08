@@ -18,6 +18,7 @@ class Config_Parser(object):
 		#	print "Error while trying to read config file. Check if 'sb_client.conf' exists in the same folder as the program file."
 
 		self.boxPath = self.config.get('main', 'path')
+		self.clientName = self.config.get('main', 'name')
 
 		self.serverHostname = self.config.get('server', 'host')
 		self.serverIP = self.config.get('server', 'ip')
