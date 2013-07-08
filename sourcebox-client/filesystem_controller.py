@@ -145,7 +145,6 @@ class Filesystem_Controller(FileSystemEventHandler):
             self.boxPath, path)                     # expand to absolute path
         self.ignoreCreate.append(path)
                                  # ignore create-event triggered by .close
-        self.ignoreModify.append(path)
         if os.path.exists(path):
             self.writeFile(path, "")
         else:
