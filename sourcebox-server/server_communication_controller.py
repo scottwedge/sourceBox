@@ -74,7 +74,7 @@ class Server_Communication_Controller(object):
 
     # Parse the command
     def _parse_command(self, cmd, data):
-        self.log.debug('Recieved Command from the client: ' + data[0])
+        self.log.debug('Recieved Command from the client: ' + data[0] + self.computer_name)
         if cmd == self.COMMAND_GETCREATEFILE:
             self._get_create_file(data)
         elif cmd == self.COMMAND_SENDLOCKFILE:

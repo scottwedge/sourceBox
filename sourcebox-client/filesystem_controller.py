@@ -245,12 +245,15 @@ class Filesystem_Controller(FileSystemEventHandler):
     # @param event object representing the file system event
     # @author Emanuel Regnath
     def on_modified(self, event):
-        self.log.debug(str(self.ignoreModify))
         src_path = event.src_path									# abslolute path
         src_relpath = os.path.relpath(
             src_path, self.boxPath) 		# reduce to path relative to boxPath
         if src_path in self.ignoreModify:
+            self.log.debug('path:' + src_path)
+            self.log.debug(str(self.ignoreModify))
             self.ignoreModify.remove(src_path)
+            self.log.debug(str(self.ignoreModify))
+
         else:
             if event.is_directory == True:							# if event was triggered by a directory
                 self.log.info("Directory modified: %s", src_path)		# self.log
@@ -271,6 +274,7 @@ class Filesystem_Controller(FileSystemEventHandler):
                 content = self.readFile(src_path)					# read file content
                 self.client.comm.send_modify_file(					# send modify_file to server
                     src_relpath, len(content), content)
+
 
     # triggered if a file or directory was moved or renamed
     # @param event object representing the file system event
