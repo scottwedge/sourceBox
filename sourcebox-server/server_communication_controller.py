@@ -199,20 +199,24 @@ class Server_Communication_Controller(object):
     def send_unlock_file(self, path):
         self.log.debug('Sending UNLOCK to client' + self.computer_name)
         mess = "UNLOCK" + ' ' + path
+        try:
+            self.connection.send(mess)
 
-        self.connection.send(mess)
+            # Wait for the recieve thread to send us a ok Event
+            status = self.ok.wait(5.0)
+            self.ok.clear()
+            if not status:
+                raise IOError(
+                    'Did not recieve a response from the client.' + self.computer_name)
 
-        # Wait for the recieve thread to send us a ok Event
-        status = self.ok.wait(5.0)
-        self.ok.clear()
-        if not status:
-            raise IOError(
-                'Did not recieve a response from the client.' + self.computer_name)
-
-        self.log.debug('Hello. Unlocking worked. The client said he is ok :)')
+            self.log.debug(
+                'Hello. Unlocking worked. The client said he is ok :)')
+        except IOError, err:
+            self.log.error(str(err))
 
     # client sends a CREATE_FILE command to the server
     # @param data a data array
+
     def _get_create_file(self, data):
         communication_data = self._recieve_command_with_content(data)
 
