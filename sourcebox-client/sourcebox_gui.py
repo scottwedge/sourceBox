@@ -12,11 +12,13 @@ import tkFileDialog
 import tkMessageBox
 # import Tkconstants
 from Tkinter import StringVar
+import config_parser
 
 
 class SourceBox_Gui(object):
 
     def __init__(self, parent):
+        self.config = config_parser.Config_Parser('./sb_client.conf')
         self.root = Tkinter.Tk()
         self.root.title("SourceBox")
         self.parent = parent
@@ -81,17 +83,20 @@ class SourceBox_Gui(object):
         self.displayStatus()
 
     def optionWindow(self):
+        self.sDirectory = self.config.boxPath
+        self.sServerIP = self.config.serverIP
+        
         self.oWin = Tkinter.Toplevel()
         self.oWin.title("Optionen")
 
         Tkinter.Label(self.oWin, text="Server IP-Adresse").grid(row=0)
         self.eServerIP = Tkinter.Entry(self.oWin)
         self.eServerIP.grid(row=0, column=1)
-        # self.eServerIP.insert(0,...)
+        self.eServerIP.insert(0,self.sServerIP)
 
         Tkinter.Label(self.oWin, text="Ordner").grid(row=1)
         self.eDirectory = Tkinter.Entry(self.oWin)
-        # self.eDirectory.insert(0,...)
+        self.eDirectory.insert(0,self.sDirectory)
         self.eDirectory.grid(row=1, column=1)
         Tkinter.Button(self.oWin, text="Ordner auswählen",
                        command=self.askDirectory).grid(row=1, column=2)
@@ -107,7 +112,8 @@ class SourceBox_Gui(object):
             initialdir=self.eDirectory.get()))
 
     def assumeOptions(self):
-        pass
+        self.config.writeConfig(self.eDirectory.get(), self.eServerIP.get())
+        self.oWin.destroy()
 
     def cancelOptions(self):
         self.oWin.destroy()

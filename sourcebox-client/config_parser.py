@@ -9,16 +9,22 @@ class Config_Parser(object):
 
 	## Constructor
 	def __init__(self, config_file):
-		config = ConfigParser.ConfigParser()
-		try:
-			config.read(config_file)
-		except:
-			print "Error while trying to read config file. Check if 'sb_client.conf' exists in the same folder as the program file."
+		self.configfile = config_file
+		self.config = ConfigParser.ConfigParser()
+		self.config.read(self.configfile)
+		#try:
+		#	config.read(config_file)
+		#except:
+		#	print "Error while trying to read config file. Check if 'sb_client.conf' exists in the same folder as the program file."
 
-		self.boxPath = config.get('main', 'path')
+		self.boxPath = self.config.get('main', 'path')
 
-		self.serverHostname = config.get('server', 'host')
-		self.serverPort = config.get('server', 'port')
+		self.serverHostname = self.config.get('server', 'host')
+		self.serverIP = self.config.get('server', 'ip')
+		self.serverPort = self.config.get('server', 'port')
 
-		self.username = config.get('user', 'name')
-		self.password = config.get('user', 'password')
+	def writeConfig(self, path, ip):
+		self.config.set('main', 'path', path)
+		self.config.set('server', 'ip', ip)
+		with open(self.configfile, 'wb') as configfile:
+			self.config.write(configfile)
