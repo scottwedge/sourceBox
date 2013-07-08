@@ -265,6 +265,7 @@ class Command_Recieve_Handler(threading.Thread):
         self.thread_name = thread_name
         self.open_socket = open_socket
         self.parent = parent
+        self.log = logging.getLogger("client")
 
         # Create 'ok' Event
         self.ok = threading.Event()

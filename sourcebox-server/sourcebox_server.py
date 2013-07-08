@@ -2,7 +2,7 @@ import server_communication_controller
 import data_controller
 import os.path
 import socket
-
+import logging
 # @package sourceboxServer
 # the server
 #
@@ -24,7 +24,11 @@ class SourceBoxServer(object):
             # Create socket
             self._create_socket()
 
-            print '[INFO] sourceBox server is running'
+            # create logger
+            self.setupLogging(
+                "server", logging.DEBUG)  # replace DEBUG by INFO for less output
+
+            self.log.info('sourceBox server is running')
 
             self._command_loop(self.sock)
 
@@ -34,7 +38,7 @@ class SourceBoxServer(object):
             del self.data
             for comm in self.active_clients:
                 del comm
-            print '[INFO] Terminating SourceBoxServer'
+            self.log.info('Terminating SourceBoxServer')
 
     # Creates a socket
     # @author Martin Zellner
@@ -52,10 +56,11 @@ class SourceBoxServer(object):
         init_message = connection.recv(20).split(' ')
 
         if not init_message[0] == 'INIT':
-            print '[WARNING] Init failed'
+            self.log.warning('Init failed')
         else:
             computer_name = init_message[1]
-            print '[INFO] A new client (' + computer_name + ')logged in. Creating a Communication Controller'
+            self.log.info('A new client (' + computer_name +
+                          ')logged in. Creating a Communication Controller')
 
             # Create a new communication_controller
             comm = server_communication_controller.Server_Communication_Controller(
@@ -74,14 +79,14 @@ class SourceBoxServer(object):
                     comm.send_create_file(file_size, current_file, content)
 
             # log active clients
-            print '[INFO] Active Clients are:'
-            print '\n'.join(self.active_clients.keys())
+            self.log.info('Active Clients are:')
+            self.log.info('\n'.join(self.active_clients.keys()))
 
     # removes a client
     # @author Martin Zellner
     # @param client the communication controller of the client
     def remove_client(self, computer_name):
-        print '[INFO] Remove client ' + computer_name
+        self.info('Remove client ' + computer_name)
         del self.active_clients[computer_name]
 
     # The server command loop
@@ -99,7 +104,7 @@ class SourceBoxServer(object):
     # @param computer_name the name of the computer creating the file
     def create_file(self, path, file_name, file_size, computer_name, content=''):
 
-        print '[INFO] Creating the file ' + file_name
+        self.debug('Creating the file ' + file_name)
         # create file in backend
         self.data.create_file(os.path.join(
             path, file_name), computer_name, content)
@@ -182,3 +187,24 @@ class SourceBoxServer(object):
             return os.path.getsize(os.path.join(path, file_name))
         else:
             return False
+
+    # creates global log object
+    # @param name the name of the logger
+    # @param level level of logging e.g. logging.DEBUG
+    # @author Emanuel Regnath
+
+    def setupLogging(self, name, level):
+        self.log = logging.getLogger(name)
+        self.log.setLevel(level)
+
+        formatter = logging.Formatter('[%(levelname)s] %(message)s')
+
+        sh = logging.StreamHandler()
+        sh.setLevel(level)
+        sh.setFormatter(formatter)
+        self.log.addHandler(sh)
+
+        fh = logging.FileHandler(name + ".log")
+        fh.setLevel(logging.DEBUG)
+        fh.setFormatter(formatter)
+        self.log.addHandler(fh)

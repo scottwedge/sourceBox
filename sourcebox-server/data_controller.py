@@ -1,5 +1,6 @@
 import rcslib
 import os
+import logging
 
 # @package Data_Controller
 # handles the communication with the backend
@@ -17,15 +18,17 @@ class Data_Controller(object):
     def __init__(self, data_dir):
         self.rcs = rcslib.RCS()
         self.data_dir = './data'
+        # catch logging object
+        self.log = logging.getLogger("server")
 
-        print '[INFO] Created Data_Controller in dir ' + self.data_dir
+        self.log.info('Created Data_Controller in dir ' + self.data_dir)
 
     # Reads a file
     # @param file_path name of the file
     #
     def read_file(self, file_path):
         path = os.path.join(self.data_dir, file_path)
-        print '[DEBUG] reading file ' + path
+        self.log.debug('reading file ' + path)
         with open(path, 'r') as open_file:
             content = open_file.read()
         return content
@@ -60,7 +63,8 @@ class Data_Controller(object):
             self.rcs._remove(path)
             os.remove(path + ',v')
         except OSError:
-            print '[ERROR] It seems that the file to be deleted is already gone. This is BAD!'
+            self.log.error(
+                'It seems that the file to be deleted is already gone. This is BAD!')
 
     # Creates a new file
     # @param file_path name of the file
@@ -75,8 +79,8 @@ class Data_Controller(object):
             # self.rcs.lock(path, user)
             return True
         except IOError, err:
-            print '[ERROR] Could not create file!'
-            print str(err)
+            self.log.error('Could not create file!')
+            self.log.error(str(err))
 
     # Saves a file
     # @param file_name name of the file

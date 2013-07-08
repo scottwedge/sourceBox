@@ -7,6 +7,7 @@
 import thread
 import threading
 import socket
+import logging
 
 
 class Server_Communication_Controller(object):
@@ -28,7 +29,11 @@ class Server_Communication_Controller(object):
     # @param connection the connection to the client
     # @param computer_name the computer_name of the client
     def __init__(self, parent, connection, computer_name):
-        print '[INFO] Server Created Communication_Controller for ' + computer_name
+        # catch logging object
+        self.log = logging.getLogger("server")
+
+        self.log.info(
+            'Server Created Communication_Controller for ' + computer_name)
 
         # The sourceBox server is now accessible through the instance variable
         # "parent"
@@ -45,13 +50,14 @@ class Server_Communication_Controller(object):
 
     # Deconstructor
     def __del__(self):
-        print '[DEBUG] Deconstruction Communication_Controller'
+        self.log.debug('Deconstruction Communication_Controller')
         self.connection.close()
 
     # Waits for (incoming) commands
     def _command_loop(self, thread_name, connection):
         try:
-            print '[' + thread_name + '] ' + 'Created thread: ' + thread_name
+            self.log.info(
+                '[' + thread_name + '] ' + 'Created thread: ' + thread_name)
 
             while True:
                 data = connection.recv(1024).split(' ')
@@ -59,18 +65,17 @@ class Server_Communication_Controller(object):
                 self._parse_command(cmd, data)
         except socket.error, e:
             if e.errno == 104:
-                print '[WARNING] client closed connection unexpectedly'
+                self.log.warning('Client closed connection unexpectedly')
                 self.parent.remove_client(self)
                 connection.close()
                 thread.exit()
             else:
-                print "_command_loop error:" + e.string
+                self.log.error("_command_loop error:" + e.string)
 
     # Parse the command
     def _parse_command(self, cmd, data):
-        print '[DEBUG] Recieved Command from the client: ' + data[0]
+        self.log.debug('Recieved Command from the client: ' + data[0])
         if cmd == self.COMMAND_GETCREATEFILE:
-            print 'CMD is create_file'
             self._get_create_file(data)
         elif cmd == self.COMMAND_SENDLOCKFILE:
             self._get_lock_file(data)
@@ -89,7 +94,7 @@ class Server_Communication_Controller(object):
         elif cmd == 'OK\n':
             self.ok.set()
         else:
-            print '[WARNING] recieved unknown command: ' + cmd
+            self.log.warning('recieved unknown command: ' + cmd)
 
     # closes the connection to the client
     def _close_connection(self):
@@ -102,7 +107,7 @@ class Server_Communication_Controller(object):
     # @param size the size of the file
     # @param path the path to the file (relative to the source box)
     def send_create_file(self, size, path, content):
-        print 'Sending CREATE to client'
+        self.log.debug('Sending CREATE to client')
         mess = "CREATE" + ' ' + str(size) + ' ' + path
 
         self.connection.send(mess)
@@ -121,17 +126,16 @@ class Server_Communication_Controller(object):
         if not status:
             raise IOError('Did not recieve a response from the server.')
 
-        print 'Hello. Creation worked. The client said he is ok :)'
+        self.log.debug('Hello. Creation worked. The client said he is ok :)')
         # NOTE
         # Any notification would be eaten by the server command loop at the moment.
         # We need a event solution similar to the client if we are interested in the
         # successful execution of the file. Like the code above.
 
-
     # server notifies the client about delete file (initiated by another user)
     # @param path the path to the file (relative to the source box)
     def send_delete_file(self, path):
-        print 'Sending REMOVE to client'
+        self.log.debug('Sending REMOVE to client')
         mess = "REMOVE" + ' ' + path
 
         self.connection.send(mess)
@@ -142,12 +146,12 @@ class Server_Communication_Controller(object):
         if not status:
             raise IOError('Did not recieve a response from the server.')
 
-        print 'Hello. Delete worked. The client said he is ok :)'
+        self.log.debug('Hello. Delete worked. The client said he is ok :)')
 
     # server notifies the client about modify file (initiated by another user)
     # @param path the path to the file (relative to the source box)
     def send_modify_file(self, size, path, content):
-        print 'Sending MODIFY to client'
+        self.log.debug('Sending MODIFY to client')
         mess = "MODIFY" + ' ' + str(size) + ' ' + path
 
         self.connection.send(mess)
@@ -166,12 +170,12 @@ class Server_Communication_Controller(object):
         if not status:
             raise IOError('Did not recieve a response from the server.')
 
-        print 'Hello. Modifying worked. The client said he is ok :)'
+        self.log.debug('Hello. Modifying worked. The client said he is ok :)')
 
     # server notifies the client about lock file (initiated by another user)
     # @param path the path to the file (relative to the source box)
     def send_lock_file(self, path):
-        print 'Sending LOCK to client'
+        self.log.debug('Sending LOCK to client')
         mess = "LOCK" + ' ' + path
 
         self.connection.send(mess)
@@ -182,12 +186,12 @@ class Server_Communication_Controller(object):
         if not status:
             raise IOError('Did not recieve a response from the server.')
 
-        print 'Hello. Locking worked. The client said he is ok :)'
+        self.log.debug('Hello. Locking worked. The client said he is ok :)')
 
     # server notifies the client about unlock file (initiated by another user)
     # @param path the path to the file (relative to the source box)
     def send_unlock_file(self, path):
-        print 'Sending UNLOCK to client'
+        self.log.debug('Sending UNLOCK to client')
         mess = "UNLOCK" + ' ' + path
 
         self.connection.send(mess)
@@ -198,11 +202,7 @@ class Server_Communication_Controller(object):
         if not status:
             raise IOError('Did not recieve a response from the server.')
 
-        print 'Hello. Unlocking worked. The client said he is ok :)'
-
-
-
-
+        self.log.debug('Hello. Unlocking worked. The client said he is ok :)')
 
     # client sends a CREATE_FILE command to the server
     # @param data a data array
@@ -220,7 +220,8 @@ class Server_Communication_Controller(object):
     def _get_lock_file(self, data):
         communication_data = self._recieve_command(data)
 
-        answer = self.parent.lock_file('', communication_data['file_path'], self.computer_name)
+        answer = self.parent.lock_file('', communication_data[
+                                       'file_path'], self.computer_name)
         if answer:
             self.connection.send('OK\n')
 
@@ -228,7 +229,8 @@ class Server_Communication_Controller(object):
     # @param data a data array
     def _get_unlock_file(self, data):
         communication_data = self._recieve_command(data)
-        answer = self.parent.unlock_file('.', communication_data['file_path'], self.computer_name)
+        answer = self.parent.unlock_file(
+            '.', communication_data['file_path'], self.computer_name)
         if answer == True:
             self.connection.send('OK\n')
         else:
@@ -238,7 +240,8 @@ class Server_Communication_Controller(object):
 
     def _get_delete_file(self, data):
         communication_data = self._recieve_command(data)
-        answer = self.parent.delete_file('.', communication_data['file_path'], self.computer_name)
+        answer = self.parent.delete_file(
+            '.', communication_data['file_path'], self.computer_name)
         if answer:
             self.connection.send('OK\n')
         else:

@@ -8,3 +8,5 @@ sourcebox-server/data/*
 sourcebox-client/data/*
 
 sourcebox-client/client.log
+
+*.log
