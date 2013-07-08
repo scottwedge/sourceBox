@@ -38,9 +38,10 @@ class SourceBox_Gui(object):
         Tkinter.Label(
             self.root, text="Folgende Dateien wurden für andere Benutzer gesperrt:").pack()
         self.locked_files = StringVar()
+        self.locked_files_path = []
         self.lockedLabel = Tkinter.Label(
             self.root, textvariable=self.locked_files).pack()
-        
+
         Tkinter.Button(
             self.root, text="Datei(en) entsperren", command=self.unlock).pack()
 
@@ -88,18 +89,18 @@ class SourceBox_Gui(object):
     def optionWindow(self):
         self.sDirectory = self.config.boxPath
         self.sServerIP = self.config.serverIP
-        
+
         self.oWin = Tkinter.Toplevel()
         self.oWin.title("Optionen")
 
         Tkinter.Label(self.oWin, text="Server IP-Adresse").grid(row=0)
         self.eServerIP = Tkinter.Entry(self.oWin)
         self.eServerIP.grid(row=0, column=1)
-        self.eServerIP.insert(0,self.sServerIP)
+        self.eServerIP.insert(0, self.sServerIP)
 
         Tkinter.Label(self.oWin, text="Ordner").grid(row=1)
         self.eDirectory = Tkinter.Entry(self.oWin)
-        self.eDirectory.insert(0,self.sDirectory)
+        self.eDirectory.insert(0, self.sDirectory)
         self.eDirectory.grid(row=1, column=1)
         Tkinter.Button(self.oWin, text="Ordner auswählen",
                        command=self.askDirectory).grid(row=1, column=2)
@@ -120,7 +121,7 @@ class SourceBox_Gui(object):
 
     def cancelOptions(self):
         self.oWin.destroy()
-        
+
     def unlock(self):
         pass
 

@@ -17,11 +17,15 @@ class Filesystem_Controller(FileSystemEventHandler):
 
     # Variables
     lockTime = 20					# auto unlock after seconds: demo 20 seconds, final 5 min
-    ignoreCreate = []               # list of paths whose fs-create-events shall be ignored
-    ignoreDelete = []               # list of paths whose fs-delete-events shall be ignored
+    ignoreCreate = []
+        # list of paths whose fs-create-events shall be ignored
+    ignoreDelete = []
+        # list of paths whose fs-delete-events shall be ignored
     ignoreMove = []					# list of paths whose fs-move-events shall be ignored
-    ignoreModify = []               # list of paths whose fs-modify-events shall be ignored
-    ignoreLock = []                 # list of paths whose lock_file shall be ignored
+    ignoreModify = []
+        # list of paths whose fs-modify-events shall be ignored
+    ignoreLock = []
+        # list of paths whose lock_file shall be ignored
     locked_files = []				# list of locked files
 
     # Constuctor
@@ -32,7 +36,8 @@ class Filesystem_Controller(FileSystemEventHandler):
         # catch logging object from sourceBox_client
         self.log = logging.getLogger("client")
 
-        self.boxPath = os.path.abspath(boxPath)						# absolute path of the observed directory (where fs-events will be detected)
+        self.boxPath = os.path.abspath(
+            boxPath)						# absolute path of the observed directory (where fs-events will be detected)
         self.client = client										# object pointer to the parent class (client)
         self.observer = Observer()									# create observer
         self.observer.schedule(self, boxPath, recursive=True)
@@ -53,15 +58,22 @@ class Filesystem_Controller(FileSystemEventHandler):
     # @param path path of the file relative to boxPath
     # @author Emanuel Regnath
     def lockFile(self, path):
-        abspath = os.path.join(self.boxPath, path)                  # expand to absolute path
-        relpath = os.path.relpath(abspath, self.boxPath)            # reduce to path relative to boxPath
+        abspath = os.path.join(
+            self.boxPath, path)                  # expand to absolute path
+        relpath = os.path.relpath(
+            abspath, self.boxPath)            # reduce to path relative to boxPath
         if relpath not in self.ignoreLock:
             try:
-                self.locked_files.append(relpath)						# new entry in locked_files
+                self.locked_files.append(
+                    relpath)						# new entry in locked_files
+                self.client.gui.append(relpath)
 
-                self.ignoreModify.append(path)							# ignore modify-event raised by chmod
-                path = os.path.join(self.boxPath, path)                 # expand to absolute path
-                os.chmod(path, 0o000)                                   # set file permissions: no read, no write, no exec
+                self.ignoreModify.append(
+                    path)							# ignore modify-event raised by chmod
+                path = os.path.join(
+                    self.boxPath, path)                 # expand to absolute path
+                os.chmod(path, 0o000)
+                         # set file permissions: no read, no write, no exec
                 print "File locked ", path 								# self.log
             except Exception, e:
                 self.log.error(
@@ -71,18 +83,24 @@ class Filesystem_Controller(FileSystemEventHandler):
     # @param path path of the file relative to boxPath
     # @author Emanuel Regnath
     def unlockFile(self, path):
-        abspath = os.path.join(self.boxPath, path)                  # expand to absolute path
-        relpath = os.path.relpath(abspath, self.boxPath) 			# reduce to path relative to boxPath
+        abspath = os.path.join(
+            self.boxPath, path)                  # expand to absolute path
+        relpath = os.path.relpath(
+            abspath, self.boxPath) 			# reduce to path relative to boxPath
         try:
             self.log.info('Unlocking ' + relpath)
 
-            self.locked_files.remove(relpath)                       # remove file from locked list
+            self.locked_files.remove(
+                relpath)                       # remove file from locked list
             self.client.gui.locked_files.set(						# new entry in GUI notification
                 '\n'.join(self.locked_files))
-
-            path = os.path.join(self.boxPath, path)                 # expand to absolute path
-            self.ignoreModify.append(path)							# ignore modify-event triggered by chmod
-            os.chmod(path, 0o666)									# set file permissions: read and write
+            self.client.gui.remove(relpath)
+            path = os.path.join(
+                self.boxPath, path)                 # expand to absolute path
+            self.ignoreModify.append(
+                path)							# ignore modify-event triggered by chmod
+            os.chmod(
+                path, 0o666)									# set file permissions: read and write
             print "File unlocked: ", path
         except Exception, e:
             self.log.error(
@@ -96,7 +114,8 @@ class Filesystem_Controller(FileSystemEventHandler):
     # @author Emanuel Regnath
     # @returns the content of the file
     def readFile(self, path):
-        path = os.path.join(self.boxPath, path)						       # expand to absolute path
+        path = os.path.join(
+            self.boxPath, path)						       # expand to absolute path
         return open(path, 'r').read()
 
     # overwrites a file
@@ -104,7 +123,8 @@ class Filesystem_Controller(FileSystemEventHandler):
     # @param content content of the file
     # @author Emanuel Regnath
     def writeFile(self, path, content):
-        self.ignoreModify.append(path)								# ignore modify-event triggered by .write
+        self.ignoreModify.append(
+            path)								# ignore modify-event triggered by .write
         path = os.path.join(self.boxPath, path)						# expand to absolute path
         if os.access(path, os.W_OK):
             open(path, 'w').write(content)							# write content to file
@@ -119,8 +139,10 @@ class Filesystem_Controller(FileSystemEventHandler):
     # @param path path of the file relative to boxPath
     # @author Emanuel Regnath
     def createFile(self, path):
-        path = os.path.join(self.boxPath, path)                     # expand to absolute path
-        self.ignoreCreate.append(path)                              # ignore create-event triggered by .close
+        path = os.path.join(
+            self.boxPath, path)                     # expand to absolute path
+        self.ignoreCreate.append(path)
+                                 # ignore create-event triggered by .close
         self.ignoreModify.append(path)
         if os.path.exists(path):
             self.writeFile(path, "")
@@ -183,7 +205,8 @@ class Filesystem_Controller(FileSystemEventHandler):
     # @author Emanuel Regnath
     def on_created(self, event):
         src_path = event.src_path									# abslolute path
-        src_relpath = os.path.relpath(src_path, self.boxPath) 		# reduce to path relative to boxPath
+        src_relpath = os.path.relpath(
+            src_path, self.boxPath) 		# reduce to path relative to boxPath
         if src_path in self.ignoreCreate:
             self.ignoreCreate.remove(src_path)
         else:
@@ -192,7 +215,8 @@ class Filesystem_Controller(FileSystemEventHandler):
                 # push changes to SVN
             else:
                 self.log.info("File created: %s", src_path)				# self.log
-                content = open(src_path).read()						# ERROR: src_path only filename
+                content = open(
+                    src_path).read()						# ERROR: src_path only filename
                 self.client.comm.send_create_file(
                     src_relpath, len(content), content)
 
@@ -232,8 +256,10 @@ class Filesystem_Controller(FileSystemEventHandler):
                 # lock file:
                 self.client.comm.send_lock_file(src_relpath)
                 self.locked_files.append(src_relpath)
-                self.setLockTimer(src_path, self.lockTime)                  # start lockTimer for auto-unlock
-                self.ignoreLock.append(src_relpath)                         # ignore incomming locks because I locked the file
+                self.setLockTimer(
+                    src_path, self.lockTime)                  # start lockTimer for auto-unlock
+                self.ignoreLock.append(
+                    src_relpath)                         # ignore incomming locks because I locked the file
                 self.client.gui.locked_files.set(
                     '\n'.join(self.locked_files))
 
@@ -264,22 +290,23 @@ class Filesystem_Controller(FileSystemEventHandler):
                     # same as create
                     pass
 
-
     # Internal Methods (don't touch!)
     #==========================================================================
-
     # wait a certain time (new thread) until path is auto-unlocked
     # @param path path of the file relative to boxPath
     # @param time time to wait in seconds
     # @author Emanuel Regnath
-    def setLockTimer(self, path, time): 
-        Timer(time, self.handleLockTimerEvent, (path,)).start()               # start new thread with timer
+    def setLockTimer(self, path, time):
+        Timer(time, self.handleLockTimerEvent, (
+            path,)).start()               # start new thread with timer
 
     def handleLockTimerEvent(self, path):
-        relpath = os.path.relpath(path, self.boxPath)                       # reduce to path relative to boxPath
+        relpath = os.path.relpath(
+            path, self.boxPath)                       # reduce to path relative to boxPath
         if relpath in self.ignoreLock:                              # delete ignoreLock entry
             self.ignoreLock.remove(relpath)
         self.client.comm.send_unlock_file(relpath)
-        self.locked_files.remove(relpath)                                   # remove file from locked list
+        self.locked_files.remove(relpath)
+                                 # remove file from locked list
         self.client.gui.locked_files.set(                                   # update GUI lock list
-            '\n'.join(self.locked_files))        
+            '\n'.join(self.locked_files))
