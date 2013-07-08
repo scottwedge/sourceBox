@@ -123,7 +123,8 @@ class SourceBox_Gui(object):
         self.oWin.destroy()
 
     def unlock(self):
-        pass
+        for self.locked_files_path in self.locked_files_path:
+            self.parent.comm.send_unlock_file(self.locked_files_path)
 
 
 # testing
