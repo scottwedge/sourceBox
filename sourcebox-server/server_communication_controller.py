@@ -118,15 +118,15 @@ class Server_Communication_Controller(object):
         if not status:
             raise IOError(
                 'Did not recieve a response from the client.' + self.computer_name)
-
-        self.connection.send(content)
-        self.log.debug("send content to client")
-        # Wait for the recieve thread to send us a ok Event
-        status = self.ok.wait(5.0)
-        self.ok.clear()
-        if not status:
-            raise IOError(
-                'Did not recieve a response from the client.' + self.computer_name)
+        if not size == 0:
+            self.connection.send(content)
+            self.log.debug("send content to client")
+            # Wait for the recieve thread to send us a ok Event
+            status = self.ok.wait(5.0)
+            self.ok.clear()
+            if not status:
+                raise IOError(
+                    'Did not recieve a response from the client.' + self.computer_name)
 
         self.log.debug('Hello. Creation worked. The client said he is ok :)')
         # NOTE
@@ -165,15 +165,15 @@ class Server_Communication_Controller(object):
         if not status:
             raise IOError(
                 'Did not recieve a response from the client.' + self.computer_name)
+        if not size == 0:
+            self.connection.send(content)
 
-        self.connection.send(content)
-
-        # Wait for the recieve thread to send us a ok Event
-        status = self.ok.wait(5.0)
-        self.ok.clear()
-        if not status:
-            raise IOError(
-                'Did not recieve a response from the client.' + self.computer_name)
+            # Wait for the recieve thread to send us a ok Event
+            status = self.ok.wait(5.0)
+            self.ok.clear()
+            if not status:
+                raise IOError(
+                    'Did not recieve a response from the client.' + self.computer_name)
 
         self.log.debug('Hello. Modifying worked. The client said he is ok :)')
 

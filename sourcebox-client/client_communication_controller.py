@@ -295,6 +295,7 @@ class Command_Recieve_Handler(threading.Thread):
 
                 file_size = int(data[1])
                 file_path = data[2]
+                self.parent.fs.createFile(file_path)
 
                 # read data from the socket
                 if not file_size == 0:
@@ -308,8 +309,6 @@ class Command_Recieve_Handler(threading.Thread):
                     self.open_socket.send('OK\n')
                     self.parent.fs.createFile(file_path)
                     self.parent.fs.writeFile(file_path, content)
-                else:
-                    self.open_socket.send('OK\n')
 
             elif data[0] == self.COMMAND_DELETEFILE:
                 self.log.debug('Recieved Delete Command' + str(data))
@@ -336,8 +335,6 @@ class Command_Recieve_Handler(threading.Thread):
                         content += data
                     self.open_socket.send('OK\n')
                     self.parent.fs.writeFile(file_path, content)
-                else:
-                    self.open_socket.send('OK\n')
 
             elif data[0] == self.COMMAND_LOCKFILE:
                 self.log.debug('Recieved Lock Command' + str(data))
