@@ -85,8 +85,7 @@ class SourceBoxServer(object):
             # send all files to the client
             for current_file in self.data.list_dir():
                 if not os.path.isdir(os.path.join(self.data.data_dir, current_file)) and ',v' not in current_file:
-                    file_size = self.get_file_size(
-                        self.data.data_dir, current_file)
+                    file_size = self.get_file_size(os.path.join(self.data.data_dir, current_file))
                     content = self.data.read_file(current_file)
                     comm.send_create_file(file_size, current_file, content)
 

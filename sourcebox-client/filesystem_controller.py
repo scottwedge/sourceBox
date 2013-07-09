@@ -25,8 +25,6 @@ class Filesystem_Controller(FileSystemEventHandler):
     ignoreMove = []					# list of paths whose fs-move-events shall be ignored
     ignoreModify = []
         # list of paths whose fs-modify-events shall be ignored
-    ignoreLock = []
-        # list of paths whose lock_file shall be ignored
     locked_files = []				# list of locked files
 
     # Files in the selective_sync_list are completely ignored by the sourceBox
@@ -66,20 +64,19 @@ class Filesystem_Controller(FileSystemEventHandler):
             self.boxPath, path)                  # expand to absolute path
         relpath = os.path.relpath(
             abspath, self.boxPath)            # reduce to path relative to boxPath
-        if relpath not in self.ignoreLock:
-            try:
-                self.locked_files.append(
+        try:
+            self.locked_files.append(
                     relpath)						# new entry in locked_files
 
-               # self.ignoreModify.append(
+            # self.ignoreModify.append(
                  #   path)							# ignore modify-event raised by chmod
-                path = os.path.join(
+            path = os.path.join(
                     self.boxPath, path)                 # expand to absolute path
-                os.chmod(path, 0o000)
+            os.chmod(path, 0o000)
                          # set file permissions: no read, no write, no exec
-                print "File locked ", path 								# self.log
-            except Exception, e:
-                self.log.error(
+            print "File locked ", path 								# self.log
+        except Exception, e:
+            self.log.error(
                     "could not lock file %s because %s", path, e)		# print exception
 
     # unlocks a file
@@ -104,8 +101,6 @@ class Filesystem_Controller(FileSystemEventHandler):
         except Exception, e:
             self.log.error("could not unlock file %s because %s", path, e)		# print exception
 
-        if relpath in self.ignoreLock:                              # delete ignoreLock entry
-            self.ignoreLock.remove(relpath)
 
     # reads a file
     # @param path path of the file relative to boxPath
@@ -319,8 +314,6 @@ class Filesystem_Controller(FileSystemEventHandler):
                 self.client.comm.send_lock_file(src_relpath)
                 self.setLockTimer(
                     src_path, self.lockTime)                  # start lockTimer for auto-unlock
-                self.ignoreLock.append(
-                    src_relpath)                         # ignore incomming locks because I locked the file
                 self.client.gui.locked_files_path.append(src_relpath)
                 # Update GUI
                 self.client.gui.locked_files.set('\n'.join(self.client.gui.locked_files_path))
@@ -377,11 +370,7 @@ class Filesystem_Controller(FileSystemEventHandler):
     def handleLockTimerEvent(self, path):
         # reduce to path relative to boxPath
         relpath = os.path.relpath(path, self.boxPath)
-        try:
-            # delete ignoreLock entry                   
-            if relpath in self.ignoreLock:                              
-                self.ignoreLock.remove(relpath)
-        
+        try:     
             self.client.gui.locked_files_path.remove(relpath)
         except ValueError, err:
             self.log.error(err)
