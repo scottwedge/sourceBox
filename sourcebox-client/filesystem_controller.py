@@ -180,7 +180,10 @@ class Filesystem_Controller(FileSystemEventHandler):
             self.boxPath, path)                     # expand to absolute path
         self.ignoreDelete.append(
             path)								# ignore delete-event triggered by os.remove
-        os.remove(path)												# delete file
+        try:
+            os.remove(path)												# delete file
+        except OSError, err:
+            self.log.error(str(err))
 
     # delete directory
     # @param path path of the directory relative to boxPath
@@ -223,7 +226,7 @@ class Filesystem_Controller(FileSystemEventHandler):
         src_path = event.src_path									# abslolute path
         src_relpath = os.path.relpath(
             src_path, self.boxPath) 		# reduce to path relative to boxPath
-        if src_path in self.selective_sync_list:
+        if self._path_contains_selective_sync(src_path):
             self.log.debug(src_path + ' in selective_sync_list -> ignored.')
         elif src_path in self.ignoreCreate:
             self.ignoreCreate.remove(src_path)
@@ -248,7 +251,7 @@ class Filesystem_Controller(FileSystemEventHandler):
         src_path = event.src_path									# abslolute path
         src_relpath = os.path.relpath(
             src_path, self.boxPath) 		# reduce to path relative to boxPath
-        if src_path in self.selective_sync_list:
+        if self._path_contains_selective_sync(src_path):
             self.log.debug(src_path + ' in selective_sync_list -> ignored.')
         elif src_path in self.ignoreDelete:
             self.ignoreDelete.remove(src_path)
@@ -268,7 +271,7 @@ class Filesystem_Controller(FileSystemEventHandler):
         src_path = event.src_path									# abslolute path
         src_relpath = os.path.relpath(
             src_path, self.boxPath) 		# reduce to path relative to boxPath
-        if src_path in self.selective_sync_list:
+        if self._path_contains_selective_sync(src_path):
             self.log.debug(src_path + ' in selective_sync_list -> ignored.')
         elif src_path in self.ignoreModify:
             #self.log.debug('path:' + src_path)
@@ -306,7 +309,7 @@ class Filesystem_Controller(FileSystemEventHandler):
             event.src_path, self.boxPath)  # reduce to path relative to boxPath
         dest_path = os.path.relpath(
             event.dest_path, self.boxPath)  # reduce to path relative to boxPath
-        if src_path in self.selective_sync_list:
+        if self._path_contains_selective_sync(src_path):
             self.log.debug(src_path + ' in selective_sync_list -> ignored.')
         elif src_path in self.ignoreMove:
             self.ignoreMove.remove(src_path)
@@ -328,6 +331,13 @@ class Filesystem_Controller(FileSystemEventHandler):
     # @param path path of the file relative to boxPath
     # @param time time to wait in seconds
     # @author Emanuel Regnath
+
+    def _path_contains_selective_sync(self, path):
+        for entry in self.selective_sync_list:
+            if entry in path:
+                return True
+        return False
+
     def setLockTimer(self, path, time):
         Timer(time, self.handleLockTimerEvent, (
             path,)).start()               # start new thread with timer
