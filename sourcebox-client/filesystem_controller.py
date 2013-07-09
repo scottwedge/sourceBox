@@ -142,21 +142,22 @@ class Filesystem_Controller(FileSystemEventHandler):
     # created File
     # @param path path of the file relative to boxPath
     # @author Emanuel Regnath
-    def createFile(self, path):
+    def createFile(self, path, content):
         path = os.path.join(
             self.boxPath, path)                     # expand to absolute path
         self.ignoreCreate.append(path)
                                  # ignore create-event triggered by .close
+        self.ignoreModify.append(path)
         if os.path.exists(path):
             # NOTE We need a copy of the write_file command that does not produce a ignoreModify. Unless we have duplicate ignoreModify entries.
 
             path = os.path.join(self.boxPath, path)                     # expand to absolute path
             if os.access(path, os.W_OK):
-                open(path, 'w').write('')                          # write content to file
+                open(path, 'w').write(content)                          # write content to file
             else:
                 fileMod = os.stat(path).st_mode & 0777                  # get fileMod
                 os.chmod(path, 0o666)                                       # set file permissions: read and write
-                open(path, 'w').write('')                          # write content to file
+                open(path, 'w').write(content)                          # write content to file
                 os.chmod(path, fileMod)
         else:
             open(path, 'a').close()									# create file
