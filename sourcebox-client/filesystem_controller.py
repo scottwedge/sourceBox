@@ -303,7 +303,8 @@ class Filesystem_Controller(FileSystemEventHandler):
         elif src_path in self.ignoreModify:
             self.ignoreModify.remove(src_path)
             self.log.debug('Ignore Modify after MODIFY Event: ' + str(self.ignoreModify))
-
+        elif src_relpath in self.locked_files:
+            pass
         else:
             if event.is_directory == True:							# if event was triggered by a directory
                 self.log.info("Directory modified: %s", src_path)		# self.log
