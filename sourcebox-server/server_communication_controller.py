@@ -134,7 +134,7 @@ class Server_Communication_Controller(object):
                     raise IOError(
                         'Did not recieve a response from the client ' + self.computer_name)
 
-            self.log.debug('Hello. Creation worked. The client said he is ok :)')
+           # self.log.debug('Hello. Creation worked. The client said he is ok :)')
         except IOError, err:
             self.log.error(str(err))
         # NOTE
@@ -167,7 +167,7 @@ class Server_Communication_Controller(object):
             raise IOError(
                 'Did not recieve a response from the the client ' + self.computer_name)
 
-        self.log.debug('Hello. Delete worked. The client said he is ok :)')
+       # self.log.debug('Hello. Delete worked. The client said he is ok :)')
 
     # server notifies the client about modify file (initiated by another user)
     # @param path the path to the file (relative to the source box)
@@ -193,7 +193,7 @@ class Server_Communication_Controller(object):
                 raise IOError(
                     'Did not recieve a response from the client ' + self.computer_name)
 
-        self.log.debug('Hello. Modifying worked. The client said he is ok :)')
+       # self.log.debug('Hello. Modifying worked. The client said he is ok :)')
 
     # server notifies the client about lock file (initiated by another user)
     # @param path the path to the file (relative to the source box)
@@ -211,7 +211,7 @@ class Server_Communication_Controller(object):
                 raise IOError(
                     'Did not recieve a response from the client.' + self.computer_name)
 
-            self.log.debug('Hello. Locking worked. The client said he is ok :)')
+           # self.log.debug('Hello. Locking worked. The client said he is ok :)')
         except IOError, err:
             self.log.error(str(err))
 
@@ -230,8 +230,8 @@ class Server_Communication_Controller(object):
                 raise IOError(
                     'Did not recieve a response from the client ' + self.computer_name)
 
-            self.log.debug(
-                'Hello. Unlocking worked. The client said he is ok :)')
+           ## self.log.debug(
+            #    'Hello. Unlocking worked. The client said he is ok :)')
         except IOError, err:
             self.log.error(str(err))
 
