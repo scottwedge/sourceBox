@@ -10,3 +10,13 @@ sourcebox-client/data/*
 sourcebox-client/client.log
 
 *.log
+
+documentation/latex/refman.tex
+
+documentation/html/index.html
+
+documentation/html/search/search.js
+
+documentation/html/search/search.js
+
+*.html
