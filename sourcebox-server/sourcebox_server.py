@@ -45,8 +45,10 @@ class SourceBoxServer(object):
         except KeyboardInterrupt:
             self.sock.close()
             del self.data
-            for comm in self.active_clients:
-                del comm
+            for comm in self.active_clients.keys():
+                self.active_clients[comm].send_close()
+                self.log.debug('Remove ' + comm)
+                self.remove_client(comm)
             self.log.info('Terminating SourceBoxServer')
 
     # Creates a socket
@@ -55,6 +57,7 @@ class SourceBoxServer(object):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.bind(('', 50000))
         self.sock.listen(5)  # Max 5 Clients
+
 
     # When a new client connects
     # @param connection the connection object for the communication controller

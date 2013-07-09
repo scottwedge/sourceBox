@@ -17,16 +17,16 @@ class Filesystem_Controller(FileSystemEventHandler):
 
     # Variables
     lockTime = 20					# auto unlock after seconds: demo 20 seconds, final 5 min
-    ignoreCreate = []
+    ignoreCreate = ['.DS_Store']
         # list of paths whose fs-create-events shall be ignored
-    ignoreDelete = []
+    ignoreDelete = ['.DS_Store']
         # list of paths whose fs-delete-events shall be ignored
-    ignoreMove = []					# list of paths whose fs-move-events shall be ignored
-    ignoreModify = []
+    ignoreMove = ['.DS_Store']					# list of paths whose fs-move-events shall be ignored
+    ignoreModify = ['.DS_Store']
         # list of paths whose fs-modify-events shall be ignored
-    ignoreLock = []
+    ignoreLock = ['.DS_Store']
         # list of paths whose lock_file shall be ignored
-    locked_files = []				# list of locked files
+    locked_files = ['.DS_Store']				# list of locked files
 
     # Constuctor
     # @param client object of parent class
@@ -118,7 +118,7 @@ class Filesystem_Controller(FileSystemEventHandler):
             os.chmod(path, 0o666)                                        # set file permissions: read and write
             content = open(path, 'r').read()
             os.chmod(path, fileMod)
-            return content            
+            return content
 
 
     # overwrites a file
@@ -145,7 +145,16 @@ class Filesystem_Controller(FileSystemEventHandler):
         self.ignoreCreate.append(path)
                                  # ignore create-event triggered by .close
         if os.path.exists(path):
-            self.writeFile(path, "")
+            # NOTE We need a copy of the write_file command that does not produce a ignoreModify. Unless we have duplicate ignoreModify entries.
+
+            path = os.path.join(self.boxPath, path)                     # expand to absolute path
+            if os.access(path, os.W_OK):
+                open(path, 'w').write('')                          # write content to file
+            else:
+                fileMod = os.stat(path).st_mode & 0777                  # get fileMod
+                os.chmod(path, 0o666)                                       # set file permissions: read and write
+                open(path, 'w').write('')                          # write content to file
+                os.chmod(path, fileMod)
         else:
             open(path, 'a').close()									# create file
 
@@ -218,10 +227,13 @@ class Filesystem_Controller(FileSystemEventHandler):
                 # push changes to SVN
             else:
                 self.log.info("File created: %s", src_path)				# self.log
-                content = open(
-                    src_path).read()						# ERROR: src_path only filename
-                self.client.comm.send_create_file(
-                    src_relpath, len(content), content)
+                try:
+                    content = open(
+                        src_path).read()						# ERROR: src_path only filename
+                    self.client.comm.send_create_file(
+                        src_relpath, len(content), content)
+                except IOError, err:
+                    self.log.error(str(err))
 
     # triggered if a file or directory was deleted
     # @param event object representing the file system event
@@ -249,10 +261,10 @@ class Filesystem_Controller(FileSystemEventHandler):
         src_relpath = os.path.relpath(
             src_path, self.boxPath) 		# reduce to path relative to boxPath
         if src_path in self.ignoreModify:
-            self.log.debug('path:' + src_path)
-            self.log.debug(str(self.ignoreModify))
+            #self.log.debug('path:' + src_path)
+            #self.log.debug(str(self.ignoreModify))
             self.ignoreModify.remove(src_path)
-            self.log.debug(str(self.ignoreModify))
+            #self.log.debug(str(self.ignoreModify))
 
         else:
             if event.is_directory == True:							# if event was triggered by a directory

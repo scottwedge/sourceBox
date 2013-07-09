@@ -129,7 +129,7 @@ class SourceBox_Gui(object):
         self.oWin.destroy()
 
     def unlock(self):
-        print self.locked_files_path
+        #print self.locked_files_path
         for locked_file in self.locked_files_path:
             self.parent.comm.send_unlock_file(locked_file)
 

@@ -282,7 +282,10 @@ class Command_Recieve_Handler(threading.Thread):
         # endless loop to recieve commands
         while not self._stop:
             # split the recieved data
-            data = self.open_socket.recv(1024).split(' ')
+            try:
+                data = self.open_socket.recv(1024).split(' ')
+            except Exception, err:
+                self.log.error(str(err))
 
             if data[0] == self.COMMAND_ACK:  # If a OK command was recieved
                 # Fire the 'ok' Event
@@ -296,7 +299,7 @@ class Command_Recieve_Handler(threading.Thread):
                 file_size = int(data[1])
                 file_path = data[2]
                 self.parent.fs.createFile(file_path)
-
+                #self.log.debug(self.parent.fs.ignoreModify)
                 # read data from the socket
                 if not file_size == 0:
                     content = ''
@@ -350,6 +353,12 @@ class Command_Recieve_Handler(threading.Thread):
                 self.open_socket.send('OK\n')
 
                 self.parent.fs.unlockFile(file_path)
-
+            elif data[0] == 'CLOSE\n':
+                try:
+                    self.open_socket.send('OK\n')
+                    self.open_socket.close()
+                except Exception, err:
+                    self.log.error(str(err))
+                    self.parent.gui.changeStatus()
             else:
                 self.log.debug('Command recieved' + str(data))

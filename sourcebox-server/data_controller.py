@@ -48,7 +48,7 @@ class Data_Controller(object):
         try:
             self.rcs.checkout(path, user, True)
             return True
-        except IOError, err:
+        except (OSError, IOError), err:
             self.log.error('Could not lock file because ' + str(err))
             return False
 
