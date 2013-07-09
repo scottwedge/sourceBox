@@ -8,6 +8,7 @@ import thread
 import threading
 import socket
 import logging
+from urllib import pathname2url, url2pathname 
 
 
 class Server_Communication_Controller(object):
@@ -18,9 +19,11 @@ class Server_Communication_Controller(object):
     COMMAND_SENDUNLOCKFILE = 'UNLOCK'
     COMMAND_SENDMODIFYFILE = 'MODIFY'
     COMMAND_SENDDELETEFILE = 'REMOVE'
-    COMMAND_SENDMOVEFILE = 'MOVE'
+    COMMAND_MOVE = 'MOVE'
     COMMAND_SENDCREATEDIR = 'CREATE_DIR'
+    COMMAND_DELETEDIR = 'DELETE_DIR'
     COMMAND_CONNECTIONCLOSE = 'CLOSE'
+
     COMMAND_OK = "OK\n"
     VERSION = "1.0"
 
@@ -85,10 +88,12 @@ class Server_Communication_Controller(object):
             self._get_delete_file(data)
         elif cmd == self.COMMAND_SENDMODIFYFILE:
             self._get_modify_file(data)
-        elif cmd == self.COMMAND_SENDMOVEFILE:
-            self._get_move_file(data)
+        elif cmd == self.COMMAND_MOVE:
+            self._get_move(data)
         elif cmd == self.COMMAND_SENDCREATEDIR:
             self._get_create_dir(data)
+        elif cmd == self.COMMAND_DELETEDIR:
+            self._get_delete_dir(data)        
         elif cmd == self.COMMAND_CONNECTIONCLOSE:
             self._close_connection()
         elif cmd == 'OK\n':
@@ -109,12 +114,12 @@ class Server_Communication_Controller(object):
     def send_create_file(self, size, path, content):
         try:
             self.log.debug('Sending CREATE to client ' + self.computer_name)
-            mess = "CREATE" + ' ' + str(size) + ' ' + path
+            mess = "CREATE" + ' ' + str(size) + ' ' + pathname2url(path)
 
             self.connection.send(mess)
 
             # Wait for the recieve thread to send us a ok Event
-            status = self.ok.wait(5.0)
+            status = self.ok.wait(8.0)
             self.ok.clear()
             if not status:
                 raise IOError(
@@ -123,7 +128,7 @@ class Server_Communication_Controller(object):
                 self.connection.send(content)
                 self.log.debug("send content to client")
                 # Wait for the recieve thread to send us a ok Event
-                status = self.ok.wait(5.0)
+                status = self.ok.wait(8.0)
                 self.ok.clear()
                 if not status:
                     raise IOError(
@@ -140,7 +145,7 @@ class Server_Communication_Controller(object):
     #
     def send_close(self):
         self.connection.send('CLOSE\n')
-        status = self.ok.wait(5.0)
+        status = self.ok.wait(8.0)
         self.ok.clear()
         if not status:
             raise IOError(
@@ -151,12 +156,12 @@ class Server_Communication_Controller(object):
     # @param path the path to the file (relative to the source box)
     def send_delete_file(self, path):
         self.log.debug('Sending REMOVE to client ' + self.computer_name)
-        mess = "REMOVE" + ' ' + path
+        mess = "REMOVE" + ' ' + pathname2url(path)
 
         self.connection.send(mess)
 
         # Wait for the recieve thread to send us a ok Event
-        status = self.ok.wait(5.0)
+        status = self.ok.wait(8.0)
         self.ok.clear()
         if not status:
             raise IOError(
@@ -168,12 +173,12 @@ class Server_Communication_Controller(object):
     # @param path the path to the file (relative to the source box)
     def send_modify_file(self, size, path, content):
         self.log.debug('Sending MODIFY to client ' + self.computer_name)
-        mess = "MODIFY" + ' ' + str(size) + ' ' + path
+        mess = "MODIFY" + ' ' + str(size) + ' ' + pathname2url(path)
 
         self.connection.send(mess)
 
         # Wait for the recieve thread to send us a ok Event
-        status = self.ok.wait(5.0)
+        status = self.ok.wait(8.0)
         self.ok.clear()
         if not status:
             raise IOError(
@@ -182,7 +187,7 @@ class Server_Communication_Controller(object):
             self.connection.send(content)
 
             # Wait for the recieve thread to send us a ok Event
-            status = self.ok.wait(5.0)
+            status = self.ok.wait(8.0)
             self.ok.clear()
             if not status:
                 raise IOError(
@@ -195,12 +200,12 @@ class Server_Communication_Controller(object):
     def send_lock_file(self, path):
         try:
             self.log.debug('Sending LOCK to client' + self.computer_name)
-            mess = "LOCK" + ' ' + path
+            mess = "LOCK" + ' ' + pathname2url(path)
 
             self.connection.send(mess)
 
             # Wait for the recieve thread to send us a ok Event
-            status = self.ok.wait(5.0)
+            status = self.ok.wait(8.0)
             self.ok.clear()
             if not status:
                 raise IOError(
@@ -209,16 +214,17 @@ class Server_Communication_Controller(object):
             self.log.debug('Hello. Locking worked. The client said he is ok :)')
         except IOError, err:
             self.log.error(str(err))
+
     # server notifies the client about unlock file (initiated by another user)
     # @param path the path to the file (relative to the source box)
     def send_unlock_file(self, path):
         self.log.debug('Sending UNLOCK to client' + self.computer_name)
-        mess = "UNLOCK" + ' ' + path
+        mess = "UNLOCK" + ' ' + pathname2url(path)
         try:
             self.connection.send(mess)
 
             # Wait for the recieve thread to send us a ok Event
-            status = self.ok.wait(5.0)
+            status = self.ok.wait(8.0)
             self.ok.clear()
             if not status:
                 raise IOError(
@@ -229,6 +235,60 @@ class Server_Communication_Controller(object):
         except IOError, err:
             self.log.error(str(err))
 
+    # server notifies the client about a new Dir (initiated by another user)
+    # @param path the path to the file (relative to the source box)
+    def send_create_dir(self, path):
+        try:
+            self.log.debug('Sending CREATE_DIR to client' + self.computer_name)
+            mess = "CREATE_DIR" + ' ' + pathname2url(path)
+
+            self.connection.send(mess)
+
+            # Wait for the recieve thread to send us a ok Event
+            status = self.ok.wait(8.0)
+            self.ok.clear()
+            if not status:
+                raise IOError(
+                    'Did not recieve a response from the client.' + self.computer_name)
+        except IOError, err:
+            self.log.error(str(err))
+
+
+    # server notifies the client about a deleted Dir (initiated by another user)
+    # @param path the path to the file (relative to the source box)
+    def send_delete_dir(self, path):
+        try:
+            self.log.debug('Sending DELETE_DIR to client' + self.computer_name)
+            mess = "DELETE_DIR" + ' ' + pathname2url(path)
+
+            self.connection.send(mess)
+
+            # Wait for the recieve thread to send us a ok Event
+            status = self.ok.wait(8.0)
+            self.ok.clear()
+            if not status:
+                raise IOError(
+                    'Did not recieve a response from the client.' + self.computer_name)
+        except IOError, err:
+            self.log.error(str(err))
+
+    # server notifies the client about a moved Dir (initiated by another user)
+    def send_move(self, old_file_path, new_file_path):
+        try:
+            self.log.debug('Sending MOVE to client' + self.computer_name)
+            mess = "MOVE" + ' ' + pathname2url(old_file_path) + ' ' + pathname2url(new_file_path)
+
+            self.connection.send(mess)
+
+            # Wait for the recieve thread to send us a ok Event
+            status = self.ok.wait(8.0)
+            self.ok.clear()
+            if not status:
+                raise IOError(
+                    'Did not recieve a response from the client.' + self.computer_name)
+        except IOError, err:
+            self.log.error(str(err))
+
     # client sends a CREATE_FILE command to the server
     # @param data a data array
 
@@ -236,8 +296,7 @@ class Server_Communication_Controller(object):
         communication_data = self._recieve_command_with_content(data)
 
         # send create_file function to the server
-        answer = self.parent.create_file('', communication_data['file_path'], communication_data[
-                                         'file_size'], self.computer_name, communication_data['content'])
+        answer = self.parent.create_file(communication_data['file_path'], communication_data['file_size'], self.computer_name, communication_data['content'])
         if answer:
             self.connection.send('OK\n')
 
@@ -246,8 +305,7 @@ class Server_Communication_Controller(object):
     def _get_lock_file(self, data):
         communication_data = self._recieve_command(data)
 
-        answer = self.parent.lock_file('', communication_data[
-                                       'file_path'], self.computer_name)
+        answer = self.parent.lock_file(communication_data['file_path'], self.computer_name)
         if answer:
             self.connection.send('OK\n')
 
@@ -255,8 +313,7 @@ class Server_Communication_Controller(object):
     # @param data a data array
     def _get_unlock_file(self, data):
         communication_data = self._recieve_command(data)
-        answer = self.parent.unlock_file(
-            '.', communication_data['file_path'], self.computer_name)
+        answer = self.parent.unlock_file(communication_data['file_path'], self.computer_name)
         if answer == True:
             self.connection.send('OK\n')
         else:
@@ -266,8 +323,7 @@ class Server_Communication_Controller(object):
 
     def _get_delete_file(self, data):
         communication_data = self._recieve_command(data)
-        answer = self.parent.delete_file(
-            '.', communication_data['file_path'], self.computer_name)
+        answer = self.parent.delete_file(communication_data['file_path'], self.computer_name)
         if answer:
             self.connection.send('OK\n')
         else:
@@ -278,22 +334,21 @@ class Server_Communication_Controller(object):
     def _get_modify_file(self, data):
         communication_data = self._recieve_command_with_content(data)
 
-        answer = self.parent.modify_file('.', communication_data[
-                                         'file_path'], communication_data['content'], self.computer_name)
+        answer = self.parent.modify_file(communication_data['file_path'], communication_data['content'], self.computer_name)
         if answer:
             self.connection.send('OK\n')
 
     # the client sends a MOVE command
     # @param data a data array
-    def _get_move_file(self, data):
-        old_file_path = data[1]
-        new_file_path = data[2]
+    def _get_move(self, data):
+        old_file_path = url2pathname(data[1])
+        new_file_path = url2pathname(data[2])
 
         # check if the data string is correct
         if len(old_file_path) == 0 or len(new_file_path) == 0:
             self.connection.send('ERROR\n')
         else:
-            answer = self.parent.move_file(old_file_path, new_file_path)
+            answer = self.parent.move(old_file_path, new_file_path, self.computer_name)
             if answer:
                 self.connection.send('OK\n')
 
@@ -301,7 +356,17 @@ class Server_Communication_Controller(object):
     # @param data a data array
     def _get_create_dir(self, data):
         communication_data = self._recieve_command(data)
-        answer = self.parent.create_dir(communication_data['file_path'])
+        answer = self.parent.create_dir(communication_data['file_path'], self.computer_name)
+        if answer:
+            self.connection.send('OK\n')
+        else:
+            self.connection.send('ERROR\n')
+
+    # the client sends a DELETE_DIR command
+    # @param data a data array
+    def _get_delete_dir(self, data):
+        communication_data = self._recieve_command(data)
+        answer = self.parent.delete_dir(communication_data['file_path'], self.computer_name)
         if answer:
             self.connection.send('OK\n')
         else:
@@ -312,7 +377,9 @@ class Server_Communication_Controller(object):
     # @returns a dictionary like { 'command' : command, 'file_path' :  file_path} or None (if error)
     def _recieve_command(self, data):
         command = data[0]
-        file_path = data[1]
+        self.log.debug('Recieved ' + str(data))
+        file_path = url2pathname(data[1])
+        self.log.debug('Recieve command ' + str(file_path))
 
         if len(file_path) == 0:
             self.connection.send('ERROR\n')
@@ -327,7 +394,7 @@ class Server_Communication_Controller(object):
         self.log.debug('Recieved ' + str(data))
         command = data[0]
         file_size = int(data[1])
-        file_path = data[2]
+        file_path = url2pathname(data[2])
 
         # check if the data string is correct
         if len(file_path) == 0 or file_size < 0:

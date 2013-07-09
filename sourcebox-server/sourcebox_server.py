@@ -108,25 +108,65 @@ class SourceBoxServer(object):
             (connection, address) = sock.accept()
             self.new_client(connection)
 
+    # Is called when a client creates a dir.
+    # Creates the dir on all clients and in the data backend
+    # @param path the path relative to the source box root
+    # @param computer_name the name of the computer creating the file
+    def create_dir(self, path, computer_name):
+
+        self.log.debug(computer_name + ' created the dir ' + path)
+        # create file in backend
+        self.data.create_dir(path)
+
+        # push changes to all other clients
+        for comm in self.active_clients.keys():
+            if not comm == computer_name:
+                try:
+                    self.active_clients[comm].send_create_dir(path)
+                except IOError, err:
+                    self.log.error('Error:' + str(err))
+        # return true if successfully created
+        return True
+
+    # Is called when a client deletes a dir.
+    # deletes the dir on all clients and in the data backend
+    # @param path the path relative to the source box root
+    # @param computer_name the name of the computer creating the file
+
+    def delete_dir(self, path, computer_name):
+
+        self.log.debug(computer_name + ' deleted the dir ' + path)
+        # create file in backend
+        self.data.delete_dir(path)
+
+        # push changes to all other clients
+        for comm in self.active_clients.keys():
+            if not comm == computer_name:
+                try:
+                    self.active_clients[comm].send_delete_dir(path)
+                except IOError, err:
+                    self.log.error('Error:' + str(err))
+        # return true if successfully created
+        return True
+
     # Is called when a client creates a file.
     # Creates the file on all clients and in the data backend
     # @param path the path relative to the source box root
     # @param file_name the file name
     # @param content the content of the file
     # @param computer_name the name of the computer creating the file
-    def create_file(self, path, file_name, file_size, computer_name, content=''):
+    def create_file(self, file_path, file_size, computer_name, content=''):
 
-        self.log.debug('Creating the file ' + file_name)
+        self.log.debug('Creating the file ' + file_path)
         # create file in backend
-        self.data.create_file(os.path.join(
-            path, file_name), computer_name, content)
+        self.data.create_file(file_path, computer_name, content)
 
         # push changes to all other clients
         for comm in self.active_clients.keys():
             if not comm == computer_name:
                 try:
                     self.active_clients[comm].send_create_file(
-                        file_size, file_name, content)
+                        file_size, file_path, content)
                 except IOError, err:
                     self.log.error('Error:' + str(err))
         # return true if successfully created
@@ -136,17 +176,17 @@ class SourceBoxServer(object):
     # Locks the file in the backend
     # @param path the path relative to the source box root
     # @param file_name the file name
-    def lock_file(self, path, file_name, computer_name):
-        self.data.lock_file(os.path.join(path, file_name), computer_name)
+    def lock_file(self,file_path, computer_name):
+        self.data.lock_file(file_path, computer_name)
 
         # push changes to all other clients
         for comm in self.active_clients.keys():
             if not comm == computer_name:
-                self.active_clients[comm].send_lock_file(file_name)
+                self.active_clients[comm].send_lock_file(file_path)
 
                 # set Timer to LOCK_TIME in sec for auto unlock
                 threading.Timer(self.LOCK_TIME, self.active_clients[
-                                comm].send_unlock_file, (file_name,)).start()
+                                comm].send_unlock_file, (file_path,)).start()
 
         # return true if successfully locked
         return True
@@ -155,14 +195,14 @@ class SourceBoxServer(object):
     # Unlocks the file in the backend
     # @param path the path relative to the source box root
     # @param file_name the file name
-    def unlock_file(self, path, file_name, computer_name):
-        self.data.unlock_file(os.path.join(path, file_name), computer_name)
+    def unlock_file(self, file_path, computer_name):
+        self.data.unlock_file(file_path, computer_name)
 
         # push changes to all other clients
         for comm in self.active_clients.keys():
             if not comm == computer_name:
                 try:
-                    self.active_clients[comm].send_unlock_file(file_name)
+                    self.active_clients[comm].send_unlock_file(file_path)
                 except IOError, err:
                     self.log.error('Error:' + str(err))
         # return true if successfully unlocked
@@ -172,16 +212,16 @@ class SourceBoxServer(object):
     # Updates the file on all clients and in the data backend
     # @param path the path relative to the source box root
     # @param file_name the file name
-    def modify_file(self, path, file_name, content, computer_name):
-        self.data.modify_file(file_name, content, computer_name)
+    def modify_file(self, file_path, content, computer_name):
+        self.data.modify_file(file_path, content, computer_name)
 
         # push changes to all other clients
         for comm in self.active_clients.keys():
             if not comm == computer_name:
-                file_size = self.data.get_file_size(path, file_name)
+                file_size = self.data.get_file_size(file_path)
                 try:
                     self.active_clients[comm].send_modify_file(
-                        file_size, os.path.join(path, file_name), content)
+                        file_size, file_path, content)
                 except IOError, err:
                     self.log.error('Error:' + str(err))
         # return true if successfully modified
@@ -191,15 +231,15 @@ class SourceBoxServer(object):
     # Deletes the file on all clients and in the data backend
     # @param path the path relative to the source box root
     # @param file_name the file name
-    def delete_file(self, path, file_name, computer_name):
+    def delete_file(self, file_path, computer_name):
         # return true if successfully deleted
-        self.data.delete_file(file_name, computer_name)
+        self.data.delete_file(file_path, computer_name)
 
         # push changes to all other clients
         for comm in self.active_clients.keys():
             if not comm == computer_name:
                 try:
-                    self.active_clients[comm].send_delete_file(file_name)
+                    self.active_clients[comm].send_delete_file(file_path)
                 except IOError, err:
                     self.log.error('Error:' + str(err))
         # return true if successfully deleted
@@ -208,11 +248,25 @@ class SourceBoxServer(object):
     # gets the size of a file
     # @param path the path relative to the source box root
     # @param file_name the file name
-    def get_file_size(self, path, file_name):
-        if os.path.exists(os.path.join(path, file_name)):
-            return os.path.getsize(os.path.join(path, file_name))
+    def get_file_size(self, file_path):
+        if os.path.exists(file_path):
+            return os.path.getsize(file_path)
         else:
             return False
+    # Moves a file
+    def move(self, old_file_path, new_file_path, computer_name):
+        # return true if successfully deleted
+        self.data.move(old_file_path, new_file_path)
+
+        # push changes to all other clients
+        for comm in self.active_clients.keys():
+            if not comm == computer_name:
+                try:
+                    self.active_clients[comm].send_move(old_file_path, new_file_path)
+                except IOError, err:
+                    self.log.error('Error:' + str(err))
+        # return true if successfully deleted
+        return True
 
     # creates global log object
     # @param name the name of the logger

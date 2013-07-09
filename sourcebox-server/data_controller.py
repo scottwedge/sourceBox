@@ -1,6 +1,7 @@
 import rcslib
 import os
 import logging
+import shutil
 
 # @package Data_Controller
 # handles the communication with the backend
@@ -34,17 +35,17 @@ class Data_Controller(object):
         return content
 
     # Checks if a file is locked
-    # @param file_name name of the file
+    # @param file_path name of the file
     #
-    def is_locked(self, file_name):
-        path = os.path.join(self.data_dir, file_name)
+    def is_locked(self, file_path):
+        path = os.path.join(self.data_dir, file_path)
         return self.rcs.islocked(path)
 
     # Locks a file
-    # @param file_name name of the file
+    # @param file_path name of the file
     #
-    def lock_file(self, file_name, user):
-        path = os.path.join(self.data_dir, file_name)
+    def lock_file(self, file_path, user):
+        path = os.path.join(self.data_dir, file_path)
         try:
             self.rcs.checkout(path, user, True)
             return True
@@ -53,10 +54,10 @@ class Data_Controller(object):
             return False
 
     # Unlocks a file
-    # @param file_name name of the file
+    # @param file_path name of the file
     #
-    def unlock_file(self, file_name, user):
-        path = os.path.join(self.data_dir, file_name)
+    def unlock_file(self, file_path, user):
+        path = os.path.join(self.data_dir, file_path)
         try:
             self.rcs.checkin(path, user, 'Unlocked file ' + path)
             return True
@@ -65,11 +66,11 @@ class Data_Controller(object):
             return False
 
     # Deletes a file
-    # @param file_name name of the file
+    # @param file_path path relative to the sourceBox
     #
-    def delete_file(self, file_name, user):
+    def delete_file(self, file_path, user):
         try:
-            path = os.path.join(self.data_dir, file_name)
+            path = os.path.join(self.data_dir, file_path)
             self.rcs._remove(path)
             os.remove(path + ',v')
         except OSError:
@@ -108,24 +109,53 @@ class Data_Controller(object):
             return False
 
     # Show changes of the file
-    # @param file_name name of the file
+    # @param file_path name of the file
     #
-    def show_changes(self, file_name):
-        path = os.path.join(self.data_dir, file_name)
+    def show_changes(self, file_path):
+        path = os.path.join(self.data_dir, file_path)
         return self.rcs.log(path)
 
     def list_dir(self):
         return os.listdir(self.data_dir)
 
-    def move_file(oldpath, name, newpath, user):
+    def move_file(self, oldpath, name, newpath, user):
         # return true if successfully moved
         pass
+
+    # creates a dir
+    # @param path path relative to the sourceBox root
+    def create_dir(self, path):
+        path = os.path.join(self.data_dir, path)
+        try:
+            os.makedirs(path)
+        except OSError, err:
+            self.log.error(str(err))
+        return True
+
+    # deletes a dir
+    # @param path path relative to the sourceBox root
+    def delete_dir(self, path):
+        path = os.path.join(self.data_dir, path)
+        try:
+            shutil.rmtree(path)
+        except OSError, err:
+            self.log.error(str(err))
+        return True
+
+    def move(self, old_file_path, new_file_path):
+        old_file_path = os.path.join(self.data_dir, old_file_path)
+        new_file_path = os.path.join(self.data_dir, new_file_path)
+        try:
+            shutil.move(old_file_path, new_file_path)
+        except (OSError, IOError), err:
+            self.log.error(str(err))
+        return True
 
     # gets the size of a file
     # @param path the path relative to the source box root
     # @param file_name the file name
-    def get_file_size(self, path, file_name):
-        if os.path.exists(os.path.join(self.data_dir, path, file_name)):
-            return os.path.getsize(os.path.join(self.data_dir, path, file_name))
+    def get_file_size(self, file_path):
+        if os.path.exists(os.path.join(self.data_dir, file_path)):
+            return os.path.getsize(os.path.join(self.data_dir, file_path))
         else:
             return False

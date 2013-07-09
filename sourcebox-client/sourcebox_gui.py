@@ -131,7 +131,15 @@ class SourceBox_Gui(object):
     def unlock(self):
         #print self.locked_files_path
         for locked_file in self.locked_files_path:
-            self.parent.comm.send_unlock_file(locked_file)
+            try:
+                self.parent.comm.send_unlock_file(locked_file)
+                self.locked_files_path.remove(locked_file)
+
+                # new entry in GUI notification
+                self.locked_files.set('\n'.join(self.locked_files_path))
+                self.root.update_idletasks()
+            except ValueError, err:
+                self.log.error(str(err))
 
 
 # testing

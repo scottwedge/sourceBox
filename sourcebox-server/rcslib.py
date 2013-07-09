@@ -99,13 +99,13 @@ class RCS:
     def lock(self, name_rev, user):
         """Set an rcs lock on NAME_REV."""
         name, rev = self.checkfile(name_rev)
-        cmd = "rcs -l%s %s" % (rev, name)
+        cmd = "rcs -l%s \"%s\"" % (rev, name)
         return self._system(cmd)
 
     def unlock(self, name_rev, user):
         """Clear an rcs lock on NAME_REV."""
         name, rev = self.checkfile(name_rev)
-        cmd = "rcs -u%s %s" % (rev, name)
+        cmd = "rcs -u%s \"%s\"" % (rev, name)
         return self._system(cmd)
 
     def checkout(self, name_rev, user, withlock=0, otherflags=""):
@@ -124,7 +124,7 @@ class RCS:
             lockflag = "-l"
         else:
             lockflag = "-u"
-        cmd = 'co %s%s -w%s %s %s' % (lockflag, rev, user, otherflags, name)
+        cmd = 'co %s%s -w%s %s \"%s\"' % (lockflag, rev, user, otherflags, name)
         return self._system(cmd)
 
     def checkin(self, name_rev, user, message=None,otherflags=""):
@@ -151,12 +151,12 @@ class RCS:
             f = tempfile.NamedTemporaryFile()
             f.write(message)
             f.flush()
-            cmd = 'ci %s%s -t%s -w%s %s %s' % \
+            cmd = 'ci %s%s -t%s -w%s %s \"%s\"' % \
                   (lockflag, rev, f.name, user, otherflags, name)
             print cmd
         else:
             message = re.sub(r'([\"$`])', r'\\\1', message)
-            cmd = 'ci %s%s -m"%s" -w%s %s %s' % \
+            cmd = 'ci %s%s -m"%s" -w%s %s \"%s\"' % \
                   (lockflag, rev, message, user, otherflags, name)
         return self._system(cmd)
 

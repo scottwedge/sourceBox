@@ -8,7 +8,7 @@
 import socket
 import threading
 import logging
-
+from urllib import pathname2url, url2pathname 
 
 class Client_Communication_Controller(object):
 
@@ -18,8 +18,9 @@ class Client_Communication_Controller(object):
     COMMAND_SENDUNLOCKFILE = 'UNLOCK'
     COMMAND_SENDDELETEFILE = 'REMOVE'
     COMMAND_SENDMODIFYFILE = 'MODIFY'
-    COMMAND_SENDMOVEFILE = 'MOVE'
+    COMMAND_MOVE = 'MOVE'
     COMMAND_SENDCREATEDIR = 'CREATE_DIR'
+    COMMAND_DELETEDIR = 'DELETE_DIR'
     COMMAND_INIT = 'INIT'
     COMMAND_ACK = "OK\n"
 
@@ -98,12 +99,12 @@ class Client_Communication_Controller(object):
     def _send_command(self, command, file_path):
         try:
             # create message
-            message = command + ' ' + file_path
+            message = command + ' ' + pathname2url(file_path)
             # send message
             self.controller_socket.send(message)
 
             # Wait for the recieve thread to send us a ok Event
-            status = self.command_listener_thread.ok.wait(5.0)
+            status = self.command_listener_thread.ok.wait(8.0)
             self.command_listener_thread.ok.clear()
             if not status:
                 raise IOError('Did not recieve a response from the server.')
@@ -126,13 +127,13 @@ class Client_Communication_Controller(object):
     def _send_command_with_content(self, command, filePath, size, content):
         try:
             # create message
-            message = command + ' ' + str(size) + ' ' + filePath
+            message = command + ' ' + str(size) + ' ' + pathname2url(filePath)
 
             # send message
             self.controller_socket.sendall(message)
 
             # Wait for the recieve thread to send us a ok Event
-            status = self.command_listener_thread.ok.wait(5.0)
+            status = self.command_listener_thread.ok.wait(8.0)
             self.command_listener_thread.ok.clear()
             if not status:
                 raise IOError('Did not recieve a response from the server.')
@@ -141,7 +142,7 @@ class Client_Communication_Controller(object):
             self.controller_socket.send(content)
 
             # Wait for the recieve thread to send us a ok Event
-            status = self.command_listener_thread.ok.wait(5.0)
+            status = self.command_listener_thread.ok.wait(8.0)
             self.command_listener_thread.ok.clear()
             if not status:
                 raise IOError('Did not recieve a response from the server.')
@@ -176,10 +177,17 @@ class Client_Communication_Controller(object):
 
     # Sends a create diractory command to the server
     # @author Paul
-    # @param file_path path of the file related to sourceBox root
+    # @param file_path path of the dir related to sourceBox root
     # @returns boolean
-    def send_create_dir(self, file_path):
-        return self._send_command(self.COMMAND_SENDCREATEDIR, file_path)
+    def send_create_dir(self, path):
+        return self._send_command(self.COMMAND_SENDCREATEDIR, path)
+
+    # Sends a delete dir command to the server
+    # @author Martin
+    # @param file_path path of the dir related to sourceBox root
+    # @returns boolean
+    def send_delete_dir(self, path):
+        return self._send_command(self.COMMAND_DELETEDIR, path)
 
     # Sends a move file command to the server
     # @author Martin
@@ -187,21 +195,13 @@ class Client_Communication_Controller(object):
     # @param new_path new path of the file
     # @returns a boolean
     # @throws IOError if a timeout occurs
-    def send_move_file(self, old_path, new_path):
+    def send_move(self, src_path, dest_path):
         try:
-            mess = self.COMMAND_SENDMOVEFILE + ' ' + old_path
-            self.controller_socket.sendall(mess)
+            mess = self.COMMAND_MOVE + ' ' + pathname2url(src_path) + ' '  + pathname2url(dest_path)
+            self.controller_socket.send(mess)
 
             # Wait for the recieve thread to send us a ok Event
-            status = self.command_listener_thread.ok.wait(5.0)
-            self.command_listener_thread.ok.clear()
-            if not status:
-                raise IOError('Did not recieve a response from the server.')
-
-            self.controller_socket.sendall(new_path)
-
-            # Wait for the recieve thread to send us a ok Event
-            status = self.command_listener_thread.ok.wait(5.0)
+            status = self.command_listener_thread.ok.wait(8.0)
             self.command_listener_thread.ok.clear()
             if not status:
                 raise IOError('Did not recieve a response from the server.')
@@ -239,7 +239,7 @@ class Client_Communication_Controller(object):
         sock.send('CLOSE')
         self.log.debug('sending close')
         # Wait for the recieve thread to send us a ok Event
-        status = self.command_listener_thread.ok.wait(5.0)
+        status = self.command_listener_thread.ok.wait(8.0)
         self.command_listener_thread.ok.clear()
         if not status:
             raise IOError('Did not recieve a response from the server.')
@@ -257,6 +257,9 @@ class Command_Recieve_Handler(threading.Thread):
     COMMAND_MODIFYFILE = "MODIFY"
     COMMAND_LOCKFILE = "LOCK"
     COMMAND_UNLOCKFILE = "UNLOCK"
+    COMMAND_DELETE_DIR = "DELETE_DIR"
+    COMMAND_CREATE_DIR = "CREATE_DIR"
+    COMMAND_MOVE = "MOVE"
 
     def __init__(self, thread_name, open_socket, parent):
         threading.Thread.__init__(self)
@@ -297,7 +300,7 @@ class Command_Recieve_Handler(threading.Thread):
                 self.open_socket.send('OK\n')
 
                 file_size = int(data[1])
-                file_path = data[2]
+                file_path = url2pathname(data[2])
                 #self.log.debug(self.parent.fs.ignoreModify)
                 # read data from the socket
                 if not file_size == 0:
@@ -317,7 +320,7 @@ class Command_Recieve_Handler(threading.Thread):
             elif data[0] == self.COMMAND_DELETEFILE:
                 self.log.debug('Recieved Delete Command' + str(data))
 
-                file_path = data[1]
+                file_path = url2pathname(data[1])
                 self.open_socket.send('OK\n')
 
                 self.parent.fs.deleteFile(file_path)
@@ -327,7 +330,7 @@ class Command_Recieve_Handler(threading.Thread):
                 self.open_socket.send('OK\n')
 
                 file_size = int(data[1])
-                file_path = data[2]
+                file_path = url2pathname(data[2])
 
                 # read data from the socket
                 if not file_size == 0:
@@ -343,18 +346,42 @@ class Command_Recieve_Handler(threading.Thread):
             elif data[0] == self.COMMAND_LOCKFILE:
                 self.log.debug('Recieved Lock Command' + str(data))
 
-                file_path = data[1]
+                file_path = url2pathname(data[1])
                 self.open_socket.send('OK\n')
 
                 self.parent.fs.lockFile(file_path)
 
             elif data[0] == self.COMMAND_UNLOCKFILE:
-                self.log.warning('Recieved Unlock Command' + str(data))
+                self.log.debug('Recieved Unlock Command' + str(data))
 
-                file_path = str(data[1])
+                file_path = url2pathname(data[1])
                 self.open_socket.send('OK\n')
 
                 self.parent.fs.unlockFile(file_path)
+            elif data[0] == self.COMMAND_CREATE_DIR:
+                self.log.debug('Recieved COMMAND_CREATE_DIR' + str(data))
+
+                file_path = url2pathname(data[1])
+                self.open_socket.send('OK\n')
+
+                self.parent.fs.createDir(file_path)
+            elif data[0] == self.COMMAND_DELETE_DIR:
+                self.log.debug('Recieved COMMAND_DELETE_DIR' + str(data))
+
+                file_path = url2pathname(data[1])
+                self.open_socket.send('OK\n')
+
+                self.parent.fs.deleteDir(file_path)
+            elif data[0] == self.COMMAND_MOVE:
+                self.log.debug('Recieved COMMAND_MOVE' + str(data))
+
+                src_path = url2pathname(data[1])
+                dest_path = url2pathname(data[2])
+
+                self.open_socket.send('OK\n')
+
+                self.parent.fs.moveFileDir(src_path, dest_path)
+
             elif data[0] == 'CLOSE\n':
                 try:
                     self.open_socket.send('OK\n')

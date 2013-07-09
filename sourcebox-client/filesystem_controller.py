@@ -5,6 +5,7 @@ import logging
 from threading import Timer
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
+import shutil
 
 # @package Filesystem_Controller
 # Handles file-system-events
@@ -70,8 +71,8 @@ class Filesystem_Controller(FileSystemEventHandler):
                 self.locked_files.append(
                     relpath)						# new entry in locked_files
 
-                self.ignoreModify.append(
-                    path)							# ignore modify-event raised by chmod
+               # self.ignoreModify.append(
+                 #   path)							# ignore modify-event raised by chmod
                 path = os.path.join(
                     self.boxPath, path)                 # expand to absolute path
                 os.chmod(path, 0o000)
@@ -96,14 +97,12 @@ class Filesystem_Controller(FileSystemEventHandler):
                 relpath)                       # remove file from locked list
             path = os.path.join(
                 self.boxPath, path)                 # expand to absolute path
-            self.ignoreModify.append(
-                path)							# ignore modify-event triggered by chmod
+            #self.ignoreModify.append(path)							# ignore modify-event triggered by chmod
             os.chmod(
                 path, 0o666)									# set file permissions: read and write
-            print "File unlocked: ", path
+            self.log.debug("File unlocked: " +  str(path))
         except Exception, e:
-            self.log.error(
-                "could not unlock file %s because %s", path, e)		# print exception
+            self.log.error("could not unlock file %s because %s", path, e)		# print exception
 
         if relpath in self.ignoreLock:                              # delete ignoreLock entry
             self.ignoreLock.remove(relpath)
@@ -115,13 +114,16 @@ class Filesystem_Controller(FileSystemEventHandler):
     def readFile(self, path):
         path = os.path.join(self.boxPath, path)						       # expand to absolute path
         if os.access(path, os.R_OK):
-            return open(path, 'r').read()
+            with open(path, 'r') as open_file:
+                return open_file.read()
         else:
             fileMod = os.stat(path).st_mode & 0777                  # get fileMod
-            os.chmod(path, 0o666)                                        # set file permissions: read and write
-            content = open(path, 'r').read()
-            os.chmod(path, fileMod)
-            return content
+            # set file permissions: read and write
+            os.chmod(path, 0o666)
+            with  open(path, 'r') as open_file: 
+                content = open_file.read()
+                os.chmod(path, fileMod)
+                return content
 
 
     # overwrites a file
@@ -132,12 +134,18 @@ class Filesystem_Controller(FileSystemEventHandler):
         path = os.path.join(self.boxPath, path)                     # expand to absolute path
         self.ignoreModify.append(path)								# ignore modify-event triggered by .write
         if os.access(path, os.W_OK):
-            open(path, 'w').write(content)							# write content to file
+            with open(path, 'w') as open_file:
+                # write content to file
+                open_file.write(content)							
         else:
-            fileMod = os.stat(path).st_mode & 0777					# get fileMod
-            os.chmod(path, 0o666)									    # set file permissions: read and write
-            open(path, 'w').write(content)							# write content to file
-            os.chmod(path, fileMod)
+            # get fileMod
+            fileMod = os.stat(path).st_mode & 0777					
+            # set file permissions: read and write
+            os.chmod(path, 0o666)
+            # write content to file								 
+            with open(path, 'w') as open_file:
+                open_file.write(content)							
+                os.chmod(path, fileMod)
 
     # created File
     # @param path path of the file relative to boxPath
@@ -148,29 +156,38 @@ class Filesystem_Controller(FileSystemEventHandler):
         self.ignoreCreate.append(path)
                                  # ignore create-event triggered by .close
         self.ignoreModify.append(path)
+        self.log.debug(path)
         if os.path.exists(path):
             # NOTE We need a copy of the write_file command that does not produce a ignoreModify. Unless we have duplicate ignoreModify entries.
-
-            path = os.path.join(self.boxPath, path)                     # expand to absolute path
+            # expand to absolute path
+            path = os.path.join(self.boxPath, path)                     
             if os.access(path, os.W_OK):
-                open(path, 'w').write(content)                          # write content to file
+                # write content to file
+                with open(path, 'w') as open_file:
+                    open_file.write(content)                          
             else:
-                fileMod = os.stat(path).st_mode & 0777                  # get fileMod
-                os.chmod(path, 0o666)                                       # set file permissions: read and write
-                open(path, 'w').write(content)                          # write content to file
-                os.chmod(path, fileMod)
+                # get fileMod
+                fileMod = os.stat(path).st_mode & 0777                  
+                # set file permissions: read and write
+                os.chmod(path, 0o666)                                       
+                # write content to file
+                with open(path, 'w') as open_file:
+                    open_file.write(content)                        
+                    os.chmod(path, fileMod)
         else:
-            open(path, 'a').close()									# create file
+            with open(path, 'w+') as open_file:
+                open_file.write(content)
 
     # create Directory
     # @param path path of the directory relative to boxPath
     # @author Emanuel Regnath
     def createDir(self, path):
-        path = os.path.join(
-            self.boxPath, path)                     # expand to absolute path
-        self.ignoreCreate.append(
-            path)								# ignore create-event triggered by os.makedirs
-        os.makedirs(path)											# create directory
+        # expand to absolute path
+        path = os.path.join(self.boxPath, path)
+        # ignore create-event triggered by os.makedirs             
+        self.ignoreCreate.append(path)	
+        # create directory			
+        os.makedirs(path)										
 
     # delete File
     # @param path path of the file relative to boxPath
@@ -189,11 +206,16 @@ class Filesystem_Controller(FileSystemEventHandler):
     # @param path path of the directory relative to boxPath
     # @author Emanuel Regnath
     def deleteDir(self, path):
-        path = os.path.join(
-            self.boxPath, path)                     # expand to absolute path
-        self.ignoreDelete.append(
-            path)								# ignore delete-event triggered by os.removedirs
-        os.removedirs(path)											# delete directory
+        # expand to absolute path
+        path = os.path.join(self.boxPath, path)                     
+
+        # ignore delete-event triggered by os.removedirs
+        self.ignoreDelete.append(path)								
+        try:
+            # delete directory
+            shutil.rmtree(path)										
+        except (IOError, OSError), err:
+            self.log.error(str(err))
 
     # moves or renames a File OR Directory
     # @param srcPath old path of the file or directory relative to boxPath
@@ -207,8 +229,10 @@ class Filesystem_Controller(FileSystemEventHandler):
         self.ignoreMove.append(
             srcPath)								# ignore move-event triggered by os.renames
         # TODO: test if dest is in lokal folder?
-        os.renames(srcPath, dstPath)								# move file or directory
-
+        try:
+            os.renames(srcPath, dstPath)								# move file or directory
+        except (IOError, OSError), err:
+            self.log.error(str(err))
     # returns Size of a file in byte
     # @param path path of the file
     # @author Emanuel Regnath
@@ -223,24 +247,29 @@ class Filesystem_Controller(FileSystemEventHandler):
     # @param event object representing the file system event
     # @author Emanuel Regnath
     def on_created(self, event):
-        src_path = event.src_path									# abslolute path
-        src_relpath = os.path.relpath(
-            src_path, self.boxPath) 		# reduce to path relative to boxPath
+
+        # abslolute path
+        src_path = event.src_path									
+
+        # reduce to path relative to boxPath
+        src_relpath = os.path.relpath(src_path, self.boxPath) 	
+
         if self._path_contains_selective_sync(src_path):
             self.log.debug(src_path + ' in selective_sync_list -> ignored.')
         elif src_path in self.ignoreCreate:
             self.ignoreCreate.remove(src_path)
         else:
-            if event.is_directory == True:							# if event was triggered by a directory
-                self.log.info("Directory created: %s", src_path)			# self.log
-                # push changes to SVN
+            # if event was triggered by a directory
+            if event.is_directory == True:							
+                self.log.info("Directory created: %s", src_path)
+                self.client.comm.send_create_dir(src_relpath)
             else:
-                self.log.info("File created: %s", src_path)				# self.log
+                self.log.info("File created: %s", src_path)		
                 try:
-                    content = open(
-                        src_path).read()						# ERROR: src_path only filename
-                    self.client.comm.send_create_file(
-                        src_relpath, len(content), content)
+                    # ERROR: src_path only filename
+                    with open(src_path) as open_file:
+                        content = open_file.read()						
+                        self.client.comm.send_create_file(src_relpath, len(content), content)
                 except IOError, err:
                     self.log.error(str(err))
 
@@ -258,7 +287,7 @@ class Filesystem_Controller(FileSystemEventHandler):
         else:
             if event.is_directory == True:							# if event was triggered by a directory
                 self.log.info("Directory deleted: %s", src_path)			# self.log
-                # push changes to SVN
+                self.client.comm.send_delete_dir(src_relpath)
             else:
                 self.log.info("File deleted: %s", src_path)				# self.log
                 self.client.comm.send_delete_file(
@@ -268,16 +297,17 @@ class Filesystem_Controller(FileSystemEventHandler):
     # @param event object representing the file system event
     # @author Emanuel Regnath
     def on_modified(self, event):
-        src_path = event.src_path									# abslolute path
-        src_relpath = os.path.relpath(
-            src_path, self.boxPath) 		# reduce to path relative to boxPath
+        # abslolute path
+        src_path = event.src_path
+
+        # reduce to path relative to boxPath							
+        src_relpath = os.path.relpath(src_path, self.boxPath) 	
+
         if self._path_contains_selective_sync(src_path):
             self.log.debug(src_path + ' in selective_sync_list -> ignored.')
         elif src_path in self.ignoreModify:
-            #self.log.debug('path:' + src_path)
-            #self.log.debug(str(self.ignoreModify))
             self.ignoreModify.remove(src_path)
-            #self.log.debug(str(self.ignoreModify))
+            self.log.debug('Ignore Modify after MODIFY Event: ' + str(self.ignoreModify))
 
         else:
             if event.is_directory == True:							# if event was triggered by a directory
@@ -292,8 +322,9 @@ class Filesystem_Controller(FileSystemEventHandler):
                 self.ignoreLock.append(
                     src_relpath)                         # ignore incomming locks because I locked the file
                 self.client.gui.locked_files_path.append(src_relpath)
-                self.client.gui.locked_files.set(
-                    '\n'.join(self.client.gui.locked_files_path))
+                # Update GUI
+                self.client.gui.locked_files.set('\n'.join(self.client.gui.locked_files_path))
+                self.client.gui.root.update_idletasks()
 
                 # push changes to SVN:
                 content = self.readFile(src_path)					# read file content
@@ -317,10 +348,11 @@ class Filesystem_Controller(FileSystemEventHandler):
             if event.is_directory == True:							# if event was triggered by a directory
                 self.log.info("Directory moved from %s to %s",
                               src_path, dest_path)							# self.log
-                # push changes to SVN
+                self.client.comm.send_move(src_path, dest_path)
             else:
                 self.log.info("File moved from %s to %s",
-                              src_path, dest_path)							# self.log
+                              src_path, dest_path)
+                self.client.comm.send_move(src_path, dest_path)
                 if src_path == None:
                     # same as create
                     pass
@@ -339,14 +371,20 @@ class Filesystem_Controller(FileSystemEventHandler):
         return False
 
     def setLockTimer(self, path, time):
-        Timer(time, self.handleLockTimerEvent, (
-            path,)).start()               # start new thread with timer
+        # start new thread with timer
+        Timer(time, self.handleLockTimerEvent, (path,)).start()               
 
     def handleLockTimerEvent(self, path):
-        relpath = os.path.relpath(
-            path, self.boxPath)                       # reduce to path relative to boxPath
-        if relpath in self.ignoreLock:                              # delete ignoreLock entry
-            self.ignoreLock.remove(relpath)
-        self.client.gui.locked_files_path.remove(relpath)
-        self.client.gui.locked_files.set(                       # new entry in GUI notification
-            '\n'.join(self.client.gui.locked_files_path))
+        # reduce to path relative to boxPath
+        relpath = os.path.relpath(path, self.boxPath)
+        try:
+            # delete ignoreLock entry                   
+            if relpath in self.ignoreLock:                              
+                self.ignoreLock.remove(relpath)
+        
+            self.client.gui.locked_files_path.remove(relpath)
+        except ValueError, err:
+            self.log.error(err)
+        # new entry in GUI notification
+        self.client.gui.locked_files.set('\n'.join(self.client.gui.locked_files_path))
+        self.client.gui.root.update_idletasks()
