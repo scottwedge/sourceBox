@@ -17,16 +17,19 @@ class Filesystem_Controller(FileSystemEventHandler):
 
     # Variables
     lockTime = 20					# auto unlock after seconds: demo 20 seconds, final 5 min
-    ignoreCreate = ['.DS_Store']
+    ignoreCreate = []
         # list of paths whose fs-create-events shall be ignored
-    ignoreDelete = ['.DS_Store']
+    ignoreDelete = []
         # list of paths whose fs-delete-events shall be ignored
-    ignoreMove = ['.DS_Store']					# list of paths whose fs-move-events shall be ignored
-    ignoreModify = ['.DS_Store']
+    ignoreMove = []					# list of paths whose fs-move-events shall be ignored
+    ignoreModify = []
         # list of paths whose fs-modify-events shall be ignored
-    ignoreLock = ['.DS_Store']
+    ignoreLock = []
         # list of paths whose lock_file shall be ignored
-    locked_files = ['.DS_Store']				# list of locked files
+    locked_files = []				# list of locked files
+
+    # Files in the selective_sync_list are completely ignored by the sourceBox
+    selective_sync_list = ['.DS_Store']
 
     # Constuctor
     # @param client object of parent class
@@ -219,7 +222,9 @@ class Filesystem_Controller(FileSystemEventHandler):
         src_path = event.src_path									# abslolute path
         src_relpath = os.path.relpath(
             src_path, self.boxPath) 		# reduce to path relative to boxPath
-        if src_path in self.ignoreCreate:
+        if src_path in self.selective_sync_list:
+            self.log.debug(src_path + ' in selective_sync_list -> ignored.')
+        elif src_path in self.ignoreCreate:
             self.ignoreCreate.remove(src_path)
         else:
             if event.is_directory == True:							# if event was triggered by a directory
@@ -242,7 +247,9 @@ class Filesystem_Controller(FileSystemEventHandler):
         src_path = event.src_path									# abslolute path
         src_relpath = os.path.relpath(
             src_path, self.boxPath) 		# reduce to path relative to boxPath
-        if src_path in self.ignoreDelete:
+        if src_path in self.selective_sync_list:
+            self.log.debug(src_path + ' in selective_sync_list -> ignored.')
+        elif src_path in self.ignoreDelete:
             self.ignoreDelete.remove(src_path)
         else:
             if event.is_directory == True:							# if event was triggered by a directory
@@ -260,7 +267,9 @@ class Filesystem_Controller(FileSystemEventHandler):
         src_path = event.src_path									# abslolute path
         src_relpath = os.path.relpath(
             src_path, self.boxPath) 		# reduce to path relative to boxPath
-        if src_path in self.ignoreModify:
+        if src_path in self.selective_sync_list:
+            self.log.debug(src_path + ' in selective_sync_list -> ignored.')
+        elif src_path in self.ignoreModify:
             #self.log.debug('path:' + src_path)
             #self.log.debug(str(self.ignoreModify))
             self.ignoreModify.remove(src_path)
@@ -296,7 +305,9 @@ class Filesystem_Controller(FileSystemEventHandler):
             event.src_path, self.boxPath)  # reduce to path relative to boxPath
         dest_path = os.path.relpath(
             event.dest_path, self.boxPath)  # reduce to path relative to boxPath
-        if src_path in self.ignoreMove:
+        if src_path in self.selective_sync_list:
+            self.log.debug(src_path + ' in selective_sync_list -> ignored.')
+        elif src_path in self.ignoreMove:
             self.ignoreMove.remove(src_path)
         else:
             if event.is_directory == True:							# if event was triggered by a directory
