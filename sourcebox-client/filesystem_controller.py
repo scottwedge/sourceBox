@@ -6,7 +6,7 @@ from threading import Timer
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 import shutil
-
+import sys
 # @package Filesystem_Controller
 # Handles file-system-events
 # @author Emu
@@ -15,7 +15,7 @@ import shutil
 # class Filesystem_Controller inherits from FileSystemEventHandler for
 # overwriting event methods
 class Filesystem_Controller(FileSystemEventHandler):
-
+    os_type = sys.platform
     # Variables
     lockTime = 20					# auto unlock after seconds: demo 20 seconds, final 5 min
     ignoreCreate = []
@@ -48,7 +48,7 @@ class Filesystem_Controller(FileSystemEventHandler):
         self.observer.start()										# start observing
         self.log.info(
             'Created Filesystem_Controller in path %s', boxPath)    # log
-
+        self.log.info('You are running OS: ' + self.os_type)
     # Destructor
     def __del__(self):
         self.log.info('Deleted Filesystem_Controller')				# self.log
