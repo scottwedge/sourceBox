@@ -1,4 +1,4 @@
-﻿#sourceBox
+#sourceBox
 ===
 Synchronisations Struktur für kolaboratives Arbeiten auf textbasierten Dateien
 
@@ -46,7 +46,9 @@ Synchronisations Struktur für kolaboratives Arbeiten auf textbasierten Dateien
 ## Implementierung in Python
 ---------------------------
 
-### Frameworks
+### Nötige Umgebung
+
+Der Server benötigt ein Installiertes RCS (auf Mac OS im default installiert, Linux je nach Distribution, Windows über cygwin)
 
 
 
