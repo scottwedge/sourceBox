@@ -145,10 +145,18 @@ class Data_Controller(object):
     def move(self, old_file_path, new_file_path):
         old_file_path = os.path.join(self.data_dir, old_file_path)
         new_file_path = os.path.join(self.data_dir, new_file_path)
-        try:
-            shutil.move(old_file_path, new_file_path)
-        except (OSError, IOError), err:
-            self.log.error(str(err))
+        if os.path.isdir(old_file_path):
+            try:
+                shutil.move(old_file_path, new_file_path)
+            except (OSError, IOError), err:
+                self.log.error(str(err))
+        else:
+            try:
+                shutil.move(old_file_path, new_file_path)
+                shutil.move(old_file_path + ',v' , new_file_path + ',v' )
+            except (OSError, IOError), err:
+                self.log.error(str(err))
+
         return True
 
     # gets the size of a file
