@@ -77,7 +77,7 @@ class Server_Communication_Controller(object):
 
     # Parse the command
     def _parse_command(self, cmd, data):
-        self.log.debug('Recieved Command from the client '  + self.computer_name + ': ' + data[0])
+        self.log.debug('Received Command from the client '  + self.computer_name + ': ' + data[0])
         if cmd == self.COMMAND_GETCREATEFILE:
             self._get_create_file(data)
         elif cmd == self.COMMAND_SENDLOCKFILE:
@@ -99,7 +99,7 @@ class Server_Communication_Controller(object):
         elif cmd == 'OK\n':
             self.ok.set()
         else:
-            self.log.warning('recieved unknown command: ' + cmd)
+            self.log.warning('received unknown command: ' + cmd)
 
     # closes the connection to the client
     def _close_connection(self):
@@ -118,12 +118,12 @@ class Server_Communication_Controller(object):
 
             self.connection.send(mess)
 
-            # Wait for the recieve thread to send us a ok Event
+            # Wait for the receive thread to send us a ok Event
             status = self.ok.wait(8.0)
             self.ok.clear()
             if not status:
                 raise IOError(
-                    'Did not recieve a response from the client ' + self.computer_name)
+                    'Did not receive a response from the client ' + self.computer_name)
             if not size == 0:
                 self.connection.send(content)
                 self.log.debug("send content to client")
@@ -132,7 +132,7 @@ class Server_Communication_Controller(object):
                 self.ok.clear()
                 if not status:
                     raise IOError(
-                        'Did not recieve a response from the client ' + self.computer_name)
+                        'Did not receive a response from the client ' + self.computer_name)
 
            # self.log.debug('Hello. Creation worked. The client said he is ok :)')
         except IOError, err:
@@ -149,7 +149,7 @@ class Server_Communication_Controller(object):
         self.ok.clear()
         if not status:
             raise IOError(
-                'Did not recieve a response from the the client ' + self.computer_name)
+                'Did not receive a response from the the client ' + self.computer_name)
         self.connection.close()
 
     # server notifies the client about delete file (initiated by another user)
@@ -165,7 +165,7 @@ class Server_Communication_Controller(object):
         self.ok.clear()
         if not status:
             raise IOError(
-                'Did not recieve a response from the the client ' + self.computer_name)
+                'Did not receive a response from the the client ' + self.computer_name)
 
        # self.log.debug('Hello. Delete worked. The client said he is ok :)')
 
@@ -182,7 +182,7 @@ class Server_Communication_Controller(object):
         self.ok.clear()
         if not status:
             raise IOError(
-                'Did not recieve a response from the client ' + self.computer_name)
+                'Did not receive a response from the client ' + self.computer_name)
         if not size == 0:
             self.connection.send(content)
 
@@ -191,7 +191,7 @@ class Server_Communication_Controller(object):
             self.ok.clear()
             if not status:
                 raise IOError(
-                    'Did not recieve a response from the client ' + self.computer_name)
+                    'Did not receive a response from the client ' + self.computer_name)
 
        # self.log.debug('Hello. Modifying worked. The client said he is ok :)')
 
@@ -209,7 +209,7 @@ class Server_Communication_Controller(object):
             self.ok.clear()
             if not status:
                 raise IOError(
-                    'Did not recieve a response from the client.' + self.computer_name)
+                    'Did not receive a response from the client.' + self.computer_name)
 
            # self.log.debug('Hello. Locking worked. The client said he is ok :)')
         except IOError, err:
@@ -223,12 +223,12 @@ class Server_Communication_Controller(object):
         try:
             self.connection.send(mess)
 
-            # Wait for the recieve thread to send us a ok Event
+            # Wait for the receive thread to send us a ok Event
             status = self.ok.wait(8.0)
             self.ok.clear()
             if not status:
                 raise IOError(
-                    'Did not recieve a response from the client ' + self.computer_name)
+                    'Did not receive a response from the client ' + self.computer_name)
 
            ## self.log.debug(
             #    'Hello. Unlocking worked. The client said he is ok :)')
@@ -244,12 +244,12 @@ class Server_Communication_Controller(object):
 
             self.connection.send(mess)
 
-            # Wait for the recieve thread to send us a ok Event
+            # Wait for the receive thread to send us a ok Event
             status = self.ok.wait(8.0)
             self.ok.clear()
             if not status:
                 raise IOError(
-                    'Did not recieve a response from the client.' + self.computer_name)
+                    'Did not receive a response from the client.' + self.computer_name)
         except IOError, err:
             self.log.error(str(err))
 
@@ -268,7 +268,7 @@ class Server_Communication_Controller(object):
             self.ok.clear()
             if not status:
                 raise IOError(
-                    'Did not recieve a response from the client.' + self.computer_name)
+                    'Did not receive a response from the client.' + self.computer_name)
         except IOError, err:
             self.log.error(str(err))
 
@@ -280,12 +280,12 @@ class Server_Communication_Controller(object):
 
             self.connection.send(mess)
 
-            # Wait for the recieve thread to send us a ok Event
+            # Wait for the receive thread to send us a ok Event
             status = self.ok.wait(8.0)
             self.ok.clear()
             if not status:
                 raise IOError(
-                    'Did not recieve a response from the client.' + self.computer_name)
+                    'Did not receive a response from the client.' + self.computer_name)
         except IOError, err:
             self.log.error(str(err))
 
@@ -377,9 +377,9 @@ class Server_Communication_Controller(object):
     # @returns a dictionary like { 'command' : command, 'file_path' :  file_path} or None (if error)
     def _recieve_command(self, data):
         command = data[0]
-        self.log.debug('Recieved ' + str(data))
+        self.log.debug('Received ' + str(data))
         file_path = url2pathname(data[1])
-        self.log.debug('Recieve command ' + str(file_path))
+        self.log.debug('Receive command ' + str(file_path))
 
         if len(file_path) == 0:
             self.connection.send('ERROR\n')
